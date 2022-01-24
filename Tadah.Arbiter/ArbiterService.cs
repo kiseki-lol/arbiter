@@ -31,8 +31,9 @@ namespace Tadah.Arbiter
             {
                 TcpClient Client = Service.AcceptTcpClient();
                 string ClientAddress = GetClientAddress(Client);
-                //ConsoleEx.WriteLine($"[ArbiterService] Service received a new connection from '{ClientAddress}'", ConsoleColor.Blue);
-
+#if DEBUG
+                ConsoleEx.WriteLine($"[Tadah.Arbiter] Service received a new connection from '{ClientAddress}'", ConsoleColor.Blue);
+#endif
                 Task.Run(() => HandleConnection(Client, ClientAddress));
             }
         }
@@ -50,26 +51,34 @@ namespace Tadah.Arbiter
 
                     if (IncomingCommand == null)
                     {
-                        //ConsoleEx.WriteLine($"[ArbiterService/{ClientAddress}] Client disconnected", ConsoleColor.Blue);
+#if DEBUG
+                        ConsoleEx.WriteLine($"[{ClientAddress}] Client disconnected", ConsoleColor.Blue);
+#endif
                         Stream.Close();
                         Client.Close();
                     }
                     else
                     {
-                        //ConsoleEx.WriteLine($"[ArbiterService/{ClientAddress}] Received command '{IncomingCommand}'", ConsoleColor.Blue);
+#if DEBUG
+                        ConsoleEx.WriteLine($"[{ClientAddress}] Received command '{IncomingCommand}'", ConsoleColor.Blue);
+#endif
                         ProcessCommand(Stream, ClientAddress, IncomingCommand);
                     }
                 }
             }
             catch (IOException)
             {
-                //ConsoleEx.WriteLine($"$[ArbiterService/{ClientAddress}] Client disconnected", ConsoleColor.Blue);
+#if DEBUG
+                ConsoleEx.WriteLine($"$[{ClientAddress}] Client disconnected", ConsoleColor.Blue);
+#endif
             }
         }
 
         private static void WriteToClient(NetworkStream Stream, string ClientAddress, string Response)
         {
-            //ConsoleEx.WriteLine($"[ArbiterService/{ClientAddress}] Writing to client with '{Response}'", ConsoleColor.Blue);
+#if DEBUG
+            ConsoleEx.WriteLine($"[{ClientAddress}] Writing to client with '{Response}'", ConsoleColor.Blue);
+#endif
             StreamWriter Writer = new StreamWriter(Stream);
             Writer.WriteLine(Response);
             Writer.Flush();
@@ -81,6 +90,9 @@ namespace Tadah.Arbiter
 
             if (content.Length != 2)
             {
+#if DEBUG
+                ConsoleEx.WriteLine($"[{ClientAddress}] Bad data received", ConsoleColor.Red);
+#endif
                 return;
             }
 
@@ -89,10 +101,16 @@ namespace Tadah.Arbiter
 
             if (!TadahSignature.Verify(Message, Signature))
             {
+#if DEBUG
+                ConsoleEx.WriteLine($"[{ClientAddress}] Bad signature", ConsoleColor.Red);
+#endif
                 return;
             }
 
             TadahMessage Request = JsonConvert.DeserializeObject<TadahMessage>(Message);
+#if DEBUG
+            ConsoleEx.WriteLine($"[{ClientAddress}] Successfully verified message!", ConsoleColor.Green);
+#endif
 
             switch (Request.Operation)
             {

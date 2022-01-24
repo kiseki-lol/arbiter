@@ -47,7 +47,7 @@ namespace Tadah.Arbiter
             Process = new Process();
             Process.StartInfo.FileName = CommandLine[0];
             Process.StartInfo.Arguments = CommandLine[1];
-            //Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            // Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
             Process.Start();
             Process.WaitForInputIdle();

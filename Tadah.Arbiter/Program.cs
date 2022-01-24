@@ -8,8 +8,12 @@ namespace Tadah.Arbiter
     {
         internal static void Main(string[] args)
         {
+#if DEBUG
             ConsoleEx.WriteLine($"Access Key read: {AppSettings.AccessKey}");
             ConsoleEx.WriteLine($"Current Access key: {AppSettings.AccessKey}");
+#else
+            ConsoleEx.WriteLine("Access Key read");
+#endif
 
             ConsoleEx.WriteLine("Service starting...");
 
