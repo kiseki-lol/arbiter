@@ -81,7 +81,6 @@ namespace Tadah.Arbiter
 
             if (content.Length != 2)
             {
-                WriteToClient(Stream, ClientAddress, "");
                 return;
             }
 
@@ -90,7 +89,7 @@ namespace Tadah.Arbiter
 
             if (!TadahSignature.Verify(Message, Signature))
             {
-                WriteToClient(Stream, ClientAddress, "");
+                return;
             }
 
             TadahMessage Request = JsonConvert.DeserializeObject<TadahMessage>(Message);
