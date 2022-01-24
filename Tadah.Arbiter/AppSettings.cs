@@ -14,6 +14,5 @@ namespace Tadah.Arbiter
         public static int ServicePort = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ServicePort"));
         public static int MaximumJobs = Convert.ToInt32(ConfigurationManager.AppSettings.Get("MaximumJobs"));
         public static string PublicKeyPath = ConfigurationManager.AppSettings.Get("PublicKeyPath");
-        public static string PublicKey = File.ReadAllText(PublicKeyPath);
     }
 }
