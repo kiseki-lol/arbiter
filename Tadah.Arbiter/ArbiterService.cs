@@ -86,9 +86,7 @@ namespace Tadah.Arbiter
 
         private static void ProcessCommand(NetworkStream Stream, string ClientAddress, string Data)
         {
-            string[] content = Data.Split(';');
-
-            if (content.Length != 2)
+            if (!Data.StartsWith("%"))
             {
 #if DEBUG
                 ConsoleEx.WriteLine($"[{ClientAddress}] Bad data received", ConsoleColor.Red);
@@ -96,10 +94,28 @@ namespace Tadah.Arbiter
                 return;
             }
 
-            string Signature = content[0];
-            string Message = content[1];
+            // get signature
+            string message = null;
+            string signature = null;
 
-            if (!TadahSignature.Verify(Message, Signature))
+            try
+            {
+                signature = Data.Substring(1); // remove first %
+                signature = signature.Substring(0, signature.IndexOf("%", StringComparison.Ordinal)); // get all data before the next %; essentially extracts the base64 signature data
+
+                message = Data.Substring(signature.Length + 2); // remove the signature by starting to read the data at the signatures length plus two (two %s ; the signature delimiter)
+            }
+            catch
+            {
+#if DEBUG
+                ConsoleEx.WriteLine($"[{ClientAddress}] Bad signature", ConsoleColor.Red);
+#endif
+
+                return;
+            }
+            
+
+            if (!TadahSignature.Verify(message, signature))
             {
 #if DEBUG
                 ConsoleEx.WriteLine($"[{ClientAddress}] Bad signature", ConsoleColor.Red);
@@ -107,7 +123,7 @@ namespace Tadah.Arbiter
                 return;
             }
 
-            TadahMessage Request = JsonConvert.DeserializeObject<TadahMessage>(Message);
+            TadahMessage Request = JsonConvert.DeserializeObject<TadahMessage>(message);
 #if DEBUG
             ConsoleEx.WriteLine($"[{ClientAddress}] Successfully verified message!", ConsoleColor.Green);
 #endif

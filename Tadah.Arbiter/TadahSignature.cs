@@ -32,12 +32,13 @@ namespace Tadah.Arbiter
             try
             {
                 byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-                byte[] signatureBytes = Convert.FromBase64String(signature.Replace("%", ""));
+                byte[] signatureBytes = Convert.FromBase64String(signature);
 
                 return publicRsa.VerifyData(dataBytes, CryptoConfig.MapNameToOID("SHA256"), signatureBytes);
             }
             catch
             {
+                // usually when the signature isn't base64
                 return false;
             }
         }
