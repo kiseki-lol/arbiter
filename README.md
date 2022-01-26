@@ -35,4 +35,4 @@ fclose($socket);
 ```
 
 ## License
-Copyright (c) Tadah and Polygon 2022. All rights reserved.
+Copyright (c) Tadah and Project Polygon 2022. Forked with permission. All rights reserved.
