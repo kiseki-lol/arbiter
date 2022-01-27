@@ -156,6 +156,19 @@ namespace Tadah.Arbiter
 
                     break;
 
+                case "ExecuteScript":
+                    if (JobManager.GetJobFromID(Request.JobID) == null)
+                    {
+                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job does not exist\"}");
+                    }
+                    else
+                    {
+                        Task.Run(() => JobManager.ExecuteScript(Request.JobID, Request.Message));
+                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}");
+                    }
+
+                    break;
+
                 default:
                     ConsoleEx.WriteLine($"[ArbiterService/{ClientAddress}] Invalid command received", ConsoleColor.Blue);
                     break;

@@ -11,7 +11,7 @@ namespace Tadah.Arbiter
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool WaitNamedPipe(string lpNamedPipeName, int timeout);
 
-        public static bool NamedPipeExists(string pipeName)
+        public static bool Exists(string pipeName)
         {
             try
             {
@@ -47,9 +47,9 @@ namespace Tadah.Arbiter
             }
         }
 
-        public static string SendPipeMessage(string pipe, string input)
+        public static string Send(string pipe, string input)
         {
-            if (NamedPipeExists(pipe))
+            if (Exists(pipe))
             {
                 try
                 {

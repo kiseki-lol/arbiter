@@ -92,5 +92,15 @@ namespace Tadah.Arbiter
                 WebManager.UpdateJob(ID, "Crashed");
             }
         }
+        
+        internal void ExecuteScript(string script)
+        {
+            if (!NamedPipes.Exists(ID))
+            {
+                return;
+            }
+
+            NamedPipes.Send(ID, script);
+        }
     }
 }

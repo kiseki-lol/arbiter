@@ -83,6 +83,14 @@ namespace Tadah.Arbiter
             OpenJobs.Remove(JobToClose);
         }
 
+        public static void ExecuteScript(string JobID, string Script)
+        {
+            Job JobToExecute = GetJobFromID(JobID);
+            if (JobToExecute == null) return;
+
+            JobToExecute.ExecuteScript(Script);
+        }
+
         public static Job GetJobFromID(string JobID)
         {
             return OpenJobs.Find(Job => Job.ID == JobID);
