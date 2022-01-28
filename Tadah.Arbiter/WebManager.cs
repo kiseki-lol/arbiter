@@ -31,16 +31,23 @@ namespace Tadah.Arbiter
             string host = "http";
             if (https) host += "s";
 
-            return $"{host}{path}";
+            return $"{host}://{AppSettings.BaseUrl}{path}";
         }
 
-        public static string GetGameserverScript(string JobID, int PlaceID, int Port)
+        public static string GetGameserverScript(string JobID, int PlaceID, int Port, bool ReturnData = false)
         {
-            // Since this is called on Roblox, we must pass our key
-            return ConstructUrl($"/{JobID}/script?placeId={PlaceID}&port={Port}&maxPlayers=10&{AppSettings.AccessKey}", false);
+            string url = $"/{JobID}/script?placeId={PlaceID}&port={Port}&maxPlayers=10";
+
+            if (!ReturnData)
+            {
+                // Since this is called on Roblox, we must pass our key
+                return ConstructUrl(url + $"&{AppSettings.AccessKey}", false);
+            }
+
+            return Request(ConstructUrl(url), HttpMethod.Get);
         }
 
-        public static Task<HttpResponseMessage> Request(string uri, HttpMethod method, HttpContent content = null)
+        public static string Request(string uri, HttpMethod method, HttpContent content = null)
         {
             using (var message = new HttpRequestMessage(method, ConstructUrl(uri)))
             {
@@ -51,7 +58,13 @@ namespace Tadah.Arbiter
                     message.Content = content;
                 }
 
-                return WebClient.SendAsync(message);
+                using (HttpResponseMessage response = WebClient.SendAsync(message).Result)
+                {
+                    using (HttpContent httpContent = response.Content)
+                    {
+                        return httpContent.ReadAsStringAsync().Result;
+                    }
+                }
             }
         }
 

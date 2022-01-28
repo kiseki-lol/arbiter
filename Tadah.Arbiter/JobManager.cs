@@ -41,9 +41,6 @@ namespace Tadah.Arbiter
                 case 2013:
                     return new string[] { "Gameservers\\2013\\TadahServer.exe", $"-a {WebManager.ConstructUrl("/")} -t 0 -j {ScriptUrl}" };
 
-                case 2016:
-                    return new string[] { "Gameservers\\2016\\TadahService.exe", $"-Start"};
-
                 default:
                     return new string[] { };
             }
@@ -64,14 +61,26 @@ namespace Tadah.Arbiter
             return Port;
         }
 
-        public static Job OpenJob(string JobID, int Version, int PlaceID)
+        public static object OpenJob(string JobID, int Version, int PlaceID)
         {
             ConsoleEx.WriteLine($"[JobManager] Opening Job for '{JobID}' ({Version})", ConsoleColor.Blue);
-            Job NewJob = new Job(JobID, Version, PlaceID, GetAvailablePort());
-            OpenJobs.Add(NewJob);
-            NewJob.Start();
 
-            return NewJob;
+            if (Version != 2016)
+            {
+                Job NewJob = new Job(JobID, Version, PlaceID, GetAvailablePort());
+                OpenJobs.Add(NewJob);
+                NewJob.Start();
+
+                return NewJob;
+            }
+
+            int port = GetAvailablePort();
+            RccServiceProcess process = RccServiceProcessManager.Best();
+            RccServiceJob job = new RccServiceJob(process, JobID, 86400, 0, port, WebManager.GetGameserverScript(JobID, PlaceID, port, true));
+            process.Jobs.Add(job);
+            job.Start();
+
+            return job;
         }
 
         public static void CloseJob(string JobID)

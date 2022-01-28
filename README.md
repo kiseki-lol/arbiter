@@ -7,7 +7,7 @@ Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) w
 
 ## TODO
 - Fix TCP connections
-- RCCService support for 2016. SOAP, etc.
+- Fix port fetching for RCCs (only checks normal jobs, not RCC jobs)
 
 ## Usage
 

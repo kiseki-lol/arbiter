@@ -43,6 +43,8 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,19 +55,70 @@
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
     <Compile Include="ArbiterService.cs" />
+    <Compile Include="Connected Services\RccServiceSoap\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="Job.cs" />
     <Compile Include="JobManager.cs" />
     <Compile Include="NamedPipes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RccServiceJob.cs" />
+    <Compile Include="RccServiceProcess.cs" />
+    <Compile Include="RccServiceProcessManager.cs" />
     <Compile Include="TadahMessage.cs" />
     <Compile Include="TadahSignature.cs" />
     <Compile Include="WebManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Connected Services\RccServiceSoap\RccServiceSoap.wsdl" />
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.BatchJobResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.DiagResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.ExecuteResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.GetAllJobsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.Job.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.LuaValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.OpenJobResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\RccServiceSoap\Tadah.Arbiter.RccServiceSoap.Status.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\RccServiceSoap\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\RccServiceSoap\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\RccServiceSoap\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\RccServiceSoap\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
