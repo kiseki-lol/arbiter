@@ -27,19 +27,24 @@ namespace Tadah.Arbiter
         {
             this.ExpirationInSeconds = ExpirationInSeconds;
             this.Category = Category;
-            this._process = RccServiceProcessManager.Best();
+
+            _process = RccServiceProcessManager.Best();
         }
 
         protected override void InternalStart()
         {
-            RccServiceSoap.Job job = new RccServiceSoap.Job();
-            job.id = Id;
-            job.expirationInSeconds = ExpirationInSeconds;
-            job.category = Category;
+            RccServiceSoap.Job job = new RccServiceSoap.Job
+            {
+                id = Id,
+                expirationInSeconds = ExpirationInSeconds,
+                category = Category
+            };
 
-            ScriptExecution script = new ScriptExecution();
-            script.name = "Start Server";
-            script.script = WebManager.GetGameserverScript(Id, PlaceId, Port, true);
+            ScriptExecution script = new ScriptExecution
+            {
+                name = "Start Server",
+                script = WebManager.GetGameserverScript(Id, PlaceId, Port, true)
+            };
 
             _process.Client.OpenJob(job, script);
         }
@@ -52,9 +57,16 @@ namespace Tadah.Arbiter
 
         public override object ExecuteScript(string script)
         {
-            ScriptExecution execution = new ScriptExecution();
-            execution.name = "Tadah.Arbiter." + Guid.NewGuid();
-            execution.script = script;
+            if (!TadahSignature.VerifyData(script))
+            {
+                return null;
+            }
+
+            ScriptExecution execution = new ScriptExecution
+            {
+                name = "Tadah.Arbiter." + Guid.NewGuid(),
+                script = script
+            };
 
             return _process.Client.ExecuteEx(Id, execution);
         }

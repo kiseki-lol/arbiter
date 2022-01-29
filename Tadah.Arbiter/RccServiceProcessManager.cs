@@ -27,6 +27,11 @@ namespace Tadah.Arbiter
 
         public static RccServiceProcess New()
         {
+            if (OpenProcesses.Count >= AppSettings.MaximumRccProcesses)
+            {
+                throw new Exception("Maximum amount of RCC processes reached");
+            }
+
             RccServiceProcess process = new RccServiceProcess(GetAvailableRccSoapPort());
             process.Start();
 
@@ -42,6 +47,11 @@ namespace Tadah.Arbiter
             }
 
             RccServiceProcess best = OpenProcesses.OrderBy(Process => Process.Jobs.Count).Last();
+            if (best.Jobs.Count >= AppSettings.MaximumJobsPerRcc)
+            {
+                return New();
+            }
+
             return best;
         }
     }

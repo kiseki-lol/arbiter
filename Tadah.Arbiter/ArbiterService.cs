@@ -187,7 +187,7 @@ namespace Tadah.Arbiter
                     }
                     else
                     {
-                        Task.Run(() => JobManager.ExecuteScript(Request.JobId, Request.Message));
+                        Task.Run(() => JobManager.ExecuteScript(Request.JobId, Request.Script));
                         return "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}";
                     }
 

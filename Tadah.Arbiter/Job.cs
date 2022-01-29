@@ -55,7 +55,7 @@ namespace Tadah.Arbiter
             string result = this.InternalClose();
 
             this.Status = (JobStatus) Enum.Parse(typeof(JobStatus), result);
-            this.TimeCreated = DateTime.UtcNow;
+            this.TimeClosed = DateTime.UtcNow;
             WebManager.UpdateJob(Id, result);
 
             if (this.Status == JobStatus.Crashed)

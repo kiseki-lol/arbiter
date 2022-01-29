@@ -34,11 +34,11 @@ namespace Tadah.Arbiter
             return $"{host}://{AppSettings.BaseUrl}{path}";
         }
 
-        public static string GetGameserverScript(string JobID, int PlaceID, int Port, bool ReturnData = false)
+        public static string GetGameserverScript(string jobId, int placeId, int port, bool returnData = false)
         {
-            string url = $"/{JobID}/script?placeId={PlaceID}&port={Port}&maxPlayers=10";
+            string url = $"/{jobId}/script?placeId={placeId}&port={port}&maxPlayers=10";
 
-            if (!ReturnData)
+            if (!returnData)
             {
                 // Since this is called on Roblox, we must pass our key
                 return ConstructUrl(url + $"&{AppSettings.AccessKey}", false);
@@ -68,43 +68,42 @@ namespace Tadah.Arbiter
             }
         }
 
-        public static void SetMarker(bool Online)
+        public static void SetMarker(bool online)
         {
-            int OnlineInt = Online ? 1 : 0;
-            Request($"/{AppSettings.GameserverID}/marker?status={OnlineInt}", HttpMethod.Get);
+            Request($"/{AppSettings.GameserverID}/marker?status={(online ? 1 : 0)}", HttpMethod.Get);
         }
 
         public static void StartResourceReporter()
         {
             while (true)
             {
-                string AvailableMemory = GetAvailableMemory().ToString();
-                string CpuUsage = GetCpuUsage().ToString();
+                string availableRAM = GetAvailableMemory().ToString();
+                string cpuUsage = GetCpuUsage().ToString();
 
-                Dictionary<string, string> FormData = new Dictionary<string, string>
+                Dictionary<string, string> data = new Dictionary<string, string>
                 {
-                    { "cpuUsage", CpuUsage },
-                    { "availableMemory", AvailableMemory },
+                    { "cpuUsage", cpuUsage },
+                    { "availableMemory", availableRAM },
                 };
 
-                FormUrlEncodedContent FormContent = new FormUrlEncodedContent(FormData);
+                FormUrlEncodedContent content = new FormUrlEncodedContent(data);
 
-                Request($"/{AppSettings.GameserverID}/report-resources", HttpMethod.Post, FormContent);
+                Request($"/{AppSettings.GameserverID}/report-resources", HttpMethod.Post, content);
 
                 Thread.Sleep(30000);
             }
         }
 
-        public static void UpdateJob(string JobID, string Status, int Port = 0)
+        public static void UpdateJob(string jobId, string status, int port = 0)
         {
-            string parameters = $"status={Status}";
+            string parameters = $"status={status}";
 
-            if (Port != 0)
+            if (port != 0)
             {
                 parameters += $"&machineAddress={AppSettings.MachineAddress}";
             }
 
-            Request($"/{JobID}/update?{parameters}", HttpMethod.Get);
+            Request($"/{jobId}/update?{parameters}", HttpMethod.Get);
         }
     }
 }
