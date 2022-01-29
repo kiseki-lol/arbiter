@@ -63,8 +63,6 @@ namespace Tadah.Arbiter
 
         public static Job OpenJob(string jobId, int placeId, int version)
         {
-            ConsoleEx.WriteLine($"[JobManager] Opening Job for '{jobId}' ({version})", ConsoleColor.Blue);
-
             Job job;
             int port = GetAvailablePort();
 
@@ -119,9 +117,16 @@ namespace Tadah.Arbiter
                     Job crashedJob = OpenJobs.Find(Job => Job.Process.Id == processId);
                     if (crashedJob != null)
                     {
-                        ConsoleEx.WriteLine($"[JobManager] '{crashedJob.Id}' has crashed! Closing Job...", ConsoleColor.Yellow);
-                        crashedJob.Status = JobStatus.Crashed;
-                        crashedJob.Close();
+                        Log.Write($"[JobManager] '{crashedJob.Id}' has crashed! Closing Job...", LogSeverity.Warning);
+                        if (crashedJob is RccServiceJob)
+                        {
+                            crashedJob.Process.Kill();
+                        }
+                        else
+                        {
+                            crashedJob.Status = JobStatus.Crashed;
+                            crashedJob.Close();
+                        }
 
                         OpenJobs.Remove(crashedJob);
                     }
@@ -179,7 +184,7 @@ namespace Tadah.Arbiter
 
         public static void MonitorUnresponsiveJob(Job UnresponsiveJob)
         {
-            ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.Id}' is not responding! Monitoring...", ConsoleColor.Yellow);
+            Log.Write($"[JobManager] '{UnresponsiveJob.Id}' is not responding! Monitoring...", LogSeverity.Warning);
             UnresponsiveJob.Status = JobStatus.Monitored;
 
             for (int i = 1; i <= 30; i++)
@@ -188,13 +193,13 @@ namespace Tadah.Arbiter
 
                 if (UnresponsiveJob.Process.Responding)
                 {
-                    ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.Id}' has recovered from its unresponsive status!", ConsoleColor.Green);
+                    Log.Write($"[JobManager] '{UnresponsiveJob.Id}' has recovered from its unresponsive status!", LogSeverity.Information);
                     UnresponsiveJob.Status = JobStatus.Started;
                     break;
                 }
                 else if (i == 30)
                 {
-                    ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.Id}' has been unresponsive for over 30 seconds. Closing Job...", ConsoleColor.Yellow);
+                    Log.Write($"[JobManager] '{UnresponsiveJob.Id}' has been unresponsive for over 30 seconds. Closing Job...", LogSeverity.Warning);
                     UnresponsiveJob.Status = JobStatus.Crashed;
                     UnresponsiveJob.Close();
 

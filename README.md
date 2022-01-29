@@ -8,6 +8,10 @@ Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) w
 - RCCService support
 - Messages must end with `<EOF>`
 
+## TODO
+- Determine end of message stream without `<EOF>` delimiter
+- Doesn't accept any connections after first
+
 ## Usage
 
 Keys may be generated like so. Passphrase protected keys are currently not supported.
@@ -16,7 +20,7 @@ $ openssl genrsa -out private.pem 2048
 $ openssl rsa -in private.pem -outform PEM -pubout -out public.pem
 ```
 
-Messages made to the Arbiter must have the format `%signature%message`.
+Messages made to the Arbiter must have the format `%signature%message<EOF>`.
 
 Example PHP implementation:
 

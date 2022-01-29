@@ -30,10 +30,17 @@ namespace Tadah.Arbiter
             Process.Start();
         }
 
-        internal void Close()
+        internal void Close(bool forceKill = false)
         {
-            this.Client.CloseAllJobs();
-            Process.Close();
+            if (forceKill)
+            {
+                Process.Kill();
+            }
+            else
+            {
+                this.Client.CloseAllJobs();
+                Process.Close();
+            }
         }
     }
 }

@@ -38,15 +38,16 @@ namespace Tadah.Arbiter
             }
             catch
             {
-                // usually when the signature isn't base64
+                // usually when signature isn't base64
                 return false;
             }
         }
 
-        public static bool VerifyData(string data)
+        public static bool VerifyData(string data, out string message)
         {
             if (!data.StartsWith("%"))
             {
+                message = "";
                 return false;
             }
 
@@ -54,11 +55,13 @@ namespace Tadah.Arbiter
             {
                 string signature = data.Substring(1, data.Substring(1).IndexOf("%"));
                 data = data.Substring(signature.Length + 2);
+                message = data;
 
                 return Verify(data, signature);
             }
             catch
             {
+                message = "";
                 return false;
             }
         }

@@ -30,14 +30,14 @@ namespace Tadah.Arbiter
         protected abstract string InternalClose();
         public abstract object ExecuteScript(string script);
 
-        protected void Log(string message, ConsoleColor color = ConsoleColor.Gray)
+        protected void Log(string message, LogSeverity severity = LogSeverity.Information)
         {
-            ConsoleEx.WriteLine($"[{this.Id}] {message}", color);
+            Arbiter.Log.Write($"[{this.Id}] {message}", severity);
         }
 
         public void Start()
         {
-            this.Log($"Starting on port {Port}", ConsoleColor.Blue);
+            this.Log($"Starting on port {Port} ...", LogSeverity.Event);
             WebManager.UpdateJob(Id, "Loading", Port);
 
             this.InternalStart();
@@ -47,7 +47,7 @@ namespace Tadah.Arbiter
             this.TimeStarted = DateTime.UtcNow;
             WebManager.UpdateJob(Id, "Started");
 
-            this.Log($"Started!", ConsoleColor.Green);
+            this.Log($"Started!", LogSeverity.Event);
         }
 
         public void Close()
@@ -60,10 +60,10 @@ namespace Tadah.Arbiter
 
             if (this.Status == JobStatus.Crashed)
             {
-                this.Log($"Crashed!", ConsoleColor.Red);
+                this.Log($"Crashed!", LogSeverity.Error);
             }
 
-            this.Log($"Closed with result 'JobStatus.{result}'", ConsoleColor.DarkBlue);
+            this.Log($"Closed with result 'JobStatus.{result}'", LogSeverity.Information);
         }
 
         public Job(string Id, int PlaceId, int Version, int Port)

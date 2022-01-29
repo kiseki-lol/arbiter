@@ -60,7 +60,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="ConsoleEx.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Job.cs" />
     <Compile Include="JobManager.cs" />
     <Compile Include="MFCJob.cs" />

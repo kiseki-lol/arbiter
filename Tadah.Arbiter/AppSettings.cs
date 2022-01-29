@@ -6,7 +6,7 @@ namespace Tadah.Arbiter
 {
     public static class AppSettings
     {
-        public static string GameserverID = ConfigurationManager.AppSettings.Get("GameserverID");
+        public static string GameserverId;
         public static string MachineAddress = ConfigurationManager.AppSettings.Get("MachineAddress");
         public static string BaseUrl = ConfigurationManager.AppSettings.Get("BaseUrl");
         public static string AccessKey = ConfigurationManager.AppSettings.Get("AccessKey");

@@ -10,13 +10,35 @@ namespace Tadah.Arbiter
 {
     internal struct Client
     {
-        public string IpAddress;
-        public int Port;
+        public string IpAddress { get; private set; }
+        public int Port { get; private set;  }
+        public Socket Socket { get; set; }
 
-        public Client(string ipAddress, int port)
+        public Client(Socket socket)
         {
-            IpAddress = ipAddress;
-            Port = port;
+            this.IpAddress = null;
+            this.Port = 0;
+            this.Socket = socket;
+
+            IPEndPoint remote = socket.RemoteEndPoint as IPEndPoint;
+            IPEndPoint local = socket.LocalEndPoint as IPEndPoint;
+
+            if (remote != null)
+            {
+                this.IpAddress = remote.Address.ToString();
+                this.Port = remote.Port;
+            }
+
+            if (local != null)
+            {
+                this.IpAddress = local.Address.ToString();
+                this.Port = local.Port;
+            }
+            
+            if (local == null && remote == null)
+            {
+                throw new Exception("Failed to resolve information from socket");
+            }
         }
     }
 
@@ -26,6 +48,7 @@ namespace Tadah.Arbiter
         public byte[] Buffer = new byte[BufferSize];
         public StringBuilder Builder = new StringBuilder();
         public Socket WorkSocket = null;
+        public Client Client;
     }
 
     public class ArbiterService
@@ -35,22 +58,19 @@ namespace Tadah.Arbiter
 
         public static int Start()
         {
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, AppSettings.ServicePort);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, AppSettings.ServicePort);
 
-            Listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Listener = new Socket(IPAddress.Any.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             try
             {
                 Listener.Bind(localEndPoint);
                 Listener.Listen(100);
-
                 Task.Run(() => ListenForConnections());
             }
             catch
             {
-                ConsoleEx.Error($"Failed to initialize ArbiterService on port {AppSettings.ServicePort}");
+                Log.Error($"Failed to initialize ArbiterService on port {AppSettings.ServicePort}");
             }
             
             return AppSettings.ServicePort;
@@ -77,12 +97,14 @@ namespace Tadah.Arbiter
 
             Socket listener = (Socket)result.AsyncState;
             Socket handler = listener.EndAccept(result);
-            Client client = GetIPFromSocket(handler);
+            Client client = new Client(handler);
 
-            ConsoleEx.WriteLine($"[{client.IpAddress}] Connected on port {client.Port}");
+            Log.Write($"[ArbiterService::{client.IpAddress}] Connected on port {client.Port}", LogSeverity.Event);
 
             StateObject state = new StateObject();
             state.WorkSocket = handler;
+            state.Client = client;
+
             handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
         }
 
@@ -102,13 +124,12 @@ namespace Tadah.Arbiter
 
                 if (content.IndexOf("<EOF>") > -1)
                 {
-                    Client client = GetIPFromSocket(handler);
+#if DEBUG
+                    Log.Write($"[ArbiterService::{state.Client.IpAddress}] Read all data, sending response", LogSeverity.Debug);
+#endif
 
                     content = content.Replace("<EOF>", "");
-                    string response = ProcessData(content, client);
-#if DEBUG
-                    ConsoleEx.WriteLine($"[{client.IpAddress}] Read all data, returning response", ConsoleColor.DarkBlue)
-#endif
+                    string response = ProcessData(content, state.Client);
                     SendData(handler, response);
                 }
                 else
@@ -125,14 +146,13 @@ namespace Tadah.Arbiter
                 Socket handler = (Socket)result.AsyncState;
 
                 int bytesSent = handler.EndSend(result);
-
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
             }
             catch (Exception ex)
             {
 #if DEBUG
-                ConsoleEx.WriteLine($"[Tadah.Arbiter] Error on ArbiterService::SendCallback - {ex.ToString()}", ConsoleColor.Red);
+                Log.Write($"[ArbiterService::SendCallback] {ex.ToString()}", LogSeverity.Error);
 #endif
             }
         }
@@ -140,79 +160,83 @@ namespace Tadah.Arbiter
         private static void SendData(Socket handler, string data)
         {
             byte[] dataBytes = Encoding.ASCII.GetBytes(data);
-
             handler.BeginSend(dataBytes, 0, dataBytes.Length, 0, new AsyncCallback(SendCallback), handler);
         }
 
         private static string ProcessData(string data, Client client)
         {
-            if (!TadahSignature.VerifyData(data))
+            string message;
+
+            if (!TadahSignature.VerifyData(data, out message))
             {
+#if DEBUG
+                Log.Write($"[ArbiterService::{client.IpAddress}] Bad or invalid signature", LogSeverity.Debug);
+#endif
                 return "";
             }
 
-            TadahMessage Request = JsonConvert.DeserializeObject<TadahMessage>(data);
+            TadahMessage request = null;
 
-            switch (Request.Operation)
+            try
+            {
+                request = JsonConvert.DeserializeObject<TadahMessage>(message);
+            }
+            catch
+            {
+                Log.Write($"[ArbiterService::{client.IpAddress}] Bad or invalid data", LogSeverity.Warning);
+                return "";
+            }
+
+            switch (request.Operation)
             {
                 case "OpenJob":
-                    if (JobManager.GetJobFromId(Request.JobId) != null)
+                    if (JobManager.GetJobFromId(request.JobId) != null)
                     {
-                        ConsoleEx.WriteLine($"[{client.IpAddress}] Tried opening job '{Request.JobId}' - it already exists", ConsoleColor.Yellow);
+                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried opening job '{request.JobId}' - it already exists", LogSeverity.Warning);
                         return "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job already exists\"}";
                     }
                     else
                     {
-                        Task.Run(() => JobManager.OpenJob(Request.JobId, Request.PlaceId, Request.Version));
+                        Task.Run(() => JobManager.OpenJob(request.JobId, request.PlaceId, request.Version));
                         return "{\"Operation\":\"OpenJob\", \"Status\":\"OK\"}";
                     }
 
+                    break;
+
                 case "CloseJob":
-                    if (JobManager.GetJobFromId(Request.JobId) == null)
+                    if (JobManager.GetJobFromId(request.JobId) == null)
                     {
-                        ConsoleEx.WriteLine($"[{client.IpAddress}] Tried closing job '{Request.JobId}' - it doesn't exists", ConsoleColor.Yellow);
+                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried closing job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
                         return "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job does not exist\"}";
                     }
                     else
                     {
-                        Task.Run(() => JobManager.CloseJob(Request.JobId));
+                        Task.Run(() => JobManager.CloseJob(request.JobId));
                         return "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}";
                     }
+
+                    break;
 
                 case "ExecuteScript":
-                    if (JobManager.GetJobFromId(Request.JobId) == null)
+                    if (JobManager.GetJobFromId(request.JobId) == null)
                     {
-                        ConsoleEx.WriteLine($"[{client.IpAddress}] Tried executing script on job '{Request.JobId}' - it doesn't exists", ConsoleColor.Yellow);
+                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried executing script on job '{request.JobId}' - it doesn't exists", LogSeverity.Warning);
                         return "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job does not exist\"}";
                     }
                     else
                     {
-                        Task.Run(() => JobManager.ExecuteScript(Request.JobId, Request.Script));
+                        Task.Run(() => JobManager.ExecuteScript(request.JobId, request.Script));
                         return "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}";
                     }
 
+                    break;
+
                 default:
-                    ConsoleEx.WriteLine($"[{client.IpAddress}] Invalid operation '{Request.Operation}'", ConsoleColor.Yellow);
-                    return "";
+                    Log.Write($"[ArbiterService::{client.IpAddress}] Invalid operation '{request.Operation}'", LogSeverity.Warning);
+                    return "{\"Status\": \"Error\", \"Message\": \"Invalid operation\"}";
+
+                    break;
             }
-        }
-
-        private static Client GetIPFromSocket(Socket socket)
-        {
-            IPEndPoint remote = socket.RemoteEndPoint as IPEndPoint;
-            IPEndPoint local = socket.LocalEndPoint as IPEndPoint;
-
-            if (remote != null)
-            {
-                return new Client(remote.Address.ToString(), remote.Port);
-            }
-
-            if (local != null)
-            {
-                return new Client(local.Address.ToString(), local.Port);
-            }
-
-            throw new Exception("Failed to receive IP info from socket");
         }
     }
 }

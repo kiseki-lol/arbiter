@@ -9,13 +9,14 @@ namespace Tadah.Arbiter
         internal static void Main(string[] args)
         {
 #if DEBUG
-            ConsoleEx.WriteLine($"Access Key read: {AppSettings.AccessKey}");
-            ConsoleEx.WriteLine($"Current Access key: {AppSettings.AccessKey}");
+            Log.Write($"Access Key read: {AppSettings.AccessKey}", LogSeverity.Information, "startup");
+            Log.Write($"Current Access key: {AppSettings.AccessKey}", LogSeverity.Information, "startup");
 #else
             ConsoleEx.WriteLine("Access Key read");
 #endif
-
-            ConsoleEx.WriteLine("Service starting...");
+            Log.Write("Service starting...", LogSeverity.Information, "startup");
+            AppSettings.GameserverId = WebManager.GetGameserverId();
+            Log.Write($"Assigned GameserverId: {Guid.NewGuid()}", LogSeverity.Information, "startup");
 
             Task.Run(() => JobManager.MonitorCrashedJobs());
             Task.Run(() => JobManager.MonitorUnresponsiveJobs());
@@ -23,14 +24,16 @@ namespace Tadah.Arbiter
 
             WebManager.SetMarker(true);
             new Mutex(true, "ROBLOX_singletonMutex");
+            new Mutex(true, "COMET_singletonMutex");
 
-            ConsoleEx.WriteLine("Initializing Tadah Arbiter Service");
+            Log.Write("Initializing Tadah Arbiter Service", LogSeverity.Information, "startup");
             int ServicePort = ArbiterService.Start();
-            ConsoleEx.WriteLine($"Service Started on port {ServicePort}");
+            Log.Write($"Service Started on port {ServicePort}", LogSeverity.Information, "startup");
 
             Console.CancelKeyPress += delegate
             {
-                Console.WriteLine("Service shutting down...");
+                Console.WriteLine("");
+                Log.Write("Service shutting down...", LogSeverity.Event); ;
 
                 ArbiterService.Stop();
                 WebManager.SetMarker(false);

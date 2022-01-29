@@ -57,7 +57,9 @@ namespace Tadah.Arbiter
 
         public override object ExecuteScript(string script)
         {
-            if (!TadahSignature.VerifyData(script))
+            string lua;
+
+            if (!TadahSignature.VerifyData(script, out lua))
             {
                 return null;
             }
@@ -65,7 +67,7 @@ namespace Tadah.Arbiter
             ScriptExecution execution = new ScriptExecution
             {
                 name = "Tadah.Arbiter." + Guid.NewGuid(),
-                script = script
+                script = lua
             };
 
             return _process.Client.ExecuteEx(Id, execution);

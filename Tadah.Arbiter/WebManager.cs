@@ -70,7 +70,7 @@ namespace Tadah.Arbiter
 
         public static void SetMarker(bool online)
         {
-            Request($"/{AppSettings.GameserverID}/marker?status={(online ? 1 : 0)}", HttpMethod.Get);
+            Request($"/{AppSettings.GameserverId}/marker?status={(online ? 1 : 0)}", HttpMethod.Get);
         }
 
         public static void StartResourceReporter()
@@ -88,7 +88,7 @@ namespace Tadah.Arbiter
 
                 FormUrlEncodedContent content = new FormUrlEncodedContent(data);
 
-                Request($"/{AppSettings.GameserverID}/report-resources", HttpMethod.Post, content);
+                Request($"/{AppSettings.GameserverId}/report-resources", HttpMethod.Post, content);
 
                 Thread.Sleep(30000);
             }
@@ -104,6 +104,11 @@ namespace Tadah.Arbiter
             }
 
             Request($"/{jobId}/update?{parameters}", HttpMethod.Get);
+        }
+
+        public static string GetGameserverId()
+        {
+            return Request($"/id", HttpMethod.Get);
         }
     }
 }
