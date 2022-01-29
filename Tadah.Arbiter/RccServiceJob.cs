@@ -19,11 +19,6 @@ namespace Tadah.Arbiter
             {
                 return _process.Process;
             }
-
-            set
-            {
-                _process.Process = value;
-            }
         }
 
         private RccServiceProcess _process;
