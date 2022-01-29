@@ -11,14 +11,13 @@ namespace Tadah.Arbiter
     public class RccServiceProcess
     {
         public int SoapPort { get; }
-        public RCCServiceSoapClient Client { get; }
+        public RCCServiceSoapClient Client { get; private set;  }
         public Process Process { get; set; }
         public List<RccServiceJob> Jobs { get; set; }
 
         public RccServiceProcess(int SoapPort)
         {
             this.SoapPort = SoapPort;
-            this.Client = new RCCServiceSoapClient("http://tadah.rocks/", $"http://127.0.0.1:${this.SoapPort}");
         }
 
         internal void Start()
@@ -28,6 +27,8 @@ namespace Tadah.Arbiter
             Process.StartInfo.Arguments = $"-Start ${this.SoapPort}";
             Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
             Process.Start();
+
+            this.Client = new RCCServiceSoapClient("http://tadah.rocks/", $"http://127.0.0.1:${this.SoapPort}");
         }
 
         internal void Close(bool forceKill = false)
