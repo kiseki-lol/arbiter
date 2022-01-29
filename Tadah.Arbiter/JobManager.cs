@@ -31,15 +31,15 @@ namespace Tadah.Arbiter
             return title.ToString();
         }
 
-        public static string[] GetCommandLine(int Version, string ScriptUrl)
+        public static string[] GetCommandLine(int version, string scriptUrl)
         {
-            switch (Version)
+            switch (version)
             {
                 case 2009:
-                    return new string[] { "Gameservers\\2009\\TadahServer.exe", $"-a {WebManager.ConstructUrl("/")} -t 0 -j {ScriptUrl}" };
+                    return new string[] { "Gameservers\\2009\\TadahServer.exe", $"-a {WebManager.ConstructUrl("/")} -t 0 -j {scriptUrl}" };
 
                 case 2013:
-                    return new string[] { "Gameservers\\2013\\TadahServer.exe", $"-a {WebManager.ConstructUrl("/")} -t 0 -j {ScriptUrl}" };
+                    return new string[] { "Gameservers\\2013\\TadahServer.exe", $"-a {WebManager.ConstructUrl("/")} -t 0 -j {scriptUrl}" };
 
                 default:
                     return new string[] { };
@@ -61,79 +61,69 @@ namespace Tadah.Arbiter
             return Port;
         }
 
-        public static object OpenJob(string JobID, int Version, int PlaceID)
+        public static Job OpenJob(string jobId, int placeId, int version)
         {
-            ConsoleEx.WriteLine($"[JobManager] Opening Job for '{JobID}' ({Version})", ConsoleColor.Blue);
+            ConsoleEx.WriteLine($"[JobManager] Opening Job for '{jobId}' ({version})", ConsoleColor.Blue);
 
-            if (Version != 2016)
+            Job job;
+            int port = GetAvailablePort();
+
+            if (version == 2016)
             {
-                Job NewJob = new Job(JobID, Version, PlaceID, GetAvailablePort());
-                OpenJobs.Add(NewJob);
-                NewJob.Start();
-
-                return NewJob;
+                job = new RccServiceJob(jobId, placeId, version, port, 86400, 0);
+            }
+            else
+            {
+                job = new MFCJob(jobId, placeId, version, port);
             }
 
-            int port = GetAvailablePort();
-            RccServiceProcess process = RccServiceProcessManager.Best();
-            RccServiceJob job = new RccServiceJob(process, JobID, 86400, 0, port, WebManager.GetGameserverScript(JobID, PlaceID, port, true));
-            process.Jobs.Add(job);
+            OpenJobs.Add(job);
             job.Start();
 
             return job;
         }
 
-        public static void CloseJob(string JobID)
+        public static void CloseJob(string jobId)
         {
-            Job JobToClose = GetJobFromID(JobID);
+            Job JobToClose = GetJobFromId(jobId);
             if (JobToClose == null) return;
 
             JobToClose.Close();
             OpenJobs.Remove(JobToClose);
         }
 
-        public static void ExecuteScript(string JobID, string Script)
+        public static void ExecuteScript(string jobId, string script)
         {
-            Job JobToExecute = GetJobFromID(JobID);
+            Job JobToExecute = GetJobFromId(jobId);
             if (JobToExecute == null) return;
 
-            JobToExecute.ExecuteScript(Script);
+            JobToExecute.ExecuteScript(script);
         }
 
-        public static Job GetJobFromID(string JobID)
+        public static Job GetJobFromId(string jobId)
         {
-            return OpenJobs.Find(Job => Job.ID == JobID);
-        }
-
-        public static bool CheckIfJobExists(string JobID)
-        {
-            foreach (Job OpenJob in OpenJobs)
-            {
-                if (OpenJob.ID == JobID) return true;
-            }
-
-            return false;
+            return OpenJobs.Find(job => job.Id == jobId);
         }
 
         public static void MonitorCrashedJobs()
         {
-            uint ProcessID;
+            uint processId;
 
             while (true)
             {
                 IntPtr hWnd = FindWindow(null, "ROBLOX Crash");
-                GetWindowThreadProcessId(hWnd, out ProcessID);
+                GetWindowThreadProcessId(hWnd, out processId);
 
-                if (ProcessID != 0)
+                if (processId != 0)
                 {
-                    Job CrashedJob = JobManager.OpenJobs.Find(Job => Job.Process.Id == ProcessID);
-                    if (CrashedJob != null)
+                    Job crashedJob = OpenJobs.Find(Job => Job.Process.Id == processId);
+                    if (crashedJob != null)
                     {
-                        ConsoleEx.WriteLine($"[JobManager] '{CrashedJob.ID}' has crashed! Closing Job...", ConsoleColor.Yellow);
-                        CrashedJob.Status = JobStatus.Crashed;
-                        CrashedJob.Close();
+                        ConsoleEx.WriteLine($"[JobManager] '{crashedJob.Id}' has crashed! Closing Job...", ConsoleColor.Yellow);
+                        crashedJob.Status = JobStatus.Crashed;
+                        crashedJob.Close();
 
-                        OpenJobs.Remove(CrashedJob);
+                        OpenJobs.Remove(crashedJob);
                     }
                 }
 
@@ -151,12 +141,12 @@ namespace Tadah.Arbiter
                     {
                         if (OpenJob.Status == JobStatus.Pending || OpenJob.Status == JobStatus.Monitored) continue;
 
-                        if (OpenJob.Version == 2010 && (OpenJob.TimeStarted + 5) < UnixTime.GetTimestamp() && !GetWindowTitle(OpenJob.Process.MainWindowHandle).Contains("Place1"))
+                        if (OpenJob.Version == 2009 && (Unix.From(OpenJob.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(OpenJob.Process.MainWindowHandle).Contains("Place1"))
                         {
-                            OpenJob.HasShutdown = true;
+                            OpenJob.IsRunning = false;
                         }
 
-                        if (OpenJob.HasShutdown || OpenJob.Process.HasExited)
+                        if (OpenJob.IsRunning || OpenJob.Process.HasExited)
                         {
                             OpenJob.Close();
                             OpenJobs.Remove(OpenJob);
@@ -189,7 +179,7 @@ namespace Tadah.Arbiter
 
         public static void MonitorUnresponsiveJob(Job UnresponsiveJob)
         {
-            ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.ID}' is not responding! Monitoring...", ConsoleColor.Yellow);
+            ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.Id}' is not responding! Monitoring...", ConsoleColor.Yellow);
             UnresponsiveJob.Status = JobStatus.Monitored;
 
             for (int i = 1; i <= 30; i++)
@@ -198,13 +188,13 @@ namespace Tadah.Arbiter
 
                 if (UnresponsiveJob.Process.Responding)
                 {
-                    ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.ID}' has recovered from its unresponsive status!", ConsoleColor.Green);
+                    ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.Id}' has recovered from its unresponsive status!", ConsoleColor.Green);
                     UnresponsiveJob.Status = JobStatus.Started;
                     break;
                 }
                 else if (i == 30)
                 {
-                    ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.ID}' has been unresponsive for over 30 seconds. Closing Job...", ConsoleColor.Yellow);
+                    ConsoleEx.WriteLine($"[JobManager] '{UnresponsiveJob.Id}' has been unresponsive for over 30 seconds. Closing Job...", ConsoleColor.Yellow);
                     UnresponsiveJob.Status = JobStatus.Crashed;
                     UnresponsiveJob.Close();
 

@@ -1,183 +1,218 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Tadah.Arbiter
 {
-    internal class ArbiterService
+    internal struct Client
     {
-        private static TcpListener Service = new TcpListener(IPAddress.Any, AppSettings.ServicePort);
+        public string IpAddress;
+        public int Port;
+
+        public Client(string ipAddress, int port)
+        {
+            IpAddress = ipAddress;
+            Port = port;
+        }
+    }
+
+    internal class StateObject
+    {
+        public const int BufferSize = 1024;
+        public byte[] Buffer = new byte[BufferSize];
+        public StringBuilder Builder = new StringBuilder();
+        public Socket WorkSocket = null;
+    }
+
+    public class ArbiterService
+    {
+        private static ManualResetEvent Finished = new ManualResetEvent(false);
+        private static Socket Listener;
 
         public static int Start()
         {
-            Service.Start();
-            Task.Run(() => ListenForConnections());
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, AppSettings.ServicePort);
+
+            Listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                Listener.Bind(localEndPoint);
+                Listener.Listen(100);
+
+                Task.Run(() => ListenForConnections());
+            }
+            catch
+            {
+                ConsoleEx.Error($"Failed to initialize ArbiterService on port {AppSettings.ServicePort}");
+            }
+            
             return AppSettings.ServicePort;
         }
 
         public static void Stop()
         {
-            Service.Stop();
+            Listener.Close();
         }
 
         private static void ListenForConnections()
         {
             while (true)
             {
-                TcpClient Client = Service.AcceptTcpClient();
-                string ClientAddress = GetClientAddress(Client);
-#if DEBUG
-                ConsoleEx.WriteLine($"[Tadah.Arbiter] Service received a new connection from '{ClientAddress}'", ConsoleColor.Blue);
-#endif
-                Task.Run(() => HandleConnection(Client, ClientAddress));
+                Finished.Reset();
+                Listener.BeginAccept(new AsyncCallback(AcceptCallback), Listener);
+                Finished.WaitOne();
             }
         }
 
-        private static void HandleConnection(TcpClient Client, string ClientAddress)
+        private static void AcceptCallback(IAsyncResult result)
         {
-            NetworkStream Stream = Client.GetStream();
-            StreamReader Reader = new StreamReader(Stream);
+            Finished.Reset();
 
-            try
+            Socket listener = (Socket)result.AsyncState;
+            Socket handler = listener.EndAccept(result);
+            Client client = GetIPFromSocket(handler);
+
+            ConsoleEx.WriteLine($"[{client.IpAddress}] Connected on port {client.Port}");
+
+            StateObject state = new StateObject();
+            state.WorkSocket = handler;
+            handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+        }
+
+        private static void ReadCallback(IAsyncResult result)
+        {
+            String content = String.Empty;
+
+            StateObject state = (StateObject)result.AsyncState;
+            Socket handler = state.WorkSocket;
+
+            int read = handler.EndReceive(result);
+
+            if (read > 0)
             {
-                while (Client.Connected)
-                {
-                    string IncomingCommand = Reader.ReadLine();
+                state.Builder.Append(Encoding.ASCII.GetString(state.Buffer, 0, read));
+                content = state.Builder.ToString();
 
-                    if (IncomingCommand == null)
-                    {
+                if (content.IndexOf("<EOF>") > -1)
+                {
+                    Client client = GetIPFromSocket(handler);
+
+                    content = content.Replace("<EOF>", "");
+                    string response = ProcessData(content, client);
 #if DEBUG
-                        ConsoleEx.WriteLine($"[{ClientAddress}] Client disconnected", ConsoleColor.Blue);
+                    ConsoleEx.WriteLine($"[{client.IpAddress}] Read all data, returning response", ConsoleColor.DarkBlue)
 #endif
-                        Stream.Close();
-                        Client.Close();
-                    }
-                    else
-                    {
-#if DEBUG
-                        ConsoleEx.WriteLine($"[{ClientAddress}] Received command '{IncomingCommand}'", ConsoleColor.Blue);
-#endif
-                        ProcessCommand(Stream, ClientAddress, IncomingCommand);
-                    }
+                    SendData(handler, response);
+                }
+                else
+                {
+                    handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
             }
-            catch (IOException)
-            {
-#if DEBUG
-                ConsoleEx.WriteLine($"$[{ClientAddress}] Client disconnected", ConsoleColor.Blue);
-#endif
-            }
         }
 
-        private static void WriteToClient(NetworkStream Stream, string ClientAddress, string Response)
+        private static void SendCallback(IAsyncResult result)
         {
-#if DEBUG
-            ConsoleEx.WriteLine($"[{ClientAddress}] Writing to client with '{Response}'", ConsoleColor.Blue);
-#endif
-            StreamWriter Writer = new StreamWriter(Stream);
-            Writer.WriteLine(Response);
-            Writer.Flush();
-        }
-
-        private static void ProcessCommand(NetworkStream Stream, string ClientAddress, string Data)
-        {
-            if (!Data.StartsWith("%"))
-            {
-#if DEBUG
-                ConsoleEx.WriteLine($"[{ClientAddress}] Bad data received", ConsoleColor.Red);
-#endif
-                return;
-            }
-
-            // get signature
-            string message = null;
-            string signature = null;
-
             try
             {
-                signature = Data.Substring(1); // remove first %
-                signature = signature.Substring(0, signature.IndexOf("%", StringComparison.Ordinal)); // get all data before the next %; essentially extracts the base64 signature data
+                Socket handler = (Socket)result.AsyncState;
 
-                message = Data.Substring(signature.Length + 2); // remove the signature by starting to read the data at the signatures length plus two (two %s ; the signature delimiter)
+                int bytesSent = handler.EndSend(result);
+
+                handler.Shutdown(SocketShutdown.Both);
+                handler.Close();
             }
-            catch
+            catch (Exception ex)
             {
 #if DEBUG
-                ConsoleEx.WriteLine($"[{ClientAddress}] Bad signature", ConsoleColor.Red);
+                ConsoleEx.WriteLine($"[Tadah.Arbiter] Error on ArbiterService::SendCallback - {ex.ToString()}", ConsoleColor.Red);
 #endif
-
-                return;
             }
-            
+        }
 
-            if (!TadahSignature.Verify(message, signature))
+        private static void SendData(Socket handler, string data)
+        {
+            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
+
+            handler.BeginSend(dataBytes, 0, dataBytes.Length, 0, new AsyncCallback(SendCallback), handler);
+        }
+
+        private static string ProcessData(string data, Client client)
+        {
+            if (!TadahSignature.VerifyData(data))
             {
-#if DEBUG
-                ConsoleEx.WriteLine($"[{ClientAddress}] Bad signature", ConsoleColor.Red);
-#endif
-                return;
+                return "";
             }
 
-            TadahMessage Request = JsonConvert.DeserializeObject<TadahMessage>(message);
-#if DEBUG
-            ConsoleEx.WriteLine($"[{ClientAddress}] Successfully verified message!", ConsoleColor.Green);
-#endif
+            TadahMessage Request = JsonConvert.DeserializeObject<TadahMessage>(data);
 
             switch (Request.Operation)
             {
                 case "OpenJob":
-                    if (JobManager.GetJobFromID(Request.JobID) != null)
+                    if (JobManager.GetJobFromId(Request.JobId) != null)
                     {
-                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job already exists\"}");
+                        ConsoleEx.WriteLine($"[{client.IpAddress}] Tried opening job '{Request.JobId}' - it already exists", ConsoleColor.Yellow);
+                        return "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job already exists\"}";
                     }
                     else
                     {
-                        Task.Run(() => JobManager.OpenJob(Request.JobID, Request.Version, Request.PlaceID));
-                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"OpenJob\", \"Status\":\"OK\"}");
+                        Task.Run(() => JobManager.OpenJob(Request.JobId, Request.PlaceId, Request.Version));
+                        return "{\"Operation\":\"OpenJob\", \"Status\":\"OK\"}";
                     }
-
-                    break;
 
                 case "CloseJob":
-                    if (JobManager.GetJobFromID(Request.JobID) == null)
+                    if (JobManager.GetJobFromId(Request.JobId) == null)
                     {
-                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job does not exist\"}");
+                        ConsoleEx.WriteLine($"[{client.IpAddress}] Tried closing job '{Request.JobId}' - it doesn't exists", ConsoleColor.Yellow);
+                        return "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job does not exist\"}";
                     }
                     else
                     {
-                        Task.Run(() => JobManager.CloseJob(Request.JobID));
-                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}");
+                        Task.Run(() => JobManager.CloseJob(Request.JobId));
+                        return "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}";
                     }
-
-                    break;
 
                 case "ExecuteScript":
-                    if (JobManager.GetJobFromID(Request.JobID) == null)
+                    if (JobManager.GetJobFromId(Request.JobId) == null)
                     {
-                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job does not exist\"}");
+                        ConsoleEx.WriteLine($"[{client.IpAddress}] Tried executing script on job '{Request.JobId}' - it doesn't exists", ConsoleColor.Yellow);
+                        return "{\"Operation\":\"CloseJob\", \"Status\":\"Error\", \"Message\":\"Job does not exist\"}";
                     }
                     else
                     {
-                        Task.Run(() => JobManager.ExecuteScript(Request.JobID, Request.Message));
-                        WriteToClient(Stream, ClientAddress, "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}");
+                        Task.Run(() => JobManager.ExecuteScript(Request.JobId, Request.Message));
+                        return "{\"Operation\":\"CloseJob\", \"Status\":\"OK\"}";
                     }
 
-                    break;
-
                 default:
-                    ConsoleEx.WriteLine($"[ArbiterService/{ClientAddress}] Invalid command received", ConsoleColor.Blue);
-                    break;
+                    ConsoleEx.WriteLine($"[{client.IpAddress}] Invalid operation '{Request.Operation}'", ConsoleColor.Yellow);
+                    return "";
             }
         }
 
-        private static string GetClientAddress(TcpClient Client)
+        private static Client GetIPFromSocket(Socket socket)
         {
-            return Client.Client.RemoteEndPoint.ToString();
+            IPEndPoint remote = socket.RemoteEndPoint as IPEndPoint;
+            IPEndPoint local = socket.LocalEndPoint as IPEndPoint;
+
+            if (remote != null)
+            {
+                return new Client(remote.Address.ToString(), remote.Port);
+            }
+
+            if (local != null)
+            {
+                return new Client(local.Address.ToString(), local.Port);
+            }
+
+            throw new Exception("Failed to receive IP info from socket");
         }
     }
 }

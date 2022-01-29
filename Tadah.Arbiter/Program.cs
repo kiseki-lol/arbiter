@@ -47,11 +47,16 @@ namespace Tadah.Arbiter
         }
     }
 
-    public class UnixTime
+    public class Unix
     {
         public static int GetTimestamp()
         {
-            return (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            return (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0))).TotalSeconds;
+        }
+
+        public static int From(DateTime time)
+        {
+            return (Int32)(time - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
         }
     }
 }

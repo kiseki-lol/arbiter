@@ -42,5 +42,25 @@ namespace Tadah.Arbiter
                 return false;
             }
         }
+
+        public static bool VerifyData(string data)
+        {
+            if (!data.StartsWith("%"))
+            {
+                return false;
+            }
+
+            try
+            {
+                string signature = data.Substring(1, data.Substring(1).IndexOf("%"));
+                data = data.Substring(signature.Length + 2);
+
+                return Verify(data, signature);
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

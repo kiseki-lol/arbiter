@@ -6,23 +6,23 @@ namespace Tadah.Arbiter
     {
 		// would race conditions be an issue here? 
 
-		public static void Write(string Message, ConsoleColor Color = ConsoleColor.Gray)
+		public static void Write(string message, ConsoleColor color = ConsoleColor.Gray)
 		{
-			Console.ForegroundColor = Color;
-			Console.Write(Message);
+			Console.ForegroundColor = color;
+			Console.Write(message);
 			Console.ForegroundColor = ConsoleColor.Gray;
 		}
 
-		public static void WriteLine(string Message, ConsoleColor Color = ConsoleColor.Gray)
+		public static void WriteLine(string message, ConsoleColor color = ConsoleColor.Gray)
 		{
-			Console.ForegroundColor = Color;
-			Console.WriteLine(Message);
+			Console.ForegroundColor = color;
+			Console.WriteLine(message);
 			Console.ForegroundColor = ConsoleColor.Gray;
 		}
 
-		public static void Error(string Message)
+		public static void Error(string message)
 		{
-			ConsoleEx.WriteLine(Message, ConsoleColor.Red);
+			ConsoleEx.WriteLine(message, ConsoleColor.Red);
 			Console.ReadLine();
 			Environment.Exit(0);
 		}

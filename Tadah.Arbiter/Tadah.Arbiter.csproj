@@ -63,6 +63,7 @@
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="Job.cs" />
     <Compile Include="JobManager.cs" />
+    <Compile Include="MFCJob.cs" />
     <Compile Include="NamedPipes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
