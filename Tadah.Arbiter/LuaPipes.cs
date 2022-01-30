@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Tadah.Arbiter
 {
-    public static class NamedPipes
+    public static class LuaPipes
     {
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool WaitNamedPipe(string lpNamedPipeName, int timeout);

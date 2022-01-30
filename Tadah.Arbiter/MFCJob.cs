@@ -81,13 +81,13 @@ namespace Tadah.Arbiter
 
         public override void ExecuteScript(string script)
         {
-            if (!NamedPipes.Exists(Id))
+            if (!LuaPipes.Exists(Id))
             {
                 return;
             }
 
             // DLL will process the script
-            NamedPipes.Send(Id, script);
+            LuaPipes.Send(Id, script);
         }
     }
 }
