@@ -33,7 +33,7 @@ namespace Tadah.Arbiter
             Console.CancelKeyPress += delegate
             {
                 Console.WriteLine("");
-                Log.Write("Service shutting down...", LogSeverity.Event); ;
+                Log.Write("Service shutting down...", LogSeverity.Event);
 
                 ArbiterService.Stop();
                 WebManager.SetMarker(false);
