@@ -3,13 +3,16 @@ Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) w
 - Messages *must* be signed
 - Uses Tadah website routes
 - 2009, 2013, and 2016 instead of 2010, 2011, and 2012
-- Uses named pipes for script execution
+- LuaPipes
+- Script execution
 - Proper TCP server
 - RCCService support
 - Messages must end with `<<<EOF>>>`
+- Better logging system
 
 ## TODO
 - Determine end of message stream without `<<<EOF>>>` delimiter
+- Script execution results
 
 ## Usage
 

@@ -36,7 +36,6 @@ namespace Tadah.Arbiter
             Writer = new StreamWriter(LogFile);
         }
 
-
         static ConsoleColor SeverityToColor(LogSeverity severity)
         {
             if (severity == LogSeverity.Error)

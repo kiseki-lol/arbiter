@@ -11,7 +11,8 @@ namespace Tadah.Arbiter
     public class RccServiceProcess
     {
         public int SoapPort { get; }
-        public RCCServiceSoapClient Client { get; private set;  }
+        public RCCServiceSoapClient Client { get; private set; }
+        public bool Monitored { get; set; }
         public Process Process { get; set; }
         public List<RccServiceJob> Jobs { get; set; }
 

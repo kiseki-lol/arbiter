@@ -36,10 +36,10 @@ namespace Tadah.Arbiter
             switch (version)
             {
                 case 2009:
-                    return new string[] { "Gameservers\\2009\\TadahServer.exe", $"-a {WebManager.ConstructUrl("/")} -t 0 -j {scriptUrl}" };
+                    return new string[] { "Gameservers\\2009\\TadahServer.exe", $"-script {scriptUrl}" };
 
                 case 2013:
-                    return new string[] { "Gameservers\\2013\\TadahServer.exe", $"-a {WebManager.ConstructUrl("/")} -t 0 -j {scriptUrl}" };
+                    return new string[] { "Gameservers\\2013\\TadahServer.exe", $"-a 0 -t 0 -j {scriptUrl}" };
 
                 default:
                     return new string[] { };
@@ -48,17 +48,21 @@ namespace Tadah.Arbiter
 
         public static int GetAvailablePort()
         {
-            int Port = AppSettings.BasePort;
+            int port = AppSettings.BasePort;
 
             for (int i = 0; i < AppSettings.MaximumJobs; i++)
             {
-                if (OpenJobs.Find(Job => Job.Port == Port) == null)
+                if (OpenJobs.Find(job => job.Port == port) == null)
+                {
                     break;
+                }
                 else
-                    Port++;
+                {
+                    port++;
+                }
             }
 
-            return Port;
+            return port;
         }
 
         public static Job OpenJob(string jobId, int placeId, int version)
@@ -68,7 +72,7 @@ namespace Tadah.Arbiter
 
             if (version == 2016)
             {
-                job = new RccServiceJob(jobId, placeId, version, port, 86400, 0);
+                job = new RccServiceJob(jobId, placeId, version, port);
             }
             else
             {
@@ -81,26 +85,26 @@ namespace Tadah.Arbiter
             return job;
         }
 
-        public static void CloseJob(string jobId)
+        public static void CloseJob(string jobId, bool forceClose = false)
         {
-            Job JobToClose = GetJobFromId(jobId);
-            if (JobToClose == null) return;
+            Job job = GetJobFromId(jobId);
+            if (job == null)
+            {
+                return;
+            }
 
-            JobToClose.Close();
-            OpenJobs.Remove(JobToClose);
-        }
-
-        public static void ExecuteScript(string jobId, string script)
-        {
-            Job JobToExecute = GetJobFromId(jobId);
-            if (JobToExecute == null) return;
-
-            JobToExecute.ExecuteScript(script);
+            job.Close(forceClose);
+            OpenJobs.Remove(job);
         }
 
         public static Job GetJobFromId(string jobId)
         {
             return OpenJobs.Find(job => job.Id == jobId);
+        }
+
+        public static bool JobExists(string jobId)
+        {
+            return GetJobFromId(jobId) != null;
         }
 
         public static void MonitorCrashedJobs()
@@ -118,15 +122,8 @@ namespace Tadah.Arbiter
                     if (crashedJob != null)
                     {
                         Log.Write($"[JobManager] '{crashedJob.Id}' has crashed! Closing Job...", LogSeverity.Warning);
-                        if (crashedJob is RccServiceJob)
-                        {
-                            crashedJob.Process.Kill();
-                        }
-                        else
-                        {
-                            crashedJob.Status = JobStatus.Crashed;
-                            crashedJob.Close();
-                        }
+                        crashedJob.Status = JobStatus.Crashed;
+                        crashedJob.Close();
 
                         OpenJobs.Remove(crashedJob);
                     }
@@ -142,30 +139,44 @@ namespace Tadah.Arbiter
             {
                 try
                 {
-                    foreach (Job OpenJob in OpenJobs)
+                    foreach (Job job in OpenJobs)
                     {
-                        if (OpenJob.Status == JobStatus.Pending || OpenJob.Status == JobStatus.Monitored) continue;
-
-                        if (OpenJob.Version == 2009 && (Unix.From(OpenJob.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(OpenJob.Process.MainWindowHandle).Contains("Place1"))
+                        if (job is RccServiceJob)
                         {
-                            OpenJob.IsRunning = false;
-                        }
-
-                        if (OpenJob.IsRunning || OpenJob.Process.HasExited)
-                        {
-                            OpenJob.Close();
-                            OpenJobs.Remove(OpenJob);
                             continue;
                         }
 
-                        if (OpenJob.Process.Responding) continue;
+                        if (job.Status == JobStatus.Pending || job.Status == JobStatus.Monitored)
+                        {
+                            continue;
+                        }
 
-                        Task.Run(() => MonitorUnresponsiveJob(OpenJob));
+                        if (job.Version == 2009 && (Unix.From(job.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(job.Process.MainWindowHandle).Contains("Place1"))
+                        {
+                            job.IsRunning = false;
+                        }
+
+                        if (!job.IsRunning || job.Process.HasExited)
+                        {
+                            job.Close();
+                            OpenJobs.Remove(job);
+
+                            continue;
+                        }
+
+                        if (job.Process.Responding)
+                        {
+                            continue;
+                        }
+
+                        Task.Run(() => MonitorUnresponsiveJob(job));
                     }
                 }
-                catch (InvalidOperationException)
+                catch (InvalidOperationException ex)
                 {
-
+#if DEBUG
+                    Log.Write($"[JobManager::MonitorUnresponsiveJobs] InvalidOperationException - {ex.ToString()}", LogSeverity.Debug);
+#endif
                 }
 
                 Thread.Sleep(5000);
@@ -182,28 +193,33 @@ namespace Tadah.Arbiter
             OpenJobs.Clear();
         }
 
-        public static void MonitorUnresponsiveJob(Job UnresponsiveJob)
+        public static void MonitorUnresponsiveJob(Job job)
         {
-            Log.Write($"[JobManager] '{UnresponsiveJob.Id}' is not responding! Monitoring...", LogSeverity.Warning);
-            UnresponsiveJob.Status = JobStatus.Monitored;
+            if (job is RccServiceJob)
+            {
+                return;
+            }
 
-            for (int i = 1; i <= 30; i++)
+            Log.Write($"[JobManager] '{job.Id}' is not responding! Monitoring...", LogSeverity.Warning);
+            job.Status = JobStatus.Monitored;
+
+            for (int i = 0; i <= 30; i++)
             {
                 Thread.Sleep(1000);
 
-                if (UnresponsiveJob.Process.Responding)
+                if (job.Process.Responding)
                 {
-                    Log.Write($"[JobManager] '{UnresponsiveJob.Id}' has recovered from its unresponsive status!", LogSeverity.Information);
-                    UnresponsiveJob.Status = JobStatus.Started;
+                    Log.Write($"[JobManager] '{job.Id}' has recovered from its unresponsive status!", LogSeverity.Information);
+                    job.Status = JobStatus.Started;
                     break;
                 }
                 else if (i == 30)
                 {
-                    Log.Write($"[JobManager] '{UnresponsiveJob.Id}' has been unresponsive for over 30 seconds. Closing Job...", LogSeverity.Warning);
-                    UnresponsiveJob.Status = JobStatus.Crashed;
-                    UnresponsiveJob.Close();
+                    Log.Write($"[JobManager] '{job.Id}' has been unresponsive for over 30 seconds. Closing Job...", LogSeverity.Warning);
+                    job.Status = JobStatus.Crashed;
+                    job.Close();
 
-                    OpenJobs.Remove(UnresponsiveJob);
+                    OpenJobs.Remove(job);
                     break;
                 }
             }

@@ -70,7 +70,7 @@
     <Compile Include="RccServiceJob.cs" />
     <Compile Include="RccServiceProcess.cs" />
     <Compile Include="RccServiceProcessManager.cs" />
-    <Compile Include="TadahMessage.cs" />
+    <Compile Include="TadahObjects.cs" />
     <Compile Include="TadahSignature.cs" />
     <Compile Include="WebManager.cs" />
   </ItemGroup>

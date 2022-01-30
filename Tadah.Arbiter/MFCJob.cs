@@ -14,8 +14,13 @@ namespace Tadah.Arbiter
             //
         }
 
-        protected override string InternalClose()
+        protected override string InternalClose(bool forceClose = false)
         {
+            if (forceClose)
+            {
+                return "Crashed";
+            }
+
             try
             {
                 if (!this.IsRunning || this.Process.HasExited)
@@ -74,14 +79,15 @@ namespace Tadah.Arbiter
             this.Process.WaitForInputIdle();
         }
 
-        public override object ExecuteScript(string script)
+        public override void ExecuteScript(string script)
         {
             if (!NamedPipes.Exists(Id))
             {
-                return "";
+                return;
             }
 
-            return NamedPipes.Send(Id, script);
+            // DLL will process the script
+            NamedPipes.Send(Id, script);
         }
     }
 }

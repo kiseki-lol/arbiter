@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Tadah.Arbiter
@@ -27,8 +28,8 @@ namespace Tadah.Arbiter
         public Process Process;
 
         protected abstract void InternalStart();
-        protected abstract string InternalClose();
-        public abstract object ExecuteScript(string script);
+        protected abstract string InternalClose(bool forceClose = false);
+        public abstract void ExecuteScript(string script);
 
         protected void Log(string message, LogSeverity severity = LogSeverity.Information)
         {
@@ -50,9 +51,9 @@ namespace Tadah.Arbiter
             this.Log($"Started!", LogSeverity.Event);
         }
 
-        public void Close()
+        public void Close(bool forceClose = false)
         {
-            string result = this.InternalClose();
+            string result = this.InternalClose(forceClose);
 
             this.Status = (JobStatus) Enum.Parse(typeof(JobStatus), result);
             this.TimeClosed = DateTime.UtcNow;

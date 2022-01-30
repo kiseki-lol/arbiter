@@ -20,6 +20,7 @@ namespace Tadah.Arbiter
 
             Task.Run(() => JobManager.MonitorCrashedJobs());
             Task.Run(() => JobManager.MonitorUnresponsiveJobs());
+            Task.Run(() => RccServiceProcessManager.MonitorUnresponsiveProcesses());
             Task.Run(() => WebManager.StartResourceReporter());
 
             WebManager.SetMarker(true);

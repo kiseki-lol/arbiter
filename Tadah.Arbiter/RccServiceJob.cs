@@ -11,7 +11,6 @@ namespace Tadah.Arbiter
     public class RccServiceJob : Job
     {
         public int ExpirationInSeconds { get; private set; }
-        public int Category { get; private set; }
         public int Cores { get; private set; }
         public new Process Process
         {
@@ -23,11 +22,9 @@ namespace Tadah.Arbiter
 
         private RccServiceProcess _process;
 
-        public RccServiceJob(string Id, int PlaceId, int Version, int Port, int ExpirationInSeconds, int Category) : base(Id, PlaceId, Version, Port)
+        public RccServiceJob(string Id, int PlaceId, int Version, int Port) : base(Id, PlaceId, Version, Port)
         {
-            this.ExpirationInSeconds = ExpirationInSeconds;
-            this.Category = Category;
-
+            this.ExpirationInSeconds = 86400;
             _process = RccServiceProcessManager.Best();
         }
 
@@ -37,7 +34,8 @@ namespace Tadah.Arbiter
             {
                 id = Id,
                 expirationInSeconds = ExpirationInSeconds,
-                category = Category
+                category = 1,
+                cores = 1
             };
 
             ScriptExecution script = new ScriptExecution
@@ -49,19 +47,23 @@ namespace Tadah.Arbiter
             _process.Client.OpenJob(job, script);
         }
 
-        protected override string InternalClose()
+        protected override string InternalClose(bool forceClose)
         {
-            _process.Client.CloseJob(Id);
+            if (!forceClose)
+            {
+                _process.Client.CloseJob(Id);
+            }
+
             return "Closed";
         }
 
-        public override object ExecuteScript(string script)
+        public override void ExecuteScript(string script)
         {
             string lua;
 
             if (!TadahSignature.VerifyData(script, out lua))
             {
-                return null;
+                return;
             }
 
             ScriptExecution execution = new ScriptExecution
@@ -70,7 +72,7 @@ namespace Tadah.Arbiter
                 script = lua
             };
 
-            return _process.Client.ExecuteEx(Id, execution);
+            _process.Client.ExecuteEx(Id, execution);
         }
 
         public void RenewLease(int seconds)
