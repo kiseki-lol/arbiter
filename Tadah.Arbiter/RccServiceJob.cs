@@ -59,9 +59,7 @@ namespace Tadah.Arbiter
 
         public override void ExecuteScript(string script)
         {
-            string lua;
-
-            if (!TadahSignature.VerifyData(script, out lua))
+            if (!TadahSignature.VerifyData(script, out string lua))
             {
                 return;
             }

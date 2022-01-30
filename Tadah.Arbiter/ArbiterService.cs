@@ -166,9 +166,8 @@ namespace Tadah.Arbiter
 
         private static string ProcessData(string data, Client client)
         {
-            string message;
 
-            if (!TadahSignature.VerifyData(data, out message))
+            if (!TadahSignature.VerifyData(data, out string message))
             {
 #if DEBUG
                 Log.Write($"[ArbiterService::{client.IpAddress}] Bad or invalid signature", LogSeverity.Debug);
