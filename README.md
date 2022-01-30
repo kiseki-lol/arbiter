@@ -6,11 +6,10 @@ Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) w
 - Uses named pipes for script execution
 - Proper TCP server
 - RCCService support
-- Messages must end with `<EOF>`
+- Messages must end with `<<<EOF>>>`
 
 ## TODO
-- Determine end of message stream without `<EOF>` delimiter
-- Doesn't accept any connections after first
+- Determine end of message stream without `<<<EOF>>>` delimiter
 
 ## Usage
 
@@ -30,17 +29,17 @@ $message = json_encode($message); // containing keys 'Operation', 'JobId', ...
 
 openssl_sign($message, $signature, $key, OPENSSL_ALGO_SHA256);
 $signature = '%' . base64_encode($signature) . '%';
-$message = $signature . $message . '<EOF>';
+$message = $signature . $message . '<<<EOF>>>';
 
 $socket = stream_socket_client('tcp://127.0.0.1:64989');
 if ($socket)
 {
-    $sent = stream_socket_send($socket, $message);
+    $sent = stream_socket_sendto($socket, $message);
     if ($sent > 0)
     {
         $response = fread($socket, 4096);
         var_dump(json_decode($response));
-        stream_socket_shutdown($socket, STREAM_SHUT_RDWR)
+        stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
     }
 }
 else

@@ -53,6 +53,7 @@ namespace Tadah.Arbiter
 
     public class ArbiterService
     {
+        private static string EOFDelimiter = "<<<EOF>>>";
         private static ManualResetEvent Finished = new ManualResetEvent(false);
         private static Socket Listener;
 
@@ -93,7 +94,7 @@ namespace Tadah.Arbiter
 
         private static void AcceptCallback(IAsyncResult result)
         {
-            Finished.Reset();
+            Finished.Set();
 
             Socket listener = (Socket)result.AsyncState;
             Socket handler = listener.EndAccept(result);
@@ -122,13 +123,12 @@ namespace Tadah.Arbiter
                 state.Builder.Append(Encoding.ASCII.GetString(state.Buffer, 0, read));
                 content = state.Builder.ToString();
 
-                if (content.IndexOf("<EOF>") > -1)
+                if (content.IndexOf(EOFDelimiter) > -1)
                 {
+                    content = content.Replace(EOFDelimiter, "");
 #if DEBUG
                     Log.Write($"[ArbiterService::{state.Client.IpAddress}] Read all data, sending response", LogSeverity.Debug);
 #endif
-
-                    content = content.Replace("<EOF>", "");
                     string response = ProcessData(content, state.Client);
                     SendData(handler, response);
                 }
