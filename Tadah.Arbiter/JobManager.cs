@@ -109,13 +109,14 @@ namespace Tadah.Arbiter
 
         public static bool IsValidVersion(object version)
         {
-            if (!Int32.TryParse((string)version, out int result))
+            if (!Int32.TryParse(version.ToString(), out int result))
             {
                 return false;
             }
 
             return result == 2009 || result == 2013 || result == 2016;
         }
+
         public static void MonitorCrashedJobs()
         {
             uint processId;

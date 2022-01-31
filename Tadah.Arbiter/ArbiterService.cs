@@ -93,9 +93,9 @@ namespace Tadah.Arbiter
                     Listener.BeginAccept(new AsyncCallback(AcceptCallback), Listener);
                     Finished.WaitOne();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Log.Write($"[ArbiterService::ListenForConnections] {ex.Message}", LogSeverity.Error);
+                    // Nah
                 }
             }
         }
@@ -248,6 +248,17 @@ namespace Tadah.Arbiter
                                     Operation = "OpenJob",
                                     Success = false,
                                     Message = "Invalid version"
+                                });
+                            }
+
+                            if (JobManager.OpenJobs.Count >= AppSettings.MaximumJobs)
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' - maximum amount of jobs reached", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "OpenJob",
+                                    Success = false,
+                                    Message = "Maximum amount of jobs reached"
                                 });
                             }
 
