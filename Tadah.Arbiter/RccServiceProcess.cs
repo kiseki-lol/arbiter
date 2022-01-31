@@ -40,7 +40,16 @@ namespace Tadah.Arbiter
             }
             else
             {
-                this.Client.CloseAllJobs();
+                foreach (RccServiceJob job in Jobs)
+                {
+                    if (!job.IsRunning)
+                    {
+                        continue;
+                    }
+
+                    job.Close();
+                }
+
                 Process.Close();
             }
         }

@@ -72,7 +72,7 @@
     <Compile Include="RccServiceProcessManager.cs" />
     <Compile Include="TadahObjects.cs" />
     <Compile Include="TadahSignature.cs" />
-    <Compile Include="WebManager.cs" />
+    <Compile Include="Http.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

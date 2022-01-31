@@ -191,6 +191,7 @@ namespace Tadah.Arbiter
             }
 
             OpenJobs.Clear();
+            RccServiceProcessManager.CloseAllProcesses();
         }
 
         public static void MonitorUnresponsiveJob(Job job)

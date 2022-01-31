@@ -60,6 +60,16 @@ namespace Tadah.Arbiter
             return best;
         }
 
+        public static void CloseAllProcesses()
+        {
+            foreach (RccServiceProcess process in OpenProcesses)
+            {
+                process.Close();
+            }
+
+            OpenProcesses.Clear();
+        }
+
         public static void MonitorUnresponsiveProcesses()
         {
             while (true)

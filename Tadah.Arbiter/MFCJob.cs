@@ -67,7 +67,7 @@ namespace Tadah.Arbiter
 
         protected override void InternalStart()
         {
-            string GameserverScript = WebManager.GetGameserverScript(Id, PlaceId, Port);
+            string GameserverScript = Http.GetGameserverScript(Id, PlaceId, Port);
             string[] CommandLine = JobManager.GetCommandLine(Version, GameserverScript);
 
             this.Process = new Process();

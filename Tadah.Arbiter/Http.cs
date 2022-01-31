@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Tadah.Arbiter
 {
-    public class WebManager
+    public class Http
     {
         private static readonly HttpClient WebClient = new HttpClient();
 
@@ -68,9 +68,24 @@ namespace Tadah.Arbiter
             }
         }
 
-        public static void SetMarker(bool online)
+        public static void Log(string text)
         {
-            Request($"/{AppSettings.GameserverId}/marker?status={(online ? 1 : 0)}", HttpMethod.Get);
+            Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new StringContent(text));
+        }
+
+        public static void NotifyStatus(bool online)
+        {
+            Request($"/{AppSettings.GameserverId}/status?status={(online ? 1 : 0)}", HttpMethod.Get);
+        }
+
+        public static void Fatal(string exception)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>
+            {
+                { "exception", exception }
+            };
+
+            Request($"/{AppSettings.GameserverId}/fatal", HttpMethod.Post, new FormUrlEncodedContent(data));
         }
 
         public static void StartResourceReporter()

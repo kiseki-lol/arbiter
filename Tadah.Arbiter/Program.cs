@@ -9,27 +9,27 @@ namespace Tadah.Arbiter
         internal static void Main(string[] args)
         {
 #if DEBUG
-            Log.Write($"Access Key read: {AppSettings.AccessKey}", LogSeverity.Information, "startup");
-            Log.Write($"Current Access key: {AppSettings.AccessKey}", LogSeverity.Information, "startup");
+            Log.Write($"Access Key read: {AppSettings.AccessKey}", LogSeverity.Boot);
+            Log.Write($"Current Access key: {AppSettings.AccessKey}", LogSeverity.Boot);
 #else
             Log.Write("Access Key read", LogSeverity.Information, "startup");
 #endif
-            Log.Write("Service starting...", LogSeverity.Information, "startup");
-            AppSettings.GameserverId = WebManager.GetGameserverId();
-            Log.Write($"Assigned GameserverId: {Guid.NewGuid()}", LogSeverity.Information, "startup");
+            Log.Write("Service starting...", LogSeverity.Boot);
+            AppSettings.GameserverId = Http.GetGameserverId();
+            Log.Write($"Assigned GameserverId: {Guid.NewGuid()}", LogSeverity.Boot);
 
             Task.Run(() => JobManager.MonitorCrashedJobs());
             Task.Run(() => JobManager.MonitorUnresponsiveJobs());
             Task.Run(() => RccServiceProcessManager.MonitorUnresponsiveProcesses());
-            Task.Run(() => WebManager.StartResourceReporter());
+            Task.Run(() => Http.StartResourceReporter());
 
-            WebManager.SetMarker(true);
+            Http.NotifyStatus(true);
             new Mutex(true, "ROBLOX_singletonMutex");
             new Mutex(true, "COMET_singletonMutex");
 
-            Log.Write("Initializing Tadah Arbiter Service", LogSeverity.Information, "startup");
+            Log.Write("Initializing Tadah Arbiter Service", LogSeverity.Boot);
             int ServicePort = ArbiterService.Start();
-            Log.Write($"Service Started on port {ServicePort}", LogSeverity.Information, "startup");
+            Log.Write($"Service Started on port {ServicePort}", LogSeverity.Boot);
 
             Console.CancelKeyPress += delegate
             {
@@ -37,7 +37,7 @@ namespace Tadah.Arbiter
                 Log.Write("Service shutting down...", LogSeverity.Event);
 
                 ArbiterService.Stop();
-                WebManager.SetMarker(false);
+                Http.NotifyStatus(false);
                 JobManager.CloseAllJobs();
 
                 // wait for web requests to finish

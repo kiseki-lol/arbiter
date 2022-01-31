@@ -39,14 +39,14 @@ namespace Tadah.Arbiter
         public void Start()
         {
             this.Log($"Starting on port {Port} ...", LogSeverity.Event);
-            WebManager.UpdateJob(Id, "Loading", Port);
+            Http.UpdateJob(Id, "Loading", Port);
 
             this.InternalStart();
 
             this.IsRunning = true;
             this.Status = JobStatus.Started;
             this.TimeStarted = DateTime.UtcNow;
-            WebManager.UpdateJob(Id, "Started");
+            Http.UpdateJob(Id, "Started");
 
             this.Log($"Started!", LogSeverity.Event);
         }
@@ -57,7 +57,7 @@ namespace Tadah.Arbiter
 
             this.Status = (JobStatus) Enum.Parse(typeof(JobStatus), result);
             this.TimeClosed = DateTime.UtcNow;
-            WebManager.UpdateJob(Id, result);
+            Http.UpdateJob(Id, result);
 
             if (this.Status == JobStatus.Crashed)
             {

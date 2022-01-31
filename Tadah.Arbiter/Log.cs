@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Tadah.Arbiter
 {
@@ -9,7 +10,8 @@ namespace Tadah.Arbiter
         Warning = 1, // Yellow
         Event = 2, // Blue
         Information = 3, // Grey
-        Debug = 4 // Dark Blue
+        Debug = 4, // Dark Blue
+        Boot = 5 // Dark Green
     };
 
     internal static class Log
@@ -63,6 +65,11 @@ namespace Tadah.Arbiter
                 return ConsoleColor.DarkBlue;
             }
 
+            if (severity == LogSeverity.Boot)
+            {
+                return ConsoleColor.DarkGreen;
+            }
+
             return ConsoleColor.Gray;
         }
 
@@ -93,28 +100,35 @@ namespace Tadah.Arbiter
                 return "debug";
             }
 
+            if (severity == LogSeverity.Boot)
+            {
+                return "boot";
+            }
+
             return "info";
         }
 
-        static internal void Write(string message, LogSeverity severity = LogSeverity.Information, string _event = "")
+        static internal void Write(string message, LogSeverity severity = LogSeverity.Information)
         {
             if (Writer != null)
             {
                 lock (Writer)
                 {
-                    Console.Write($"[{DateTime.Now.ToString("G")}] ");
+                    ConsoleColor color = SeverityToColor(severity);
+                    string _event = SeverityToEvent(severity);
+                    string time = DateTime.Now.ToString("G");
 
-                    Console.ForegroundColor = SeverityToColor(severity);
-                    if (_event == "")
-                    {
-                        _event = SeverityToEvent(severity);
-                    }
+                    Console.Write($"[{time}] ");
+
+                    Console.ForegroundColor = color;
                     Console.Write($"[{_event}]");
-
                     Console.ForegroundColor = ConsoleColor.Gray;
+
                     Console.WriteLine($" {message}");
 
-                    Writer.WriteLine($"[{DateTime.Now.ToString("G")}] [{_event}] {message}");
+                    Task.Run(() => { Http.Log($"[{time}] [{_event}] {message}"); });
+
+                    Writer.WriteLine($"[{time}] [{_event}] {message}");
                     Writer.Flush();
                 }
             }
@@ -124,6 +138,8 @@ namespace Tadah.Arbiter
         {
             if (Writer != null)
             {
+                Http.Fatal(message);
+
                 lock (Writer)
                 {
                     Writer.WriteLine($"[{DateTime.Now.ToString("G")}] [FATAL] {message}");

@@ -41,10 +41,11 @@ namespace Tadah.Arbiter
             ScriptExecution script = new ScriptExecution
             {
                 name = "Start Server",
-                script = WebManager.GetGameserverScript(Id, PlaceId, Port, true)
+                script = Http.GetGameserverScript(Id, PlaceId, Port, true)
             };
 
             _process.Client.OpenJob(job, script);
+            this.IsRunning = true;
         }
 
         protected override string InternalClose(bool forceClose)
@@ -54,6 +55,7 @@ namespace Tadah.Arbiter
                 _process.Client.CloseJob(Id);
             }
 
+            this.IsRunning = false;
             return "Closed";
         }
 

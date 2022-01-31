@@ -51,6 +51,14 @@ else
 }
 ```
 
+## Commands
+- `OpenJob (string JobId, int PlaceId, int Version)`
+- `CloseJob (string JobId)`
+- `ExecuteScript (string JobId, string Script)`
+- `RenewRccServiceJobLease (string JobId, int ExpirationInSeconds)`
+- `CloseAllJobs (void)`
+- `CloseAllRccServiceOperations (void)`
+
 ## License
 Copyright (c) Tadah and Project Polygon 2022. All rights reserved.
 

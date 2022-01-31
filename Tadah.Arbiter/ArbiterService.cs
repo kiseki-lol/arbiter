@@ -254,7 +254,7 @@ namespace Tadah.Arbiter
                     });
                 }
 
-                case "RenewLease":
+                case "RenewRccServiceJobLease":
                 {
                     Job job = JobManager.GetJobFromId(request.JobId);
 
@@ -263,7 +263,7 @@ namespace Tadah.Arbiter
                         Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
                         return JsonConvert.SerializeObject(new TadahResponse
                         {
-                            Operation = "RenewLease",
+                            Operation = "RenewRccServiceJobLease",
                             Success = false,
                             Message = "Job doesn't exist"
                         });
@@ -274,7 +274,7 @@ namespace Tadah.Arbiter
                         Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - is not a RccServiceJob", LogSeverity.Warning);
                         return JsonConvert.SerializeObject(new TadahResponse
                         {
-                            Operation = "RenewLease",
+                            Operation = "RenewRccServiceJobLease",
                             Success = false,
                             Message = "Job is not RccServiceJob"
                         });
@@ -286,6 +286,26 @@ namespace Tadah.Arbiter
                     return JsonConvert.SerializeObject(new TadahResponse
                     {
                         Operation = "RenewLease",
+                        Success = true
+                    });
+                }
+
+                case "CloseAllJobs":
+                {
+                    Task.Run(() => { JobManager.CloseAllJobs(); });
+                    return JsonConvert.SerializeObject(new TadahResponse
+                    {
+                        Operation = "CloseAllJobs",
+                        Success = true
+                    });
+                }
+
+                case "CloseAllRccServiceProcesses":
+                {
+                    Task.Run(() => { RccServiceProcessManager.CloseAllProcesses(); });
+                    return JsonConvert.SerializeObject(new TadahResponse
+                    {
+                        Operation = "CloseAllRccServiceProcesses",
                         Success = true
                     });
                 }
