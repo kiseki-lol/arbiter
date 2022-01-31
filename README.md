@@ -18,7 +18,7 @@ $ openssl genrsa -out private.pem 2048
 $ openssl rsa -in private.pem -outform PEM -pubout -out public.pem
 ```
 
-Messages made to the Arbiter must have the format `%signature%message<EOF>`.
+Messages made to the Arbiter must have the format `%signature%message<<<EOF>>>`.
 
 Example PHP implementation:
 
