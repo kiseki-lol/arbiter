@@ -107,6 +107,15 @@ namespace Tadah.Arbiter
             return GetJobFromId(jobId) != null;
         }
 
+        public static bool IsValidVersion(object version)
+        {
+            if (!Int32.TryParse((string)version, out int result))
+            {
+                return false;
+            }
+
+            return result == 2009 || result == 2013 || result == 2016;
+        }
         public static void MonitorCrashedJobs()
         {
             uint processId;
@@ -175,7 +184,7 @@ namespace Tadah.Arbiter
                 catch (InvalidOperationException ex)
                 {
 #if DEBUG
-                    Log.Write($"[JobManager::MonitorUnresponsiveJobs] InvalidOperationException - {ex.ToString()}", LogSeverity.Debug);
+                    Log.Write($"[JobManager::MonitorUnresponsiveJobs] InvalidOperationException - {ex.Message}", LogSeverity.Debug);
 #endif
                 }
 

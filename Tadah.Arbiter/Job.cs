@@ -33,12 +33,19 @@ namespace Tadah.Arbiter
 
         protected void Log(string message, LogSeverity severity = LogSeverity.Information)
         {
-            Arbiter.Log.Write($"[{this.Id}] {message}", severity);
+            if (this is RccServiceJob)
+            {
+                Arbiter.Log.Write($"[RccServiceJob-{this.Id}] {message}", severity);
+            }
+            else if (this is MFCJob)
+            {
+                Arbiter.Log.Write($"[MFCJob-{this.Id}] {message}", severity);
+            }
         }
 
         public void Start()
         {
-            this.Log($"Starting on port {Port} ...", LogSeverity.Event);
+            this.Log($"Starting {Version} on port {Port} ...", LogSeverity.Event);
             Http.UpdateJob(Id, "Loading", Port);
 
             this.InternalStart();

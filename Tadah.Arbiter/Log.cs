@@ -11,7 +11,7 @@ namespace Tadah.Arbiter
         Event = 2, // Blue
         Information = 3, // Grey
         Debug = 4, // Dark Blue
-        Boot = 5 // Dark Green
+        Boot = 5 // Green
     };
 
     internal static class Log
@@ -67,7 +67,7 @@ namespace Tadah.Arbiter
 
             if (severity == LogSeverity.Boot)
             {
-                return ConsoleColor.DarkGreen;
+                return ConsoleColor.Green;
             }
 
             return ConsoleColor.Gray;

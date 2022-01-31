@@ -87,27 +87,48 @@ namespace Tadah.Arbiter
         {
             while (true)
             {
-                Finished.Reset();
-                Listener.BeginAccept(new AsyncCallback(AcceptCallback), Listener);
-                Finished.WaitOne();
+                try
+                {
+                    Finished.Reset();
+                    Listener.BeginAccept(new AsyncCallback(AcceptCallback), Listener);
+                    Finished.WaitOne();
+                }
+                catch (Exception ex)
+                {
+                    Log.Write($"[ArbiterService::ListenForConnections] {ex.Message}", LogSeverity.Error);
+                }
             }
         }
 
         private static void AcceptCallback(IAsyncResult result)
         {
-            Finished.Set();
+            try
+            {
+                Finished.Set();
 
-            Socket listener = (Socket)result.AsyncState;
-            Socket handler = listener.EndAccept(result);
-            Client client = new Client(handler);
+                Socket listener = (Socket)result.AsyncState;
+                Socket handler = listener.EndAccept(result);
+                Client client = new Client(handler);
 
-            Log.Write($"[ArbiterService::{client.IpAddress}] Connected on port {client.Port}", LogSeverity.Event);
+                Log.Write($"[ArbiterService] '{client.IpAddress}' Connected on port {client.Port}", LogSeverity.Event);
 
-            StateObject state = new StateObject();
-            state.WorkSocket = handler;
-            state.Client = client;
+                try
+                {
+                    StateObject state = new StateObject();
+                    state.WorkSocket = handler;
+                    state.Client = client;
 
-            handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                    handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                }
+                catch (Exception ex)
+                {
+                    Log.Write($"[ArbiterService::AcceptCallback] '{client.IpAddress}' - {ex.Message}", LogSeverity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"[ArbiterService::AcceptCallback] {ex.Message}", LogSeverity.Error);
+            }
         }
 
         private static void ReadCallback(IAsyncResult result)
@@ -117,26 +138,34 @@ namespace Tadah.Arbiter
             StateObject state = (StateObject)result.AsyncState;
             Socket handler = state.WorkSocket;
 
-            int read = handler.EndReceive(result);
-
-            if (read > 0)
+            try
             {
-                state.Builder.Append(Encoding.ASCII.GetString(state.Buffer, 0, read));
-                content = state.Builder.ToString();
 
-                if (content.IndexOf(EOFDelimiter) > -1)
+                int read = handler.EndReceive(result);
+
+                if (read > 0)
                 {
-                    content = content.Replace(EOFDelimiter, "");
+                    state.Builder.Append(Encoding.ASCII.GetString(state.Buffer, 0, read));
+                    content = state.Builder.ToString();
+
+                    if (content.IndexOf(EOFDelimiter) > -1)
+                    {
+                        content = content.Replace(EOFDelimiter, "");
 #if DEBUG
-                    Log.Write($"[ArbiterService::{state.Client.IpAddress}] Read all data, sending response", LogSeverity.Debug);
+                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Read all data, sending response", LogSeverity.Debug);
 #endif
-                    string response = ProcessData(content, state.Client);
-                    SendData(handler, response);
+                        string response = ProcessData(content, state.Client);
+                        SendData(handler, response);
+                    }
+                    else
+                    {
+                        handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                    }
                 }
-                else
-                {
-                    handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"[ArbiterService::ReadCallback] - {ex.Message}", LogSeverity.Error);
             }
         }
 
@@ -153,15 +182,22 @@ namespace Tadah.Arbiter
             catch (Exception ex)
             {
 #if DEBUG
-                Log.Write($"[ArbiterService::SendCallback] {ex.ToString()}", LogSeverity.Error);
+                Log.Write($"[ArbiterService::SendCallback] {ex.Message}", LogSeverity.Error);
 #endif
             }
         }
 
         private static void SendData(Socket handler, string data)
         {
-            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
-            handler.BeginSend(dataBytes, 0, dataBytes.Length, 0, new AsyncCallback(SendCallback), handler);
+            try
+            {
+                byte[] dataBytes = Encoding.ASCII.GetBytes(data);
+                handler.BeginSend(dataBytes, 0, dataBytes.Length, 0, new AsyncCallback(SendCallback), handler);
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"[ArbiterService::SendData] {ex.Message}", LogSeverity.Error);
+            }
         }
 
         private static string ProcessData(string data, Client client)
@@ -170,7 +206,7 @@ namespace Tadah.Arbiter
             if (!TadahSignature.VerifyData(data, out string message))
             {
 #if DEBUG
-                Log.Write($"[ArbiterService::{client.IpAddress}] Bad or invalid signature", LogSeverity.Debug);
+                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid signature", LogSeverity.Debug);
 #endif
                 return "";
             }
@@ -183,7 +219,7 @@ namespace Tadah.Arbiter
             }
             catch
             {
-                Log.Write($"[ArbiterService::{client.IpAddress}] Bad or invalid data", LogSeverity.Warning);
+                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid data", LogSeverity.Warning);
                 return "";
             }
 
@@ -201,6 +237,17 @@ namespace Tadah.Arbiter
                                     Operation = "OpenJob",
                                     Success = false,
                                     Message = "Job already exists"
+                                });
+                            }
+
+                            if (!JobManager.IsValidVersion(request.Version))
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request.JobId}' and version '{request.Version}' - is not a valid version", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "OpenJob",
+                                    Success = false,
+                                    Message = "Invalid version"
                                 });
                             }
 
@@ -326,6 +373,8 @@ namespace Tadah.Arbiter
             }
             catch (Exception ex)
             {
+                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - {ex.Message}", LogSeverity.Error);
+
                 return JsonConvert.SerializeObject(new TadahResponse
                 {
                     Operation = request.Operation,

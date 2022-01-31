@@ -108,7 +108,7 @@ namespace Tadah.Arbiter
                 catch (InvalidOperationException ex)
                 {
 #if DEBUG
-                    Log.Write($"[RccServiceProcessManager::MonitorUnresponsiveProcesses] InvalidOperationException - {ex.ToString()}", LogSeverity.Debug);
+                    Log.Write($"[RccServiceProcessManager::MonitorUnresponsiveProcesses] InvalidOperationException - {ex.Message}", LogSeverity.Debug);
 #endif
                 }
 
