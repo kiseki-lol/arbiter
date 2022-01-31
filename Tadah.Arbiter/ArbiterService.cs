@@ -187,139 +187,151 @@ namespace Tadah.Arbiter
                 return "";
             }
 
-            switch (request.Operation)
+            try
             {
-                case "OpenJob":
+                switch (request.Operation)
                 {
-                    if (JobManager.JobExists(request.JobId))
-                    {
-                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request.JobId}' - it already exists", LogSeverity.Warning);
-                        return JsonConvert.SerializeObject(new TadahResponse
+                    case "OpenJob":
                         {
-                            Operation = "OpenJob",
-                            Success = false,
-                            Message = "Job already exists"
-                        });
-                    }
+                            if (JobManager.JobExists(request.JobId))
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request.JobId}' - it already exists", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "OpenJob",
+                                    Success = false,
+                                    Message = "Job already exists"
+                                });
+                            }
 
-                    Task.Run(() => JobManager.OpenJob(request.JobId, request.PlaceId, request.Version));
-                    return JsonConvert.SerializeObject(new TadahResponse
-                    {
-                        Operation = "OpenJob",
-                        Success = true
-                    });
-                }
+                            Task.Run(() => JobManager.OpenJob(request.JobId, request.PlaceId, request.Version));
+                            return JsonConvert.SerializeObject(new TadahResponse
+                            {
+                                Operation = "OpenJob",
+                                Success = true
+                            });
+                        }
 
-                case "CloseJob":
-                {
-                    if (JobManager.JobExists(request.JobId))
-                    {
-                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'CloseJob' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
-                        return JsonConvert.SerializeObject(new TadahResponse
+                    case "CloseJob":
                         {
-                            Operation = "CloseJob",
-                            Success = false,
-                            Message = "Job doesn't exist"
-                        });
-                    }
+                            if (JobManager.JobExists(request.JobId))
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'CloseJob' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "CloseJob",
+                                    Success = false,
+                                    Message = "Job doesn't exist"
+                                });
+                            }
 
-                    Task.Run(() => JobManager.CloseJob(request.JobId));
-                    return JsonConvert.SerializeObject(new TadahResponse
-                    {
-                        Operation = "CloseJob",
-                        Success = true
-                    });
-                }
+                            Task.Run(() => JobManager.CloseJob(request.JobId));
+                            return JsonConvert.SerializeObject(new TadahResponse
+                            {
+                                Operation = "CloseJob",
+                                Success = true
+                            });
+                        }
 
-                case "ExecuteScript":
-                {
-                    Job job = JobManager.GetJobFromId(request.JobId);
-
-                    if (job == null)
-                    {
-                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
-                        return JsonConvert.SerializeObject(new TadahResponse
+                    case "ExecuteScript":
                         {
-                            Operation = "ExecuteScript",
-                            Success = false,
-                            Message = "Job doesn't exist"
-                        });
-                    }
+                            Job job = JobManager.GetJobFromId(request.JobId);
 
-                    Task.Run(() => { job.ExecuteScript(request.Script); });
-                    return JsonConvert.SerializeObject(new TadahResponse
-                    {
-                        Operation = "ExecuteScript",
-                        Success = true
-                    });
-                }
+                            if (job == null)
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "ExecuteScript",
+                                    Success = false,
+                                    Message = "Job doesn't exist"
+                                });
+                            }
 
-                case "RenewRccServiceJobLease":
-                {
-                    Job job = JobManager.GetJobFromId(request.JobId);
+                            Task.Run(() => { job.ExecuteScript(request.Script); });
+                            return JsonConvert.SerializeObject(new TadahResponse
+                            {
+                                Operation = "ExecuteScript",
+                                Success = true
+                            });
+                        }
 
-                    if (job == null)
-                    {
-                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
-                        return JsonConvert.SerializeObject(new TadahResponse
+                    case "RenewRccServiceJobLease":
                         {
-                            Operation = "RenewRccServiceJobLease",
-                            Success = false,
-                            Message = "Job doesn't exist"
-                        });
-                    }
+                            Job job = JobManager.GetJobFromId(request.JobId);
 
-                    if (!(job is RccServiceJob))
-                    {
-                        Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - is not a RccServiceJob", LogSeverity.Warning);
-                        return JsonConvert.SerializeObject(new TadahResponse
+                            if (job == null)
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "RenewRccServiceJobLease",
+                                    Success = false,
+                                    Message = "Job doesn't exist"
+                                });
+                            }
+
+                            if (!(job is RccServiceJob))
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - is not a RccServiceJob", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "RenewRccServiceJobLease",
+                                    Success = false,
+                                    Message = "Job is not RccServiceJob"
+                                });
+                            }
+
+                            RccServiceJob rccJob = (RccServiceJob)job;
+                            Task.Run(() => { rccJob.RenewLease(request.ExpirationInSeconds); });
+
+                            return JsonConvert.SerializeObject(new TadahResponse
+                            {
+                                Operation = "RenewLease",
+                                Success = true
+                            });
+                        }
+
+                    case "CloseAllJobs":
                         {
-                            Operation = "RenewRccServiceJobLease",
-                            Success = false,
-                            Message = "Job is not RccServiceJob"
-                        });
-                    }
+                            Task.Run(() => { JobManager.CloseAllJobs(); });
+                            return JsonConvert.SerializeObject(new TadahResponse
+                            {
+                                Operation = "CloseAllJobs",
+                                Success = true
+                            });
+                        }
 
-                    RccServiceJob rccJob = (RccServiceJob)job;
-                    Task.Run(() => { rccJob.RenewLease(request.ExpirationInSeconds); });
+                    case "CloseAllRccServiceProcesses":
+                        {
+                            Task.Run(() => { RccServiceProcessManager.CloseAllProcesses(); });
+                            return JsonConvert.SerializeObject(new TadahResponse
+                            {
+                                Operation = "CloseAllRccServiceProcesses",
+                                Success = true
+                            });
+                        }
 
-                    return JsonConvert.SerializeObject(new TadahResponse
-                    {
-                        Operation = "RenewLease",
-                        Success = true
-                    });
+                    default:
+                        {
+                            Log.Write($"[ArbiterService::{client.IpAddress}] Invalid operation '{request.Operation}'", LogSeverity.Warning);
+                            return JsonConvert.SerializeObject(new TadahResponse
+                            {
+                                Operation = request.Operation,
+                                Success = false,
+                                Message = "Invalid operation"
+                            });
+                        }
                 }
-
-                case "CloseAllJobs":
+            }
+            catch (Exception ex)
+            {
+                return JsonConvert.SerializeObject(new TadahResponse
                 {
-                    Task.Run(() => { JobManager.CloseAllJobs(); });
-                    return JsonConvert.SerializeObject(new TadahResponse
-                    {
-                        Operation = "CloseAllJobs",
-                        Success = true
-                    });
-                }
-
-                case "CloseAllRccServiceProcesses":
-                {
-                    Task.Run(() => { RccServiceProcessManager.CloseAllProcesses(); });
-                    return JsonConvert.SerializeObject(new TadahResponse
-                    {
-                        Operation = "CloseAllRccServiceProcesses",
-                        Success = true
-                    });
-                }
-
-                default:
-                {
-                    Log.Write($"[ArbiterService::{client.IpAddress}] Invalid operation '{request.Operation}'", LogSeverity.Warning);
-                    return JsonConvert.SerializeObject(new TadahResponse
-                    {
-                        Operation = request.Operation,
-                        Success = false,
-                        Message = "Invalid operation"
-                    });
-                }
+                    Operation = request.Operation,
+                    Success = false,
+                    Message = ex.Message
+                });
             }
         }
     }
