@@ -10,10 +10,6 @@ Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) w
 - Messages must end with `<<<EOF>>>`
 - Better logging system
 
-## TODO
-- Determine end of message stream without `<<<EOF>>>` delimiter
-- Script execution results
-
 ## Usage
 
 Keys may be generated like so. Passphrase protected keys are currently not supported.
