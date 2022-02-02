@@ -22,13 +22,13 @@ $ openssl genrsa -out private.pem 2048
 $ openssl rsa -in private.pem -outform PEM -pubout -out public.pem
 ```
 
-Messages made to the Arbiter must have the format `%signature%message<EOF>`.
+Messages made to the Arbiter must have the format `%signature%timestamp:message<EOF>`. Only the `timestamp:message` part has to be signed. `timestamp` must represent the current unix timestamp. Requests older than five seconds are discarded.
 
 Example PHP implementation:
 
 ```php
 $key = file_get_contents('./private.pem');
-$message = json_encode($message); // containing keys 'Operation', 'JobId', ...
+$message = time() . ':' . json_encode($message); // containing keys 'Operation', 'JobId', ...
 
 openssl_sign($message, $signature, $key, OPENSSL_ALGO_SHA256);
 $signature = '%' . base64_encode($signature) . '%';

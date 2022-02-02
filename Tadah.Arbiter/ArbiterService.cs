@@ -140,13 +140,19 @@ namespace Tadah.Arbiter
 
             try
             {
-
                 int read = handler.EndReceive(result);
 
                 if (read > 0)
                 {
                     state.Builder.Append(Encoding.ASCII.GetString(state.Buffer, 0, read));
                     content = state.Builder.ToString();
+
+                    if (content.Length > 0 && !content.StartsWith("%"))
+                    {
+                        // YAAAAAAAAAAAAAAAAAAAAY.
+                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Did not include a signature", LogSeverity.Warning);
+                        SendData(handler, "");
+                    }
 
                     if (content.IndexOf(EOFDelimiter) > -1)
                     {
