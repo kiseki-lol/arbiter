@@ -89,10 +89,11 @@ namespace Tadah.Arbiter
             {
                 { "severity", ((int) severity).ToString() },
                 { "timestamp", timestamp.ToString() },
-                { "output", output }
+                { "output", output },
+                { "blur", (output.Contains(AppSettings.AccessKey) ? AppSettings.AccessKey : "") }
             };
 
-            if (AppSettings.GameserverId == String.Empty)
+            if (AppSettings.GameserverId == null)
             {
                 LogsToSend.Add(data);
                 return;
@@ -104,6 +105,8 @@ namespace Tadah.Arbiter
                 {
                     Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(log));
                 }
+
+                LogsToSend.Clear();
             }
 
             Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(data));
@@ -163,7 +166,16 @@ namespace Tadah.Arbiter
 
         public static string GetGameserverId()
         {
-            return Request($"/identify?name={HttpUtility.UrlEncode(Environment.MachineName)}", HttpMethod.Get);
+            string offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).ToString();
+            offset = offset.Substring(0, offset.Length - 3); // "-07:00:00" -> "-07:00"
+
+            Dictionary<string, string> data = new Dictionary<string, string>
+            {
+                { "name", Environment.MachineName },
+                { "utc_offset", offset }
+            };
+
+            return Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data));
         }
     }
 }
