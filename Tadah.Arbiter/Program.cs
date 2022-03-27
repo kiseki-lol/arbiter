@@ -16,14 +16,14 @@ namespace Tadah.Arbiter
 #endif
             Log.Write("Service starting...", LogSeverity.Boot);
             AppSettings.GameserverId = Http.GetGameserverId();
-            Log.Write($"Assigned GameserverId: {Guid.NewGuid()}", LogSeverity.Boot);
+            Log.Write($"Assigned GameserverId: {AppSettings.GameserverId}", LogSeverity.Boot);
 
             Task.Run(() => JobManager.MonitorCrashedJobs());
             Task.Run(() => JobManager.MonitorUnresponsiveJobs());
             Task.Run(() => RccServiceProcessManager.MonitorUnresponsiveProcesses());
             Task.Run(() => Http.StartResourceReporter());
 
-            Http.NotifyStatus(true);
+            Http.UpdateState(GameServerState.Online);
             new Mutex(true, "ROBLOX_singletonMutex");
             new Mutex(true, "COMET_singletonMutex");
 
@@ -37,8 +37,9 @@ namespace Tadah.Arbiter
                 Log.Write("Service shutting down...", LogSeverity.Event);
 
                 ArbiterService.Stop();
-                Http.NotifyStatus(false);
                 JobManager.CloseAllJobs();
+
+                Http.UpdateState(GameServerState.Offline);
 
                 // wait for web requests to finish
                 Thread.Sleep(10000);

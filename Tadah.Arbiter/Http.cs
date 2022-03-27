@@ -5,12 +5,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Tadah.Arbiter
 {
     public class Http
     {
         private static readonly HttpClient WebClient = new HttpClient();
+        private static List<Dictionary<string, string>> LogsToSend = new List<Dictionary<string, string>>();
 
         public static int GetAvailableMemory()
         {
@@ -26,10 +28,23 @@ namespace Tadah.Arbiter
             return (int)Math.Round(performance.NextValue());
         }
 
+        public static int GetOutboundTraffic()
+        {
+            return 0;
+        }
+
+        public static int GetInboundTraffic()
+        {
+            return 0;
+        }
+
         public static string ConstructUrl(string path, bool https = true)
         {
             string host = "http";
+
+#if (!DEBUG)
             if (https) host += "s";
+#endif
 
             return $"{host}://{AppSettings.BaseUrl}{path}";
         }
@@ -68,14 +83,35 @@ namespace Tadah.Arbiter
             }
         }
 
-        public static void Log(string text)
+        public static void Log(LogSeverity severity, int timestamp, string output)
         {
-            Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new StringContent(text));
+            Dictionary<string, string> data = new Dictionary<string, string>
+            {
+                { "severity", ((int) severity).ToString() },
+                { "timestamp", timestamp.ToString() },
+                { "output", output }
+            };
+
+            if (AppSettings.GameserverId == String.Empty)
+            {
+                LogsToSend.Add(data);
+                return;
+            }
+
+            if (LogsToSend.Count > 0)
+            {
+                foreach (Dictionary<string, string> log in LogsToSend)
+                {
+                    Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(log));
+                }
+            }
+
+            Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(data));
         }
 
-        public static void NotifyStatus(bool online)
+        public static void UpdateState(GameServerState state)
         {
-            Request($"/{AppSettings.GameserverId}/status?status={(online ? 1 : 0)}", HttpMethod.Get);
+            Request($"/{AppSettings.GameserverId}/status?state={((int) state).ToString()}", HttpMethod.Get);
         }
 
         public static void Fatal(string exception)
@@ -92,20 +128,24 @@ namespace Tadah.Arbiter
         {
             while (true)
             {
-                string availableRAM = GetAvailableMemory().ToString();
-                string cpuUsage = GetCpuUsage().ToString();
+                string ram = GetAvailableMemory().ToString();
+                string cpu = GetCpuUsage().ToString();
+                string inbound = GetInboundTraffic().ToString();
+                string outbound = GetOutboundTraffic().ToString();
 
                 Dictionary<string, string> data = new Dictionary<string, string>
                 {
-                    { "cpuUsage", cpuUsage },
-                    { "availableMemory", availableRAM },
+                    { "cpu", cpu },
+                    { "ram", ram },
+                    { "inbound", inbound },
+                    { "outbound", outbound }
                 };
 
                 FormUrlEncodedContent content = new FormUrlEncodedContent(data);
 
-                Request($"/{AppSettings.GameserverId}/report-resources", HttpMethod.Post, content);
+                Request($"/{AppSettings.GameserverId}/resources", HttpMethod.Post, content);
 
-                Thread.Sleep(30000);
+                Thread.Sleep(15000);
             }
         }
 
@@ -123,7 +163,7 @@ namespace Tadah.Arbiter
 
         public static string GetGameserverId()
         {
-            return Request($"/id", HttpMethod.Get);
+            return Request($"/identify?name={HttpUtility.UrlEncode(Environment.MachineName)}", HttpMethod.Get);
         }
     }
 }

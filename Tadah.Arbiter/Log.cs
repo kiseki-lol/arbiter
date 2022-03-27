@@ -116,9 +116,10 @@ namespace Tadah.Arbiter
                 {
                     ConsoleColor color = SeverityToColor(severity);
                     string _event = SeverityToEvent(severity);
-                    string time = DateTime.Now.ToString("G");
+                    DateTime time = DateTime.Now;
 
-                    Console.Write($"[{time}] ");
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write($"[{time.ToString("G")}] ");
 
                     Console.ForegroundColor = color;
                     Console.Write($"[{_event}]");
@@ -126,7 +127,7 @@ namespace Tadah.Arbiter
 
                     Console.WriteLine($" {message}");
 
-                    Task.Run(() => { Http.Log($"[{time}] [{_event}] {message}"); });
+                    Task.Run(() => { Http.Log(severity, (int) ((DateTimeOffset)time).ToUnixTimeSeconds(), message); });
 
                     Writer.WriteLine($"[{time}] [{_event}] {message}");
                     Writer.Flush();
