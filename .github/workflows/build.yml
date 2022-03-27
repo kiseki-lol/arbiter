@@ -6,7 +6,10 @@ jobs:
   build:
  
     runs-on: windows-latest
- 
+    
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      
     steps:
     - uses: actions/checkout@v1
       name: Checkout Code
@@ -28,3 +31,4 @@ jobs:
       with:
         name: published_webapp
         path: bin\Release\Publish
+     
