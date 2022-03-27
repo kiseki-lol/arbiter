@@ -20,10 +20,10 @@ jobs:
       run: nuget restore Tadah.Arbiter.sln
       
     - name: Build app for release
-      run: msbuild Tadah.Arbiter/Tadah.Arbiter.csproj -t:rebuild -verbosity:diag -property:Configuration=Release
+      run: msbuild Tadah.Arbiter\Tadah.Arbiter.csproj -t:rebuild -property:Configuration=Release
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: Tadah.Arbiter
-        path: bin\Release
+        path: Tadah.Arbiter\bin\Release
