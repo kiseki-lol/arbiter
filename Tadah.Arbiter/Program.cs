@@ -12,7 +12,7 @@ namespace Tadah.Arbiter
             Log.Write($"Access Key read: {AppSettings.AccessKey}", LogSeverity.Boot);
             Log.Write($"Current Access key: {AppSettings.AccessKey}", LogSeverity.Boot);
 #else
-            Log.Write("Access Key read", LogSeverity.Information, "startup");
+            Log.Write("Access Key read", LogSeverity.Information);
 #endif
             Log.Write("Service starting...", LogSeverity.Boot);
             AppSettings.GameserverId = Http.GetGameserverId();
