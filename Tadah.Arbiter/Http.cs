@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -28,9 +29,25 @@ namespace Tadah.Arbiter
             return (int)Math.Round(performance.NextValue());
         }
 
-        public static int GetOutboundTraffic()
+        public static Tuple<int, int> GetNetworkTraffic()
         {
-            return 0;
+            if (!NetworkInterface.GetIsNetworkAvailable())
+            {
+                return new Tuple<int, int>(0, 0);
+            }
+            
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            
+            int sent = 0;
+            int received = 0;
+
+            foreach (NetworkInterface ni in interfaces)
+            {
+                sent += (int) ni.GetIPStatistics().BytesSent;
+                received += (int) ni.GetIPStatistics().BytesReceived;
+            }
+
+            return new Tuple<int, int>(sent, received);
         }
 
         public static int GetInboundTraffic()
@@ -133,15 +150,14 @@ namespace Tadah.Arbiter
             {
                 string ram = GetAvailableMemory().ToString();
                 string cpu = GetCpuUsage().ToString();
-                string inbound = GetInboundTraffic().ToString();
-                string outbound = GetOutboundTraffic().ToString();
+                Tuple<int, int> traffic = GetNetworkTraffic();
 
                 Dictionary<string, string> data = new Dictionary<string, string>
                 {
                     { "cpu", cpu },
                     { "ram", ram },
-                    { "inbound", inbound },
-                    { "outbound", outbound }
+                    { "inbound", traffic.Item1.ToString() },
+                    { "outbound", traffic.Item2.ToString() }
                 };
 
                 FormUrlEncodedContent content = new FormUrlEncodedContent(data);
