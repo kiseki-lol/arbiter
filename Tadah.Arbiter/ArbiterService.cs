@@ -122,12 +122,10 @@ namespace Tadah.Arbiter
                 }
                 catch (Exception ex)
                 {
-                    Log.Write($"[ArbiterService::AcceptCallback] '{client.IpAddress}' - {ex.Message}", LogSeverity.Error);
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"[ArbiterService::AcceptCallback] {ex.Message}", LogSeverity.Error);
             }
         }
 
