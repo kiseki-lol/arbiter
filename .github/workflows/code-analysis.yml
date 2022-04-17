@@ -1,0 +1,23 @@
+name: code analysis
+ 
+on: [push]
+ 
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout Code
+      
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1
+     
+    - name: Restore NuGet Packages
+      run: nuget restore Tadah.Arbiter.sln
+      
+    - name: Run .NET Code Analysis
+      uses: dotnet/code-analysis@v1
+      id: code-analysis
+      with:
+        build-breaking: true
