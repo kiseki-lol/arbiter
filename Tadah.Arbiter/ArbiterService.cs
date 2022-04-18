@@ -120,12 +120,14 @@ namespace Tadah.Arbiter
 
                     handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
+                    // idc
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+                // idc
             }
         }
 
