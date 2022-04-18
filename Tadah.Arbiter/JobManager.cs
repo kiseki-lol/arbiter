@@ -35,11 +35,16 @@ namespace Tadah.Arbiter
         {
             switch (version)
             {
-                case 2009:
-                    return new string[] { "Gameservers\\2009\\TadahServer.exe", $"-script {scriptUrl}" };
+                case 2008:
+                    return new string[] { "Gameservers\\2008\\TadahServer.exe", $"-script {scriptUrl}" };
 
-                case 2013:
+                case 2010:
+                case 2011:
+                case 2012:
                     return new string[] { "Gameservers\\2013\\TadahServer.exe", $"-a 0 -t 0 -j {scriptUrl}" };
+
+                case 2016:
+                    throw new Exception("Attempt to get command line for RccServiceJob");
 
                 default:
                     return new string[] { };

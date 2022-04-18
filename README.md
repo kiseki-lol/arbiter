@@ -5,7 +5,7 @@
 Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) with the following changes:
 - Messages *must* be signed
 - Uses Tadah website routes
-- 2009, 2013, and 2016 instead of 2010, 2011, and 2012
+- 2008 and 2016 client support
 - LuaPipes
 - Script execution
 - Proper TCP server
