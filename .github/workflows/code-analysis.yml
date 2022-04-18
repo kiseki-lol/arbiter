@@ -17,7 +17,7 @@ jobs:
       run: nuget restore Tadah.Arbiter.sln
       
     - name: Run .NET Code Analysis
-      uses: dotnet/code-analysis@v1
+      uses: dotnet/code-analysis@main
       id: code-analysis
       with:
         build-breaking: true
