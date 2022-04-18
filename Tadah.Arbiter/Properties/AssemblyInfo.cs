@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Tadah.Arbiter")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Tadah Arbiter")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Tadah")]
 [assembly: AssemblyProduct("Tadah.Arbiter")]
 [assembly: AssemblyCopyright("Copyright © Tadah 2022")]
 [assembly: AssemblyTrademark("")]

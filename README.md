@@ -1,4 +1,7 @@
 # Tadah.Arbiter
+
+[![Build Status](https://github.com/tadah-dev/Tadah.Arbiter/workflows/build/badge.svg)](https://github.com/tadah-dev/Tadah.Arbiter/actions) [![Code Analysis Status](https://github.com/tadah-dev/Tadah.Arbiter/workflows/code%20analysis/badge.svg)](https://github.com/tadah-dev/Tadah.Arbiter/actions)
+
 Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) with the following changes:
 - Messages *must* be signed
 - Uses Tadah website routes

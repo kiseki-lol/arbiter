@@ -3,7 +3,8 @@ name: code analysis
 on: [push]
  
 jobs:
-  build:
+  dotnet:
+    name: .NET 4.8
     runs-on: windows-2019
     
     steps:

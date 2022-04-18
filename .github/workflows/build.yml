@@ -1,9 +1,10 @@
 name: build
- 
+
 on: [push]
- 
+
 jobs:
-  build:
+  msbuild:
+    name: MSBuild
     runs-on: windows-latest
     
     steps:
