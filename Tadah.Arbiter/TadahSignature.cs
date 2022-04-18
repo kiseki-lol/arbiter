@@ -54,13 +54,12 @@ namespace Tadah.Arbiter
             try
             {
                 string signature = data.Substring(1, data.Substring(1).IndexOf("%"));
-                string _message = data.Substring(signature.Length + 2);
-                string nonce = data.Substring(0, data.IndexOf(":"));
+                string nonce = data.Substring(signature.Length + 2, data.IndexOf(":") - (signature.Length + 2));
 
-                bool signatureOK = Verify(data, signature);
+                message = data.Substring(signature.Length + nonce.Length + 3);
+
+                bool signatureOK = Verify(message, signature);
                 bool nonceOK = (Unix.GetTimestamp() - Convert.ToInt32(nonce)) <= 5;
-                
-                message = _message.Substring(nonce.Length + 1);
 
                 return nonceOK && signatureOK;
             }

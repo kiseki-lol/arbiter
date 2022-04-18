@@ -19,6 +19,3 @@ jobs:
       
     - name: Run .NET Code Analysis
       uses: dotnet/code-analysis@main
-      id: code-analysis
-      with:
-        build-breaking: true
