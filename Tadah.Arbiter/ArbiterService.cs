@@ -12,7 +12,7 @@ namespace Tadah.Arbiter
     internal struct Client
     {
         public string IpAddress { get; private set; }
-        public int Port { get; private set;  }
+        public int Port { get; private set; }
         public Socket Socket { get; set; }
 
         public Client(Socket socket)
@@ -35,7 +35,7 @@ namespace Tadah.Arbiter
                 this.IpAddress = local.Address.ToString();
                 this.Port = local.Port;
             }
-            
+
             if (local == null && remote == null)
             {
                 throw new Exception("Failed to resolve information from socket");
@@ -74,7 +74,7 @@ namespace Tadah.Arbiter
             {
                 Log.Error($"Failed to initialize ArbiterService on port {AppSettings.ServicePort}");
             }
-            
+
             return AppSettings.ServicePort;
         }
 

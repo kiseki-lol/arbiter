@@ -129,7 +129,7 @@ namespace Tadah.Arbiter
 
                     Writer.WriteLine($"[{time}] [{_event}] {message.Replace(AppSettings.AccessKey, "*********")}");
 
-                    Http.Log(severity, (int) ((DateTimeOffset)time).ToUnixTimeSeconds(), message);
+                    Http.Log(severity, (int)((DateTimeOffset)time).ToUnixTimeSeconds(), message);
 
                     Writer.Flush();
                 }

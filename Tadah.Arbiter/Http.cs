@@ -35,16 +35,16 @@ namespace Tadah.Arbiter
             {
                 return new Tuple<int, int>(0, 0);
             }
-            
+
             NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            
+
             int sent = 0;
             int received = 0;
 
             foreach (NetworkInterface ni in interfaces)
             {
-                sent += (int) ni.GetIPStatistics().BytesSent;
-                received += (int) ni.GetIPStatistics().BytesReceived;
+                sent += (int)ni.GetIPStatistics().BytesSent;
+                received += (int)ni.GetIPStatistics().BytesReceived;
             }
 
             return new Tuple<int, int>(sent, received);
@@ -131,7 +131,7 @@ namespace Tadah.Arbiter
 
         public static void UpdateState(GameServerState state)
         {
-            Request($"/{AppSettings.GameserverId}/status?state={((int) state).ToString()}", HttpMethod.Get);
+            Request($"/{AppSettings.GameserverId}/status?state={((int)state).ToString()}", HttpMethod.Get);
         }
 
         public static void Fatal(string exception)

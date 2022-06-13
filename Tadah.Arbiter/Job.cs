@@ -62,7 +62,7 @@ namespace Tadah.Arbiter
         {
             string result = this.InternalClose(forceClose);
 
-            this.Status = (JobStatus) Enum.Parse(typeof(JobStatus), result);
+            this.Status = (JobStatus)Enum.Parse(typeof(JobStatus), result);
             this.TimeClosed = DateTime.UtcNow;
             Http.UpdateJob(Id, result);
 
