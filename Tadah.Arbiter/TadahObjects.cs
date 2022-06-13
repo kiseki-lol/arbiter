@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Tadah.Arbiter
+﻿namespace Tadah.Arbiter
 {
     public class TadahMessage
     {
