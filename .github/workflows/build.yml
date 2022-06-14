@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   win-x86:
-    name: Windows (x86)
     runs-on: ubuntu-latest
     
     steps:
@@ -13,9 +12,6 @@ jobs:
       
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v2
-     
-    - name: Install packages
-      run: dotnet restore
       
     - name: Build
       run: dotnet publish -r win-x86 -c release
@@ -24,4 +20,61 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tadah.Arbiter
-        path: Tadah.Arbiter\bin\Release\net6.0\win-x86\publish
+        path: Tadah.Arbiter\bin\Release\net6.0\win-x86\publish\
+  
+  win-x64:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout Code
+      
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      
+    - name: Build
+      run: dotnet publish -r win-x64 -c release
+ 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tadah.Arbiter
+        path: Tadah.Arbiter\bin\Release\net6.0\win-x64\publish\
+  
+  linux-x86:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout Code
+      
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      
+    - name: Build
+      run: dotnet publish -r linux-x86 -c release
+ 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tadah.Arbiter
+        path: Tadah.Arbiter\bin\Release\net6.0\linux-x86\publish\
+ 
+  linux-x64:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout Code
+      
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      
+    - name: Build
+      run: dotnet publish -r linux-x86 -c release
+ 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tadah.Arbiter
+        path: Tadah.Arbiter\bin\Release\net6.0\linux-x86\publish\
