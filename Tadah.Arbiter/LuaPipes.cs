@@ -13,6 +13,11 @@ namespace Tadah.Arbiter
 
         public static bool Exists(string pipeName)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException("LuaPipes is only available on Windows");
+            }
+
             try
             {
                 if (!WaitNamedPipe(Path.GetFullPath(string.Format("\\\\.\\pipe\\{0}", pipeName)), 0))
@@ -35,6 +40,11 @@ namespace Tadah.Arbiter
 
         private static byte[] ReadMessage(PipeStream pipe)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException("LuaPipes is only available on Windows");
+            }
+
             byte[] buffer = new byte[1024];
             using (var stream = new MemoryStream())
             {
@@ -49,6 +59,11 @@ namespace Tadah.Arbiter
 
         public static string Send(string pipe, string input)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException("LuaPipes is only available on Windows");
+            }
+
             if (Exists(pipe))
             {
                 try
