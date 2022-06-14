@@ -53,9 +53,9 @@ namespace Tadah.Arbiter
 
         public static int GetAvailablePort()
         {
-            int port = AppSettings.BasePort;
+            int port = Convert.ToInt32(Configuration.AppSettings["BasePort"]);
 
-            for (int i = 0; i < AppSettings.MaximumJobs; i++)
+            for (int i = 0; i < Convert.ToInt32(Configuration.AppSettings["MaximumJobs"]); i++)
             {
                 if (OpenJobs.Find(job => job.Port == port) == null)
                 {

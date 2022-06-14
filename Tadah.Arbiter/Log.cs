@@ -124,9 +124,9 @@ namespace Tadah.Arbiter
                     Console.Write($"[{_event}]");
                     Console.ForegroundColor = ConsoleColor.Gray;
 
-                    Console.WriteLine($" {message.Replace(AppSettings.AccessKey, "")}");
+                    Console.WriteLine($" {message.Replace(Configuration.AppSettings["AccessKey"], "")}");
 
-                    Writer.WriteLine($"[{time}] [{_event}] {message.Replace(AppSettings.AccessKey, "*********")}");
+                    Writer.WriteLine($"[{time}] [{_event}] {message.Replace(Configuration.AppSettings["AccessKey"], "*********")}");
 
                     Http.Log(severity, (int)((DateTimeOffset)time).ToUnixTimeSeconds(), message);
 

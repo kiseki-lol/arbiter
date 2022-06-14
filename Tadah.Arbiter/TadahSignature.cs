@@ -11,7 +11,7 @@ namespace Tadah.Arbiter
 {
     public static class TadahSignature
     {
-        private static RSACryptoServiceProvider publicRsa = ReadPublicKey(AppSettings.PublicKeyPath);
+        private static RSACryptoServiceProvider publicRsa = ReadPublicKey("");
 
         private static RSACryptoServiceProvider ReadPublicKey(string path)
         {

@@ -9,14 +9,14 @@ namespace Tadah.Arbiter
         internal static void Main(string[] args)
         {
 #if DEBUG
-            Log.Write($"Access Key read: {AppSettings.AccessKey}", LogSeverity.Boot);
-            Log.Write($"Current Access key: {AppSettings.AccessKey}", LogSeverity.Boot);
+            Log.Write($"Access Key read: {Configuration.AppSettings["AccessKey"]}", LogSeverity.Boot);
+            Log.Write($"Current Access key: {Configuration.AppSettings["AccessKey"]}", LogSeverity.Boot);
 #else
             Log.Write("Access Key read", LogSeverity.Information);
 #endif
             Log.Write("Service starting...", LogSeverity.Boot);
-            AppSettings.GameserverId = Http.GetGameserverId();
-            Log.Write($"Assigned GameserverId: {AppSettings.GameserverId}", LogSeverity.Boot);
+            Configuration.GameserverId = Http.GetGameserverId();
+            Log.Write($"Assigned GameserverId: {Configuration.GameserverId}", LogSeverity.Boot);
 
             Task.Run(() => JobManager.MonitorCrashedJobs());
             Task.Run(() => JobManager.MonitorUnresponsiveJobs());

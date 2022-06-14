@@ -59,7 +59,7 @@ namespace Tadah.Arbiter
 
         public static int Start()
         {
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, AppSettings.ServicePort);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Convert.ToInt32(Configuration.AppSettings["ServicePort"]));
 
             Listener = new Socket(IPAddress.Any.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -71,10 +71,10 @@ namespace Tadah.Arbiter
             }
             catch
             {
-                Log.Error($"Failed to initialize ArbiterService on port {AppSettings.ServicePort}");
+                Log.Error($"Failed to initialize ArbiterService on port {Configuration.AppSettings["ServicePort"]}");
             }
 
-            return AppSettings.ServicePort;
+            return Convert.ToInt32(Configuration.AppSettings["ServicePort"]);
         }
 
         public static void Stop()
@@ -256,7 +256,7 @@ namespace Tadah.Arbiter
                                 });
                             }
 
-                            if (JobManager.OpenJobs.Count >= AppSettings.MaximumJobs)
+                            if (JobManager.OpenJobs.Count >= Convert.ToInt32(Configuration.AppSettings["MaximumJobs"]))
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' - maximum amount of jobs reached", LogSeverity.Warning);
                                 return JsonConvert.SerializeObject(new TadahResponse
@@ -334,7 +334,7 @@ namespace Tadah.Arbiter
                                 });
                             }
 
-                            if (!(job is RccServiceJob))
+                            if (job is not RccServiceJob)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - is not a RccServiceJob", LogSeverity.Warning);
                                 return JsonConvert.SerializeObject(new TadahResponse

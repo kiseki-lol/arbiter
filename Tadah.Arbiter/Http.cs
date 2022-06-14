@@ -61,7 +61,7 @@ namespace Tadah.Arbiter
             if (https) host += "s";
 #endif
 
-            return $"{host}://{AppSettings.BaseUrl}{path}";
+            return $"{host}://{Configuration.AppSettings["BaseUrl"]}{path}";
         }
 
         public static string GetGameserverScript(string jobId, int placeId, int port, bool returnData = false)
@@ -71,7 +71,7 @@ namespace Tadah.Arbiter
             if (!returnData)
             {
                 // Since this is called on Roblox, we must pass our key
-                return ConstructUrl(url + $"&{AppSettings.AccessKey}", false);
+                return ConstructUrl(url + $"&{Configuration.AppSettings["AccessKey"]}", false);
             }
 
             return Request(ConstructUrl(url), HttpMethod.Get);
@@ -81,7 +81,7 @@ namespace Tadah.Arbiter
         {
             using (var message = new HttpRequestMessage(method, ConstructUrl(uri)))
             {
-                message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AppSettings.AccessKey);
+                message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", Configuration.AppSettings["AccessKey"]);
 
                 if (content != null && method == HttpMethod.Post)
                 {
@@ -105,10 +105,10 @@ namespace Tadah.Arbiter
                 { "severity", ((int) severity).ToString() },
                 { "timestamp", timestamp.ToString() },
                 { "output", output },
-                { "blur", (output.Contains(AppSettings.AccessKey) ? AppSettings.AccessKey : "") }
+                { "blur", (output.Contains(Configuration.AppSettings["AccessKey"]) ? Configuration.AppSettings["AccessKey"] : "") }
             };
 
-            if (AppSettings.GameserverId == null)
+            if (Configuration.GameserverId == null)
             {
                 LogsToSend.Add(data);
                 return;
@@ -118,18 +118,18 @@ namespace Tadah.Arbiter
             {
                 foreach (Dictionary<string, string> log in LogsToSend)
                 {
-                    Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(log));
+                    Request($"/{Configuration.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(log));
                 }
 
                 LogsToSend.Clear();
             }
 
-            Request($"/{AppSettings.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(data));
+            Request($"/{Configuration.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(data));
         }
 
         public static void UpdateState(GameServerState state)
         {
-            Request($"/{AppSettings.GameserverId}/status?state={((int)state).ToString()}", HttpMethod.Get);
+            Request($"/{Configuration.GameserverId}/status?state={((int)state).ToString()}", HttpMethod.Get);
         }
 
         public static void Fatal(string exception)
@@ -139,7 +139,7 @@ namespace Tadah.Arbiter
                 { "exception", exception }
             };
 
-            Request($"/{AppSettings.GameserverId}/fatal", HttpMethod.Post, new FormUrlEncodedContent(data));
+            Request($"/{Configuration.GameserverId}/fatal", HttpMethod.Post, new FormUrlEncodedContent(data));
         }
 
         public static void StartResourceReporter()
@@ -160,7 +160,7 @@ namespace Tadah.Arbiter
 
                 FormUrlEncodedContent content = new FormUrlEncodedContent(data);
 
-                Request($"/{AppSettings.GameserverId}/resources", HttpMethod.Post, content);
+                Request($"/{Configuration.GameserverId}/resources", HttpMethod.Post, content);
 
                 Thread.Sleep(15000);
             }
@@ -172,7 +172,7 @@ namespace Tadah.Arbiter
 
             if (port != 0)
             {
-                parameters += $"&machineAddress={AppSettings.MachineAddress}";
+                parameters += $"&machineAddress={Configuration.AppSettings["MachineAddress"]}";
             }
 
             Request($"/{jobId}/update?{parameters}", HttpMethod.Get);
