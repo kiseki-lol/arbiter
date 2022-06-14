@@ -3,28 +3,25 @@ name: build
 on: [push]
 
 jobs:
-  msbuild:
-    name: MSBuild
-    runs-on: windows-latest
+  win-x86:
+    name: Windows (x86)
+    runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v3
       name: Checkout Code
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
       
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
      
-    - name: Restore NuGet Packages
-      run: nuget restore Tadah.Arbiter.sln
+    - name: Install packages
+      run: dotnet restore
       
-    - name: Build app for release
-      run: msbuild Tadah.Arbiter\Tadah.Arbiter.csproj -t:rebuild -property:Configuration=Release
+    - name: Build
+      run: dotnet publish -r win-x86 -c release
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: Tadah.Arbiter
-        path: Tadah.Arbiter\bin\Release
+        path: Tadah.Arbiter\bin\Release\net6.0\win-x86\publish
