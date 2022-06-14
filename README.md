@@ -1,6 +1,5 @@
 # Tadah.Arbiter
-
-[![Build Status](https://github.com/tadah-dev/Tadah.Arbiter/workflows/build/badge.svg)](https://github.com/tadah-dev/Tadah.Arbiter/actions)
+Manages Tadah game servers
 
 Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) with the following changes:
 - Messages *must* be signed
