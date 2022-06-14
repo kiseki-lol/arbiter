@@ -14,13 +14,13 @@ jobs:
       uses: actions/setup-dotnet@v2
       
     - name: Build
-      run: dotnet publish -r win-x86 -c release
+      run: dotnet publish -r win-x86 -c release -o publish
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tadah.Arbiter
-        path: Tadah.Arbiter\bin\Release\net6.0\win-x86\publish\
+        name: win-x86
+        path: publish
   
   win-x64:
     runs-on: ubuntu-latest
@@ -33,13 +33,13 @@ jobs:
       uses: actions/setup-dotnet@v2
       
     - name: Build
-      run: dotnet publish -r win-x64 -c release
+      run: dotnet publish -r win-x64 -c release -o publish
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tadah.Arbiter
-        path: Tadah.Arbiter\bin\Release\net6.0\win-x64\publish\
+        name: win-x64
+        path: publish
   
   linux-x64:
     runs-on: ubuntu-latest
@@ -52,10 +52,10 @@ jobs:
       uses: actions/setup-dotnet@v2
       
     - name: Build
-      run: dotnet publish -r linux-x64 -c release
+      run: dotnet publish -r linux-x64 -c release -o publish
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tadah.Arbiter
-        path: Tadah.Arbiter\bin\Release\net6.0\linux-x64\publish\
+        name: linux-x64
+        path: publish

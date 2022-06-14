@@ -12,9 +12,9 @@ namespace Tadah.Arbiter
 
         private static int GetAvailableRccSoapPort()
         {
-            int port = Convert.ToInt32(Configuration.AppSettings["BaseRccSoapPort"]);
+            int port = int.Parse(Configuration.AppSettings["BaseRccSoapPort"]);
 
-            for (int i = 0; i < Convert.ToInt32(Configuration.AppSettings["MaximumRccProcesses"]); i++)
+            for (int i = 0; i < int.Parse(Configuration.AppSettings["MaximumRccProcesses"]); i++)
             {
                 if (OpenProcesses.Find(process => process.SoapPort == port) == null)
                 {
@@ -31,7 +31,7 @@ namespace Tadah.Arbiter
 
         public static RccServiceProcess New()
         {
-            if (OpenProcesses.Count >= Convert.ToInt32(Configuration.AppSettings["MaximumRccProcesses"]))
+            if (OpenProcesses.Count >= int.Parse(Configuration.AppSettings["MaximumRccProcesses"]))
             {
                 throw new Exception("Maximum amount of RCC processes reached");
             }
@@ -51,7 +51,7 @@ namespace Tadah.Arbiter
             }
 
             RccServiceProcess best = OpenProcesses.OrderBy(Process => Process.Jobs.Count).Last();
-            if (best.Jobs.Count >= Convert.ToInt32(Configuration.AppSettings["MaximumJobsPerRcc"]))
+            if (best.Jobs.Count >= int.Parse(Configuration.AppSettings["MaximumJobsPerRcc"]))
             {
                 return New();
             }

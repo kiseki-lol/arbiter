@@ -59,7 +59,7 @@ namespace Tadah.Arbiter
                 message = data.Substring(signature.Length + nonce.Length + 3);
 
                 bool signatureOK = Verify(message, signature);
-                bool nonceOK = (Unix.GetTimestamp() - Convert.ToInt32(nonce)) <= 5;
+                bool nonceOK = (Unix.GetTimestamp() - int.Parse(nonce)) <= 5;
 
                 return nonceOK && signatureOK;
             }

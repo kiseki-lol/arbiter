@@ -59,7 +59,7 @@ namespace Tadah.Arbiter
 
         public static int Start()
         {
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Convert.ToInt32(Configuration.AppSettings["ServicePort"]));
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, int.Parse(Configuration.AppSettings["ServicePort"]));
 
             Listener = new Socket(IPAddress.Any.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -74,7 +74,7 @@ namespace Tadah.Arbiter
                 Log.Error($"Failed to initialize ArbiterService on port {Configuration.AppSettings["ServicePort"]}");
             }
 
-            return Convert.ToInt32(Configuration.AppSettings["ServicePort"]);
+            return int.Parse(Configuration.AppSettings["ServicePort"]);
         }
 
         public static void Stop()
@@ -256,7 +256,7 @@ namespace Tadah.Arbiter
                                 });
                             }
 
-                            if (JobManager.OpenJobs.Count >= Convert.ToInt32(Configuration.AppSettings["MaximumJobs"]))
+                            if (JobManager.OpenJobs.Count >= int.Parse(Configuration.AppSettings["MaximumJobs"]))
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' - maximum amount of jobs reached", LogSeverity.Warning);
                                 return JsonConvert.SerializeObject(new TadahResponse

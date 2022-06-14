@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 
 namespace Tadah.Arbiter
 {
@@ -15,16 +16,51 @@ namespace Tadah.Arbiter
 
         public static int GetAvailableMemory()
         {
-            PerformanceCounter performance = new PerformanceCounter("Memory", "Available MBytes");
-            return (int)performance.NextValue();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                PerformanceCounter performance = new PerformanceCounter("Memory", "Available MBytes");
+                return (int)performance.NextValue();
+            }
+
+            var output = "";
+
+            var info = new ProcessStartInfo("free -m");
+            info.FileName = "/bin/bash";
+            info.Arguments = "-c \"free -m\"";
+            info.RedirectStandardOutput = true;
+
+            using (var process = Process.Start(info))
+            {
+                output = process.StandardOutput.ReadToEnd();
+                Console.WriteLine(output);
+            }
+
+            var lines = output.Split("\n");
+            var memory = lines[1].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+            return int.Parse(memory[3]);
         }
 
         public static int GetCpuUsage()
         {
-            PerformanceCounter performance = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            performance.NextValue(); // this is always gonna be zero
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                PerformanceCounter performance = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+                performance.NextValue(); // this is always gonna be zero
+                Thread.Sleep(500);
+                return (int)Math.Round(performance.NextValue());
+            }
+
+            var startTime = DateTime.UtcNow;
+            var startCpuUsage = Process.GetCurrentProcess().TotalProcessorTime;
+            
             Thread.Sleep(500);
-            return (int)Math.Round(performance.NextValue());
+
+            var endTime = DateTime.UtcNow;
+            var endCpuUsage = Process.GetCurrentProcess().TotalProcessorTime; var cpuUsedMs = (endCpuUsage - startCpuUsage).TotalMilliseconds;
+            var totalMsPassed = (endTime - startTime).TotalMilliseconds; var cpuUsageTotal = cpuUsedMs / (Environment.ProcessorCount * totalMsPassed);
+            
+            return (int)(cpuUsageTotal * 100);
         }
 
         public static Tuple<int, int> GetNetworkTraffic()
