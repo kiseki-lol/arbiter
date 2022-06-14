@@ -8,6 +8,8 @@
     <Copyright>Tadah</Copyright>
     <PackageProjectUrl>https://tadah.rocks/</PackageProjectUrl>
     <PublishSingleFile>true</PublishSingleFile>
+	<PublishReadyToRun>true</PublishReadyToRun>
+	<PublishTrimmed>true</PublishTrimmed>
     <StartupObject>Tadah.Arbiter.Program</StartupObject>
   </PropertyGroup>
 

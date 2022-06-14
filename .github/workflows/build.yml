@@ -14,7 +14,7 @@ jobs:
       uses: actions/setup-dotnet@v2
       
     - name: Build
-      run: dotnet publish -r win-x86 -c release -o publish
+      run: dotnet publish -r win-x86 -c release -o publish --self-contained
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
@@ -33,7 +33,7 @@ jobs:
       uses: actions/setup-dotnet@v2
       
     - name: Build
-      run: dotnet publish -r win-x64 -c release -o publish
+      run: dotnet publish -r win-x64 -c release -o publish --self-contained
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
@@ -52,7 +52,7 @@ jobs:
       uses: actions/setup-dotnet@v2
       
     - name: Build
-      run: dotnet publish -r linux-x64 -c release -o publish
+      run: dotnet publish -r linux-x64 -c release -o publish --self-contained
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
