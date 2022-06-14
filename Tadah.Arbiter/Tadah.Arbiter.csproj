@@ -13,7 +13,7 @@
     <StartupObject>Tadah.Arbiter.Program</StartupObject>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
 	<DebugType>none</DebugType>
   </PropertyGroup>
   
