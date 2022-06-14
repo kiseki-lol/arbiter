@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Tadah.Arbiter
 {
@@ -66,17 +68,34 @@ namespace Tadah.Arbiter
             string GameserverScript = Http.GetGameserverScript(Id, PlaceId, Port);
             string[] CommandLine = JobManager.GetCommandLine(Version, GameserverScript);
 
-            this.Process = new Process();
-            this.Process.StartInfo.FileName = CommandLine[0];
-            this.Process.StartInfo.Arguments = CommandLine[1];
-            // this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
-            this.Process.Start();
-            this.Process.WaitForInputIdle();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                this.Process = new Process();
+                this.Process.StartInfo.FileName = CommandLine[0];
+                this.Process.StartInfo.Arguments = CommandLine[1];
+                // this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+                this.Process.Start();
+                this.Process.WaitForInputIdle();
+            }
+            else
+            {
+                this.Process = new Process();
+                this.Process.StartInfo.FileName = "wine";
+                this.Process.StartInfo.Arguments = Directory.GetCurrentDirectory() + "/" + CommandLine[0].Replace(@"\", "/") + " " + CommandLine[1];
+                this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+                this.Process.Start();
+            }
         }
 
         public override void ExecuteScript(string script)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // LuaPipes does not exist on non-Unix gameservers
+                return;
+            }
+
             if (!LuaPipes.Exists(Id))
             {
                 return;

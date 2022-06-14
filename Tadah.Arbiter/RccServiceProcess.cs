@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.IO;
 using Tadah.Arbiter.RccServiceSoap;
 
 namespace Tadah.Arbiter
@@ -20,11 +22,22 @@ namespace Tadah.Arbiter
 
         internal void Start()
         {
-            Process = new Process();
-            Process.StartInfo.FileName = "Gameservers\\2016\\RCCService.exe";
-            Process.StartInfo.Arguments = $"-Start ${this.SoapPort}";
-            Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
-            Process.Start();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                this.Process = new Process();
+                this.Process.StartInfo.FileName = "Gameservers\\2016\\RCCService.exe";
+                this.Process.StartInfo.Arguments = $"-Start ${this.SoapPort}";
+                this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+                this.Process.Start();
+            }
+            else
+            {
+                this.Process = new Process();
+                this.Process.StartInfo.FileName = "wine";
+                this.Process.StartInfo.Arguments = $"{Directory.GetCurrentDirectory()}/Gameservers/2016/RCCService.exe -Start ${this.SoapPort}";
+                this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+                this.Process.Start();
+            }
 
             this.Client = new RCCServiceSoapClient("http://tadah.rocks/", $"http://127.0.0.1:${this.SoapPort}");
         }

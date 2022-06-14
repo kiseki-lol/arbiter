@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Tadah.Arbiter
 {
@@ -18,14 +19,19 @@ namespace Tadah.Arbiter
             Configuration.GameserverId = Http.GetGameserverId();
             Log.Write($"Assigned GameserverId: {Configuration.GameserverId}", LogSeverity.Boot);
 
-            Task.Run(() => JobManager.MonitorCrashedJobs());
-            Task.Run(() => JobManager.MonitorUnresponsiveJobs());
-            Task.Run(() => RccServiceProcessManager.MonitorUnresponsiveProcesses());
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                new Mutex(true, "ROBLOX_singletonMutex");
+                new Mutex(true, "Tadah_singletonMutex");
+
+                Task.Run(() => JobManager.MonitorCrashedJobs());
+                Task.Run(() => JobManager.MonitorUnresponsiveJobs());
+                Task.Run(() => RccServiceProcessManager.MonitorUnresponsiveProcesses());
+            }
+
             Task.Run(() => Http.StartResourceReporter());
 
             Http.UpdateState(GameServerState.Online);
-            new Mutex(true, "ROBLOX_singletonMutex");
-            new Mutex(true, "COMET_singletonMutex");
 
             Log.Write("Initializing Tadah Arbiter Service", LogSeverity.Boot);
             int ServicePort = ArbiterService.Start();
