@@ -22,23 +22,7 @@ namespace Tadah.Arbiter
                 return (int)performance.NextValue();
             }
 
-            var output = "";
-
-            var info = new ProcessStartInfo("free -m");
-            info.FileName = "/bin/bash";
-            info.Arguments = "-c \"free -m\"";
-            info.RedirectStandardOutput = true;
-
-            using (var process = Process.Start(info))
-            {
-                output = process.StandardOutput.ReadToEnd();
-                Console.WriteLine(output);
-            }
-
-            var lines = output.Split("\n");
-            var memory = lines[1].Split(" ", StringSplitOptions.RemoveEmptyEntries);
-
-            return int.Parse(memory[3]);
+            return -1;
         }
 
         public static int GetCpuUsage()
@@ -82,11 +66,6 @@ namespace Tadah.Arbiter
             }
 
             return new Tuple<int, int>(sent, received);
-        }
-
-        public static int GetInboundTraffic()
-        {
-            return 0;
         }
 
         public static string ConstructUrl(string path, bool https = true)
