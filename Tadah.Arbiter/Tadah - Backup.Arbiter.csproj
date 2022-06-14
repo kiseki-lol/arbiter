@@ -4,13 +4,14 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <Description>Manages Tadah game servers</Description>
     <Copyright>Tadah</Copyright>
+    <PackageProjectUrl>https://tadah.rocks/</PackageProjectUrl>
     <PublishSingleFile>true</PublishSingleFile>
 	<PublishReadyToRun>true</PublishReadyToRun>
 	<PublishTrimmed>true</PublishTrimmed>
     <StartupObject>Tadah.Arbiter.Program</StartupObject>
-    <ApplicationIcon>Resources\Tadah.Arbiter.ico</ApplicationIcon>
-    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+    <ApplicationIcon>Tadah.Arbiter.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -34,14 +35,7 @@
   <ItemGroup>
     <Content Include="Resources/AppSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>AppSettings.json</TargetPath>
     </Content>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Update="Resources\Tadah.Arbiter.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+    <Content Include="Tadah.Arbiter.ico" />  
   </ItemGroup>
 </Project>
