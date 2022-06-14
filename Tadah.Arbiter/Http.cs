@@ -204,7 +204,10 @@ namespace Tadah.Arbiter
                 { "utc_offset", offset }
             };
 
-            return Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data));
+            Guid uuid;
+            Guid.TryParse(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data)), out uuid);
+
+            return uuid.ToString();
         }
     }
 }
