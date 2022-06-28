@@ -1,8 +1,9 @@
 # Tadah.Arbiter
+Manages Tadah game servers
 
-[![Build Status](https://github.com/tadah-dev/Tadah.Arbiter/workflows/build/badge.svg)](https://github.com/tadah-dev/Tadah.Arbiter/actions)
+## Notes
 
-Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) with the following changes:
+This is really just a fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) with the following changes:
 - Messages *must* be signed
 - Uses Tadah website routes
 - 2008 and 2016 client support
@@ -12,6 +13,8 @@ Fork of [PolygonGSArbiter](https://github.com/ProjectPolygon/PolygonGSArbiter) w
 - RCCService support
 - Messages must end with `<<<EOF>>>`
 - Better logging system
+- .NET 6
+- Linux support (w/ Wine)
 
 ## Usage
 
