@@ -1,0 +1,17 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "../../Resources/TampaServerSoap.wsdl"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, Tadah.Arbiter.TampaServerSoap"
+    ],
+    "sync": true,
+    "targetFramework": "net6.0",
+    "typeReuseMode": "All"
+  }
+}

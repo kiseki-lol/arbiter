@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using Tadah.Arbiter.RccServiceSoap;
+using Tadah.Arbiter.TampaServerSoap;
 
 namespace Tadah.Arbiter
 {
-    public class RccServiceJob : Job
+    public class TampaServerJob : Job
     {
         public int ExpirationInSeconds { get; private set; }
         public int Cores { get; private set; }
@@ -16,17 +16,17 @@ namespace Tadah.Arbiter
             }
         }
 
-        private RccServiceProcess _process;
+        private TampaServerProcess _process;
 
-        public RccServiceJob(string Id, int PlaceId, int Version, int Port) : base(Id, PlaceId, Version, Port)
+        public TampaServerJob(string Id, int PlaceId, int Version, int Port) : base(Id, PlaceId, Version, Port)
         {
             this.ExpirationInSeconds = 86400;
-            _process = RccServiceProcessManager.Best();
+            _process = TampaServerProcessManager.Best();
         }
 
         protected override void InternalStart()
         {
-            RccServiceSoap.Job job = new RccServiceSoap.Job
+            TampaServerSoap.Job job = new TampaServerSoap.Job
             {
                 id = Id,
                 expirationInSeconds = ExpirationInSeconds,

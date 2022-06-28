@@ -32,9 +32,9 @@ namespace Tadah.Arbiter
 
         protected void Log(string message, LogSeverity severity = LogSeverity.Information)
         {
-            if (this is RccServiceJob)
+            if (this is TampaServerJob)
             {
-                Arbiter.Log.Write($"[RccServiceJob-{this.Id}] {message}", severity);
+                Arbiter.Log.Write($"[TampaServerJob-{this.Id}] {message}", severity);
             }
             else if (this is MFCJob)
             {

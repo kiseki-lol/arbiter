@@ -44,7 +44,7 @@ namespace Tadah.Arbiter
                     return new string[] { "Gameservers\\2013\\TadahServer.exe", $"-a 0 -t 0 -j {scriptUrl}" };
 
                 case 2016:
-                    throw new Exception("Attempt to get command line for RccServiceJob");
+                    throw new Exception("Attempt to get command line for TampaServerJob");
 
                 default:
                     return new string[] { };
@@ -77,7 +77,7 @@ namespace Tadah.Arbiter
 
             if (version == 2016)
             {
-                job = new RccServiceJob(jobId, placeId, version, port);
+                job = new TampaServerJob(jobId, placeId, version, port);
             }
             else
             {
@@ -156,7 +156,7 @@ namespace Tadah.Arbiter
                 {
                     foreach (Job job in OpenJobs)
                     {
-                        if (job is RccServiceJob)
+                        if (job is TampaServerJob)
                         {
                             continue;
                         }
@@ -206,12 +206,12 @@ namespace Tadah.Arbiter
             }
 
             OpenJobs.Clear();
-            RccServiceProcessManager.CloseAllProcesses();
+            TampaServerProcessManager.CloseAllProcesses();
         }
 
         public static void MonitorUnresponsiveJob(Job job)
         {
-            if (job is RccServiceJob)
+            if (job is TampaServerJob)
             {
                 return;
             }

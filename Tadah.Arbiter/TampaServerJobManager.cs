@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Tadah.Arbiter
 {
-    public class RccServiceProcessManager
+    public class TampaServerProcessManager
     {
-        public static List<RccServiceProcess> OpenProcesses = new List<RccServiceProcess>();
+        public static List<TampaServerProcess> OpenProcesses = new List<TampaServerProcess>();
 
         private static int GetAvailableRccSoapPort()
         {
-            int port = int.Parse(Configuration.AppSettings["BaseRccSoapPort"]);
+            int port = int.Parse(Configuration.AppSettings["BaseTampaServerSoapPort"]);
 
-            for (int i = 0; i < int.Parse(Configuration.AppSettings["MaximumRccProcesses"]); i++)
+            for (int i = 0; i < int.Parse(Configuration.AppSettings["MaximumTampaServerProcesses"]); i++)
             {
                 if (OpenProcesses.Find(process => process.SoapPort == port) == null)
                 {
@@ -29,29 +29,29 @@ namespace Tadah.Arbiter
             return port;
         }
 
-        public static RccServiceProcess New()
+        public static TampaServerProcess New()
         {
-            if (OpenProcesses.Count >= int.Parse(Configuration.AppSettings["MaximumRccProcesses"]))
+            if (OpenProcesses.Count >= int.Parse(Configuration.AppSettings["MaximumTampaServerProcesses"]))
             {
-                throw new Exception("Maximum amount of RCC processes reached");
+                throw new Exception("Maximum amount of TampaServer processes reached");
             }
 
-            RccServiceProcess process = new RccServiceProcess(GetAvailableRccSoapPort());
+            TampaServerProcess process = new TampaServerProcess(GetAvailableRccSoapPort());
             process.Start();
 
             OpenProcesses.Add(process);
             return process;
         }
 
-        public static RccServiceProcess Best()
+        public static TampaServerProcess Best()
         {
             if (!OpenProcesses.Any())
             {
                 return New();
             }
 
-            RccServiceProcess best = OpenProcesses.OrderBy(Process => Process.Jobs.Count).Last();
-            if (best.Jobs.Count >= int.Parse(Configuration.AppSettings["MaximumJobsPerRcc"]))
+            TampaServerProcess best = OpenProcesses.OrderBy(Process => Process.Jobs.Count).Last();
+            if (best.Jobs.Count >= int.Parse(Configuration.AppSettings["MaximumJobsPerTampaServer"]))
             {
                 return New();
             }
@@ -61,7 +61,7 @@ namespace Tadah.Arbiter
 
         public static void CloseAllProcesses()
         {
-            foreach (RccServiceProcess process in OpenProcesses)
+            foreach (TampaServerProcess process in OpenProcesses)
             {
                 process.Close();
             }
@@ -75,7 +75,7 @@ namespace Tadah.Arbiter
             {
                 try
                 {
-                    foreach (RccServiceProcess process in OpenProcesses)
+                    foreach (TampaServerProcess process in OpenProcesses)
                     {
                         if (process.Monitored)
                         {
@@ -88,7 +88,7 @@ namespace Tadah.Arbiter
                             OpenProcesses.Remove(process);
 
                             // remove all jobs associated
-                            foreach (RccServiceJob job in process.Jobs)
+                            foreach (TampaServerJob job in process.Jobs)
                             {
                                 JobManager.CloseJob(job.Id, true);
                             }
@@ -107,7 +107,7 @@ namespace Tadah.Arbiter
                 catch (InvalidOperationException ex)
                 {
 #if DEBUG
-                    Log.Write($"[RccServiceProcessManager::MonitorUnresponsiveProcesses] InvalidOperationException - {ex.Message}", LogSeverity.Debug);
+                    Log.Write($"[TampaServerProcessManager::MonitorUnresponsiveProcesses] InvalidOperationException - {ex.Message}", LogSeverity.Debug);
 #endif
                 }
 
@@ -115,9 +115,9 @@ namespace Tadah.Arbiter
             }
         }
 
-        private static void MonitorUnresponsiveProcess(RccServiceProcess process)
+        private static void MonitorUnresponsiveProcess(TampaServerProcess process)
         {
-            Log.Write($"[RccServiceProcessManager] RccServiceProcess with PID '{process.Process.Id}' is not responding! Monitoring...", LogSeverity.Warning);
+            Log.Write($"[TampaServerProcessManager] TampaServerProcess with PID '{process.Process.Id}' is not responding! Monitoring...", LogSeverity.Warning);
             process.Monitored = true;
 
             for (int i = 0; i <= 30; i++)
@@ -126,19 +126,19 @@ namespace Tadah.Arbiter
 
                 if (process.Process.Responding)
                 {
-                    Log.Write($"[RccServiceProcessManager] RccServiceProcess with PID '{process.Process.Id}' has recovered from its unresponsive status!", LogSeverity.Information);
+                    Log.Write($"[TampaServerProcessManager] TampaServerProcess with PID '{process.Process.Id}' has recovered from its unresponsive status!", LogSeverity.Information);
                     process.Monitored = false;
 
                     break;
                 }
                 else if (i == 30)
                 {
-                    Log.Write($"[RccServiceProcessManager] RccServiceProcess with PID '{process.Process.Id}' has been unresponsive for over 30 seconds. Closing Process...", LogSeverity.Warning);
+                    Log.Write($"[TampaServerProcessManager] TampaServerProcess with PID '{process.Process.Id}' has been unresponsive for over 30 seconds. Closing Process...", LogSeverity.Warning);
                     process.Close(true);
                     OpenProcesses.Remove(process);
 
                     // remove all jobs associated
-                    foreach (RccServiceJob job in process.Jobs)
+                    foreach (TampaServerJob job in process.Jobs)
                     {
                         JobManager.CloseJob(job.Id, true);
                     }

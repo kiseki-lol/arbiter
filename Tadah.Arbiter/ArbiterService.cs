@@ -319,7 +319,7 @@ namespace Tadah.Arbiter
                             });
                         }
 
-                    case "RenewRccServiceJobLease":
+                    case "RenewTampaServerJobLease":
                         {
                             Job job = JobManager.GetJobFromId(request.JobId);
 
@@ -328,25 +328,25 @@ namespace Tadah.Arbiter
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
                                 return JsonConvert.SerializeObject(new TadahResponse
                                 {
-                                    Operation = "RenewRccServiceJobLease",
+                                    Operation = "RenewTampaServerJobLease",
                                     Success = false,
                                     Message = "Job doesn't exist"
                                 });
                             }
 
-                            if (job is not RccServiceJob)
+                            if (job is not TampaServerJob)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - is not a RccServiceJob", LogSeverity.Warning);
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - is not a TampaServerJob", LogSeverity.Warning);
                                 return JsonConvert.SerializeObject(new TadahResponse
                                 {
-                                    Operation = "RenewRccServiceJobLease",
+                                    Operation = "RenewTampaServerJobLease",
                                     Success = false,
-                                    Message = "Job is not RccServiceJob"
+                                    Message = "Job is not TampaServerJob"
                                 });
                             }
 
-                            RccServiceJob rccJob = (RccServiceJob)job;
-                            Task.Run(() => { rccJob.RenewLease(request.ExpirationInSeconds); });
+                            TampaServerJob tsJob = (TampaServerJob)job;
+                            Task.Run(() => { tsJob.RenewLease(request.ExpirationInSeconds); });
 
                             return JsonConvert.SerializeObject(new TadahResponse
                             {
@@ -365,12 +365,12 @@ namespace Tadah.Arbiter
                             });
                         }
 
-                    case "CloseAllRccServiceProcesses":
+                    case "CloseAllTampaServerProcesses":
                         {
-                            Task.Run(() => { RccServiceProcessManager.CloseAllProcesses(); });
+                            Task.Run(() => { TampaServerProcessManager.CloseAllProcesses(); });
                             return JsonConvert.SerializeObject(new TadahResponse
                             {
-                                Operation = "CloseAllRccServiceProcesses",
+                                Operation = "CloseAllTampaServerProcesses",
                                 Success = true
                             });
                         }
