@@ -109,6 +109,13 @@ namespace Tadah.Arbiter
 
         static internal void Write(string message, LogSeverity severity = LogSeverity.Information)
         {
+#if RELEASE
+            if (severity == LogSeverity.Debug)
+            {
+                return;
+            }
+#endif
+
             if (Writer != null)
             {
                 lock (Writer)

@@ -106,9 +106,7 @@ namespace Tadah.Arbiter
                 }
                 catch (InvalidOperationException ex)
                 {
-#if DEBUG
                     Log.Write($"[TampaServerProcessManager::MonitorUnresponsiveProcesses] InvalidOperationException - {ex.Message}", LogSeverity.Debug);
-#endif
                 }
 
                 Thread.Sleep(5000);

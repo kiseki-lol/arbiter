@@ -186,9 +186,7 @@ namespace Tadah.Arbiter
             }
             catch (Exception ex)
             {
-#if DEBUG
                 Log.Write($"[ArbiterService::SendCallback] {ex.Message}", LogSeverity.Error);
-#endif
             }
         }
 

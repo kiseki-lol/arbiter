@@ -189,9 +189,7 @@ namespace Tadah.Arbiter
                 }
                 catch (InvalidOperationException ex)
                 {
-#if DEBUG
                     Log.Write($"[JobManager::MonitorUnresponsiveJobs] InvalidOperationException - {ex.Message}", LogSeverity.Debug);
-#endif
                 }
 
                 Thread.Sleep(5000);
