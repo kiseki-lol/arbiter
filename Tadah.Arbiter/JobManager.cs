@@ -31,12 +31,12 @@ namespace Tadah.Arbiter
             return title.ToString();
         }
 
-        public static string[] GetCommandLine(int version, string scriptUrl)
+        public static string[] GetCommandLine(int version, string scriptUrl, string jobId)
         {
             switch (version)
             {
                 case 2011:
-                    return new string[] { "Gameservers\\2011\\TadahServer.exe", $"-a https://polygon.pizzaboxer.xyz/Login/Negotiate.ashx -t 0 -j {ScriptUrl} -jobId {jobId}" };
+                    return new string[] { "Gameservers\\2011\\TadahServer.exe", $"-a https://polygon.pizzaboxer.xyz/Login/Negotiate.ashx -t 0 -j {scriptUrl} -jobId {jobId}" };
 
                 case 2016:
                     throw new Exception("Attempt to get command line for TampaServerJob");

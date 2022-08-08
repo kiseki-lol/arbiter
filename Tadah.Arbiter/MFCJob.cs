@@ -66,7 +66,7 @@ namespace Tadah.Arbiter
         protected override void InternalStart()
         {
             string GameserverScript = Http.GetGameserverScript(Id, PlaceId, Port);
-            string[] CommandLine = JobManager.GetCommandLine(Version, GameserverScript);
+            string[] CommandLine = JobManager.GetCommandLine(Version, GameserverScript, this.Id);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
