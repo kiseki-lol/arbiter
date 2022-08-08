@@ -6,8 +6,6 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <Copyright>Tadah</Copyright>
     <PublishSingleFile>true</PublishSingleFile>
-	<PublishReadyToRun>true</PublishReadyToRun>
-	<PublishTrimmed>true</PublishTrimmed>
     <StartupObject>Tadah.Arbiter.Program</StartupObject>
     <ApplicationIcon>Resources\Tadah.Arbiter.ico</ApplicationIcon>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
