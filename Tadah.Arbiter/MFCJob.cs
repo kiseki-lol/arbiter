@@ -90,19 +90,7 @@ namespace Tadah.Arbiter
 
         public override void ExecuteScript(string script)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // LuaPipes does not exist on non-Unix gameservers
-                return;
-            }
-
-            if (!LuaPipes.Exists(Id))
-            {
-                return;
-            }
-
-            // DLL will process the script
-            LuaPipes.Send(Id, script);
+            return;
         }
     }
 }

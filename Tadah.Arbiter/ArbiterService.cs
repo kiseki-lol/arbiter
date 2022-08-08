@@ -294,8 +294,6 @@ namespace Tadah.Arbiter
                             });
                         }
 
-                    /*
-                    
                     case "ExecuteScript":
                         {
                             Job job = JobManager.GetJobFromId(request.JobId);
@@ -311,6 +309,17 @@ namespace Tadah.Arbiter
                                 });
                             }
 
+                            if (job is MFCJob)
+                            {
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request.JobId}' - it does not support such capability (is MFCJob)", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new TadahResponse
+                                {
+                                    Operation = "ExecuteScript",
+                                    Success = false,
+                                    Message = "Cannot run ExecuteScript on MFCJob"
+                                });
+                            }
+
                             Task.Run(() => { job.ExecuteScript(request.Script); });
                             return JsonConvert.SerializeObject(new TadahResponse
                             {
@@ -318,8 +327,6 @@ namespace Tadah.Arbiter
                                 Success = true
                             });
                         }
-
-                    */
 
                     case "RenewTampaServerJobLease":
                         {
