@@ -294,6 +294,8 @@ namespace Tadah.Arbiter
                             });
                         }
 
+                    /*
+                    
                     case "ExecuteScript":
                         {
                             Job job = JobManager.GetJobFromId(request.JobId);
@@ -316,6 +318,8 @@ namespace Tadah.Arbiter
                                 Success = true
                             });
                         }
+
+                    */
 
                     case "RenewTampaServerJobLease":
                         {

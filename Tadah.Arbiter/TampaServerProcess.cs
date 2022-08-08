@@ -25,7 +25,7 @@ namespace Tadah.Arbiter
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 this.Process = new Process();
-                this.Process.StartInfo.FileName = "Gameservers\\2016\\TampaServer.exe";
+                this.Process.StartInfo.FileName = "Gameservers\\2016\\TadahServer.exe";
                 this.Process.StartInfo.Arguments = $"-Start ${this.SoapPort}";
                 this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
                 this.Process.Start();
@@ -34,7 +34,7 @@ namespace Tadah.Arbiter
             {
                 this.Process = new Process();
                 this.Process.StartInfo.FileName = "wine";
-                this.Process.StartInfo.Arguments = $"{Directory.GetCurrentDirectory()}/Gameservers/2016/TampaServer.exe -Start ${this.SoapPort}";
+                this.Process.StartInfo.Arguments = $"{Directory.GetCurrentDirectory()}/Gameservers/2016/TadahServer.exe -Start ${this.SoapPort}";
                 this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
                 this.Process.Start();
             }

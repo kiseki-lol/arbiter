@@ -22,7 +22,7 @@ namespace Tadah.Arbiter
                 return (int)performance.NextValue();
             }
 
-            return -1;
+            return (int) ((double)GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1048576.0);
         }
 
         public static int GetCpuUsage()
