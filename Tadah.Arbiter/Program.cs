@@ -21,9 +21,6 @@ namespace Tadah.Arbiter
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                new Mutex(true, "ROBLOX_singletonMutex");
-                new Mutex(true, "Tadah_singletonMutex");
-
                 Task.Run(() => JobManager.MonitorCrashedJobs());
                 Task.Run(() => JobManager.MonitorUnresponsiveJobs());
                 Task.Run(() => TampaServerProcessManager.MonitorUnresponsiveProcesses());

@@ -123,7 +123,7 @@ namespace Tadah.Arbiter
 
             while (true)
             {
-                IntPtr hWnd = FindWindow(null, "ROBLOX Crash");
+                IntPtr hWnd = FindWindow(null, "Tadah Crash");
                 GetWindowThreadProcessId(hWnd, out processId);
 
                 if (processId != 0)
