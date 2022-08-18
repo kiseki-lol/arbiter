@@ -50,7 +50,7 @@ namespace Tadah.Arbiter
         {
             int port = int.Parse(Configuration.AppSettings["BasePort"]);
 
-            for (int i = 0; i < int.Parse(Configuration.AppSettings["MaximumJobs"]); i++)
+            for (int i = 0; i < Configuration.MaximumPlaceJobs; i++)
             {
                 if (OpenJobs.Find(job => job.Port == port) == null)
                 {

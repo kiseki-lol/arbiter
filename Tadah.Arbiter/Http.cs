@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 namespace Tadah.Arbiter
 {
@@ -123,7 +124,7 @@ namespace Tadah.Arbiter
                 { "blur", (output.Contains(Configuration.AppSettings["AccessKey"]) ? Configuration.AppSettings["AccessKey"] : "") }
             };
 
-            if (Configuration.GameserverId == null)
+            if (Configuration.GameserverId == Guid.Empty)
             {
                 LogsToSend.Add(data);
                 return;
@@ -144,7 +145,7 @@ namespace Tadah.Arbiter
 
         public static void UpdateState(GameServerState state)
         {
-            Request($"/{Configuration.GameserverId}/status?state={((int)state).ToString()}", HttpMethod.Get);
+            Request($"/{Configuration.GameserverId}/status?state={(int)state}", HttpMethod.Get);
         }
 
         public static void Fatal(string exception)
@@ -193,21 +194,18 @@ namespace Tadah.Arbiter
             Request($"/{jobId}/update?{parameters}", HttpMethod.Get);
         }
 
-        public static string GetGameserverId()
+        public static Dictionary<string, object> Identify()
         {
             string offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).ToString();
             offset = offset.Substring(0, offset.Length - 3); // "-07:00:00" -> "-07:00"
 
             Dictionary<string, string> data = new Dictionary<string, string>
             {
-                { "name", Environment.MachineName },
+                { "friendly_name", Environment.MachineName },
                 { "utc_offset", offset }
             };
 
-            Guid uuid;
-            Guid.TryParse(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data)), out uuid);
-
-            return uuid.ToString();
+            return JsonConvert.DeserializeObject<Dictionary<string, object>>(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data)));
         }
     }
 }

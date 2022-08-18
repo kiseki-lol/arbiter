@@ -254,7 +254,7 @@ namespace Tadah.Arbiter
                                 });
                             }
 
-                            if (JobManager.OpenJobs.Count >= int.Parse(Configuration.AppSettings["MaximumJobs"]))
+                            if (JobManager.OpenJobs.Count >= Configuration.MaximumPlaceJobs)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' - maximum amount of jobs reached", LogSeverity.Warning);
                                 return JsonConvert.SerializeObject(new TadahResponse

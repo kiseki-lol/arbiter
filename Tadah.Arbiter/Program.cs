@@ -16,7 +16,9 @@ namespace Tadah.Arbiter
             Log.Write("Access Key read", LogSeverity.Information);
 #endif
             Log.Write("Service starting...", LogSeverity.Boot);
-            Configuration.GameserverId = Http.GetGameserverId();
+            
+            Configuration.Load();
+
             Log.Write($"Assigned GameserverId: {Configuration.GameserverId}", LogSeverity.Boot);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
