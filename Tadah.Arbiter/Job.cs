@@ -17,7 +17,7 @@ namespace Tadah.Arbiter
     {
         public string Id { get; set; }
         public int PlaceId { get; set; }
-        public int Version { get; set; }
+        public ClientVersion Version { get; set; }
         public int Port { get; set; }
         public bool IsRunning { get; set; }
         public JobStatus Status { get; set; }
@@ -32,13 +32,13 @@ namespace Tadah.Arbiter
 
         protected void Log(string message, LogSeverity severity = LogSeverity.Information)
         {
-            if (this is TampaServerJob)
+            if (this is TampaJob)
             {
-                Arbiter.Log.Write($"[TampaServerJob-{this.Id}] {message}", severity);
+                Arbiter.Log.Write($"[TampaJob-{this.Id}] {message}", severity);
             }
-            else if (this is MFCJob)
+            else if (this is TaipeiJob)
             {
-                Arbiter.Log.Write($"[MFCJob-{this.Id}] {message}", severity);
+                Arbiter.Log.Write($"[TaipeiJob-{this.Id}] {message}", severity);
             }
         }
 
@@ -63,6 +63,7 @@ namespace Tadah.Arbiter
 
             this.Status = (JobStatus)Enum.Parse(typeof(JobStatus), result);
             this.TimeClosed = DateTime.UtcNow;
+
             Http.UpdateJob(Id, result);
 
             if (this.Status == JobStatus.Crashed)
@@ -73,7 +74,7 @@ namespace Tadah.Arbiter
             this.Log($"Closed with result 'JobStatus.{result}'", LogSeverity.Information);
         }
 
-        public Job(string Id, int PlaceId, int Version, int Port)
+        public Job(string Id, int PlaceId, ClientVersion Version, int Port)
         {
             this.Id = Id;
             this.PlaceId = PlaceId;

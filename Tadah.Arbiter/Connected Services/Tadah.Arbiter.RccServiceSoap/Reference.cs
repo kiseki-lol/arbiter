@@ -7,13 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Tadah.Arbiter.TampaServerSoap
+namespace Tadah.Arbiter.TampaSoap
 {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="http://tadah.rocks/", ConfigurationName="Tadah.Arbiter.TampaServerSoap.TampaServerSoap")]
-    public interface TampaServerSoap
+    [System.ServiceModel.ServiceContractAttribute(Namespace="http://tadah.rocks/", ConfigurationName="Tadah.Arbiter.TampaSoap.TampaSoap")]
+    public interface TampaSoap
     {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/HelloWorld", ReplyAction="*")]
@@ -32,25 +32,25 @@ namespace Tadah.Arbiter.TampaServerSoap
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/GetStatus", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.Status GetStatus();
+        Tadah.Arbiter.TampaSoap.Status GetStatus();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/GetStatus", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.Status> GetStatusAsync();
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.Status> GetStatusAsync();
         
         // CODEGEN: Parameter 'OpenJobResult' requires additional schema information that cannot be captured using the parameter mode. The specific attribute is 'Microsoft.Xml.Serialization.XmlElementAttribute'.
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/OpenJob", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.OpenJobResponse OpenJob(Tadah.Arbiter.TampaServerSoap.OpenJobRequest request);
+        Tadah.Arbiter.TampaSoap.OpenJobResponse OpenJob(Tadah.Arbiter.TampaSoap.OpenJobRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/OpenJob", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.OpenJobResponse> OpenJobAsync(Tadah.Arbiter.TampaServerSoap.OpenJobRequest request);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.OpenJobResponse> OpenJobAsync(Tadah.Arbiter.TampaSoap.OpenJobRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/OpenJobEx", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.LuaValue[] OpenJobEx(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script);
+        Tadah.Arbiter.TampaSoap.LuaValue[] OpenJobEx(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/OpenJobEx", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> OpenJobExAsync(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> OpenJobExAsync(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/RenewLease", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -62,17 +62,17 @@ namespace Tadah.Arbiter.TampaServerSoap
         // CODEGEN: Parameter 'ExecuteResult' requires additional schema information that cannot be captured using the parameter mode. The specific attribute is 'Microsoft.Xml.Serialization.XmlElementAttribute'.
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/Execute", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.ExecuteResponse Execute(Tadah.Arbiter.TampaServerSoap.ExecuteRequest request);
+        Tadah.Arbiter.TampaSoap.ExecuteResponse Execute(Tadah.Arbiter.TampaSoap.ExecuteRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/Execute", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.ExecuteResponse> ExecuteAsync(Tadah.Arbiter.TampaServerSoap.ExecuteRequest request);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.ExecuteResponse> ExecuteAsync(Tadah.Arbiter.TampaSoap.ExecuteRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/ExecuteEx", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.LuaValue[] ExecuteEx(string jobID, Tadah.Arbiter.TampaServerSoap.ScriptExecution script);
+        Tadah.Arbiter.TampaSoap.LuaValue[] ExecuteEx(string jobID, Tadah.Arbiter.TampaSoap.ScriptExecution script);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/ExecuteEx", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> ExecuteExAsync(string jobID, Tadah.Arbiter.TampaServerSoap.ScriptExecution script);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> ExecuteExAsync(string jobID, Tadah.Arbiter.TampaSoap.ScriptExecution script);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/CloseJob", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -84,17 +84,17 @@ namespace Tadah.Arbiter.TampaServerSoap
         // CODEGEN: Parameter 'BatchJobResult' requires additional schema information that cannot be captured using the parameter mode. The specific attribute is 'Microsoft.Xml.Serialization.XmlElementAttribute'.
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/BatchJob", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.BatchJobResponse BatchJob(Tadah.Arbiter.TampaServerSoap.BatchJobRequest request);
+        Tadah.Arbiter.TampaSoap.BatchJobResponse BatchJob(Tadah.Arbiter.TampaSoap.BatchJobRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/BatchJob", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.BatchJobResponse> BatchJobAsync(Tadah.Arbiter.TampaServerSoap.BatchJobRequest request);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.BatchJobResponse> BatchJobAsync(Tadah.Arbiter.TampaSoap.BatchJobRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/BatchJobEx", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.LuaValue[] BatchJobEx(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script);
+        Tadah.Arbiter.TampaSoap.LuaValue[] BatchJobEx(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/BatchJobEx", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> BatchJobExAsync(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> BatchJobExAsync(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/GetExpiration", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -106,17 +106,17 @@ namespace Tadah.Arbiter.TampaServerSoap
         // CODEGEN: Parameter 'GetAllJobsResult' requires additional schema information that cannot be captured using the parameter mode. The specific attribute is 'Microsoft.Xml.Serialization.XmlElementAttribute'.
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/GetAllJobs", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.GetAllJobsResponse GetAllJobs(Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest request);
+        Tadah.Arbiter.TampaSoap.GetAllJobsResponse GetAllJobs(Tadah.Arbiter.TampaSoap.GetAllJobsRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/GetAllJobs", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.GetAllJobsResponse> GetAllJobsAsync(Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest request);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.GetAllJobsResponse> GetAllJobsAsync(Tadah.Arbiter.TampaSoap.GetAllJobsRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/GetAllJobsEx", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.Job[] GetAllJobsEx();
+        Tadah.Arbiter.TampaSoap.Job[] GetAllJobsEx();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/GetAllJobsEx", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.Job[]> GetAllJobsExAsync();
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.Job[]> GetAllJobsExAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/CloseExpiredJobs", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
@@ -135,17 +135,17 @@ namespace Tadah.Arbiter.TampaServerSoap
         // CODEGEN: Parameter 'DiagResult' requires additional schema information that cannot be captured using the parameter mode. The specific attribute is 'Microsoft.Xml.Serialization.XmlElementAttribute'.
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/Diag", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.DiagResponse Diag(Tadah.Arbiter.TampaServerSoap.DiagRequest request);
+        Tadah.Arbiter.TampaSoap.DiagResponse Diag(Tadah.Arbiter.TampaSoap.DiagRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/Diag", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.DiagResponse> DiagAsync(Tadah.Arbiter.TampaServerSoap.DiagRequest request);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.DiagResponse> DiagAsync(Tadah.Arbiter.TampaSoap.DiagRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/DiagEx", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Tadah.Arbiter.TampaServerSoap.LuaValue[] DiagEx(int type, string jobID);
+        Tadah.Arbiter.TampaSoap.LuaValue[] DiagEx(int type, string jobID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tadah.rocks/DiagEx", ReplyAction="*")]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> DiagExAsync(int type, string jobID);
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> DiagExAsync(int type, string jobID);
     }
     
     /// <remarks/>
@@ -402,16 +402,16 @@ namespace Tadah.Arbiter.TampaServerSoap
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=0)]
-        public Tadah.Arbiter.TampaServerSoap.Job job;
+        public Tadah.Arbiter.TampaSoap.Job job;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=1)]
-        public Tadah.Arbiter.TampaServerSoap.ScriptExecution script;
+        public Tadah.Arbiter.TampaSoap.ScriptExecution script;
         
         public OpenJobRequest()
         {
         }
         
-        public OpenJobRequest(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public OpenJobRequest(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             this.job = job;
             this.script = script;
@@ -427,13 +427,13 @@ namespace Tadah.Arbiter.TampaServerSoap
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=0)]
         [System.Xml.Serialization.XmlElementAttribute("OpenJobResult")]
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] OpenJobResult;
+        public Tadah.Arbiter.TampaSoap.LuaValue[] OpenJobResult;
         
         public OpenJobResponse()
         {
         }
         
-        public OpenJobResponse(Tadah.Arbiter.TampaServerSoap.LuaValue[] OpenJobResult)
+        public OpenJobResponse(Tadah.Arbiter.TampaSoap.LuaValue[] OpenJobResult)
         {
             this.OpenJobResult = OpenJobResult;
         }
@@ -450,13 +450,13 @@ namespace Tadah.Arbiter.TampaServerSoap
         public string jobID;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=1)]
-        public Tadah.Arbiter.TampaServerSoap.ScriptExecution script;
+        public Tadah.Arbiter.TampaSoap.ScriptExecution script;
         
         public ExecuteRequest()
         {
         }
         
-        public ExecuteRequest(string jobID, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public ExecuteRequest(string jobID, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             this.jobID = jobID;
             this.script = script;
@@ -472,13 +472,13 @@ namespace Tadah.Arbiter.TampaServerSoap
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=0)]
         [System.Xml.Serialization.XmlElementAttribute("ExecuteResult", IsNullable=true)]
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] ExecuteResult;
+        public Tadah.Arbiter.TampaSoap.LuaValue[] ExecuteResult;
         
         public ExecuteResponse()
         {
         }
         
-        public ExecuteResponse(Tadah.Arbiter.TampaServerSoap.LuaValue[] ExecuteResult)
+        public ExecuteResponse(Tadah.Arbiter.TampaSoap.LuaValue[] ExecuteResult)
         {
             this.ExecuteResult = ExecuteResult;
         }
@@ -492,16 +492,16 @@ namespace Tadah.Arbiter.TampaServerSoap
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=0)]
-        public Tadah.Arbiter.TampaServerSoap.Job job;
+        public Tadah.Arbiter.TampaSoap.Job job;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=1)]
-        public Tadah.Arbiter.TampaServerSoap.ScriptExecution script;
+        public Tadah.Arbiter.TampaSoap.ScriptExecution script;
         
         public BatchJobRequest()
         {
         }
         
-        public BatchJobRequest(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public BatchJobRequest(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             this.job = job;
             this.script = script;
@@ -517,13 +517,13 @@ namespace Tadah.Arbiter.TampaServerSoap
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=0)]
         [System.Xml.Serialization.XmlElementAttribute("BatchJobResult", IsNullable=true)]
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] BatchJobResult;
+        public Tadah.Arbiter.TampaSoap.LuaValue[] BatchJobResult;
         
         public BatchJobResponse()
         {
         }
         
-        public BatchJobResponse(Tadah.Arbiter.TampaServerSoap.LuaValue[] BatchJobResult)
+        public BatchJobResponse(Tadah.Arbiter.TampaSoap.LuaValue[] BatchJobResult)
         {
             this.BatchJobResult = BatchJobResult;
         }
@@ -550,13 +550,13 @@ namespace Tadah.Arbiter.TampaServerSoap
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=0)]
         [System.Xml.Serialization.XmlElementAttribute("GetAllJobsResult", IsNullable=true)]
-        public Tadah.Arbiter.TampaServerSoap.Job[] GetAllJobsResult;
+        public Tadah.Arbiter.TampaSoap.Job[] GetAllJobsResult;
         
         public GetAllJobsResponse()
         {
         }
         
-        public GetAllJobsResponse(Tadah.Arbiter.TampaServerSoap.Job[] GetAllJobsResult)
+        public GetAllJobsResponse(Tadah.Arbiter.TampaSoap.Job[] GetAllJobsResult)
         {
             this.GetAllJobsResult = GetAllJobsResult;
         }
@@ -595,34 +595,34 @@ namespace Tadah.Arbiter.TampaServerSoap
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://tadah.rocks/", Order=0)]
         [System.Xml.Serialization.XmlElementAttribute("DiagResult", IsNullable=true)]
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] DiagResult;
+        public Tadah.Arbiter.TampaSoap.LuaValue[] DiagResult;
         
         public DiagResponse()
         {
         }
         
-        public DiagResponse(Tadah.Arbiter.TampaServerSoap.LuaValue[] DiagResult)
+        public DiagResponse(Tadah.Arbiter.TampaSoap.LuaValue[] DiagResult)
         {
             this.DiagResult = DiagResult;
         }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    public interface TampaServerSoapChannel : Tadah.Arbiter.TampaServerSoap.TampaServerSoap, System.ServiceModel.IClientChannel
+    public interface TampaSoapChannel : Tadah.Arbiter.TampaSoap.TampaSoap, System.ServiceModel.IClientChannel
     {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    public partial class TampaServerSoapClient : System.ServiceModel.ClientBase<Tadah.Arbiter.TampaServerSoap.TampaServerSoap>, Tadah.Arbiter.TampaServerSoap.TampaServerSoap
+    public partial class TampaSoapClient : System.ServiceModel.ClientBase<Tadah.Arbiter.TampaSoap.TampaSoap>, Tadah.Arbiter.TampaSoap.TampaSoap
     {
         
-        public TampaServerSoapClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+        public TampaSoapClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(binding, remoteAddress)
         {
         }
 
-        public TampaServerSoapClient(string endpointConfigurationName, string remoteAddress) : base(endpointConfigurationName, remoteAddress)
+        public TampaSoapClient(string endpointConfigurationName, string remoteAddress) : base(endpointConfigurationName, remoteAddress)
         {
         }
 
@@ -646,51 +646,51 @@ namespace Tadah.Arbiter.TampaServerSoap
             return base.Channel.GetVersionAsync();
         }
         
-        public Tadah.Arbiter.TampaServerSoap.Status GetStatus()
+        public Tadah.Arbiter.TampaSoap.Status GetStatus()
         {
             return base.Channel.GetStatus();
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.Status> GetStatusAsync()
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.Status> GetStatusAsync()
         {
             return base.Channel.GetStatusAsync();
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        Tadah.Arbiter.TampaServerSoap.OpenJobResponse Tadah.Arbiter.TampaServerSoap.TampaServerSoap.OpenJob(Tadah.Arbiter.TampaServerSoap.OpenJobRequest request)
+        Tadah.Arbiter.TampaSoap.OpenJobResponse Tadah.Arbiter.TampaSoap.TampaSoap.OpenJob(Tadah.Arbiter.TampaSoap.OpenJobRequest request)
         {
             return base.Channel.OpenJob(request);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] OpenJob(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] OpenJob(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
-            Tadah.Arbiter.TampaServerSoap.OpenJobRequest inValue = new Tadah.Arbiter.TampaServerSoap.OpenJobRequest();
+            Tadah.Arbiter.TampaSoap.OpenJobRequest inValue = new Tadah.Arbiter.TampaSoap.OpenJobRequest();
             inValue.job = job;
             inValue.script = script;
-            Tadah.Arbiter.TampaServerSoap.OpenJobResponse retVal = ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).OpenJob(inValue);
+            Tadah.Arbiter.TampaSoap.OpenJobResponse retVal = ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).OpenJob(inValue);
             return retVal.OpenJobResult;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.OpenJobResponse> Tadah.Arbiter.TampaServerSoap.TampaServerSoap.OpenJobAsync(Tadah.Arbiter.TampaServerSoap.OpenJobRequest request)
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.OpenJobResponse> Tadah.Arbiter.TampaSoap.TampaSoap.OpenJobAsync(Tadah.Arbiter.TampaSoap.OpenJobRequest request)
         {
             return base.Channel.OpenJobAsync(request);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.OpenJobResponse> OpenJobAsync(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.OpenJobResponse> OpenJobAsync(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
-            Tadah.Arbiter.TampaServerSoap.OpenJobRequest inValue = new Tadah.Arbiter.TampaServerSoap.OpenJobRequest();
+            Tadah.Arbiter.TampaSoap.OpenJobRequest inValue = new Tadah.Arbiter.TampaSoap.OpenJobRequest();
             inValue.job = job;
             inValue.script = script;
-            return ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).OpenJobAsync(inValue);
+            return ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).OpenJobAsync(inValue);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] OpenJobEx(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] OpenJobEx(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             return base.Channel.OpenJobEx(job, script);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> OpenJobExAsync(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> OpenJobExAsync(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             return base.Channel.OpenJobExAsync(job, script);
         }
@@ -706,40 +706,40 @@ namespace Tadah.Arbiter.TampaServerSoap
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        Tadah.Arbiter.TampaServerSoap.ExecuteResponse Tadah.Arbiter.TampaServerSoap.TampaServerSoap.Execute(Tadah.Arbiter.TampaServerSoap.ExecuteRequest request)
+        Tadah.Arbiter.TampaSoap.ExecuteResponse Tadah.Arbiter.TampaSoap.TampaSoap.Execute(Tadah.Arbiter.TampaSoap.ExecuteRequest request)
         {
             return base.Channel.Execute(request);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] Execute(string jobID, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] Execute(string jobID, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
-            Tadah.Arbiter.TampaServerSoap.ExecuteRequest inValue = new Tadah.Arbiter.TampaServerSoap.ExecuteRequest();
+            Tadah.Arbiter.TampaSoap.ExecuteRequest inValue = new Tadah.Arbiter.TampaSoap.ExecuteRequest();
             inValue.jobID = jobID;
             inValue.script = script;
-            Tadah.Arbiter.TampaServerSoap.ExecuteResponse retVal = ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).Execute(inValue);
+            Tadah.Arbiter.TampaSoap.ExecuteResponse retVal = ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).Execute(inValue);
             return retVal.ExecuteResult;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.ExecuteResponse> Tadah.Arbiter.TampaServerSoap.TampaServerSoap.ExecuteAsync(Tadah.Arbiter.TampaServerSoap.ExecuteRequest request)
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.ExecuteResponse> Tadah.Arbiter.TampaSoap.TampaSoap.ExecuteAsync(Tadah.Arbiter.TampaSoap.ExecuteRequest request)
         {
             return base.Channel.ExecuteAsync(request);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.ExecuteResponse> ExecuteAsync(string jobID, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.ExecuteResponse> ExecuteAsync(string jobID, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
-            Tadah.Arbiter.TampaServerSoap.ExecuteRequest inValue = new Tadah.Arbiter.TampaServerSoap.ExecuteRequest();
+            Tadah.Arbiter.TampaSoap.ExecuteRequest inValue = new Tadah.Arbiter.TampaSoap.ExecuteRequest();
             inValue.jobID = jobID;
             inValue.script = script;
-            return ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).ExecuteAsync(inValue);
+            return ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).ExecuteAsync(inValue);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] ExecuteEx(string jobID, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] ExecuteEx(string jobID, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             return base.Channel.ExecuteEx(jobID, script);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> ExecuteExAsync(string jobID, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> ExecuteExAsync(string jobID, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             return base.Channel.ExecuteExAsync(jobID, script);
         }
@@ -755,40 +755,40 @@ namespace Tadah.Arbiter.TampaServerSoap
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        Tadah.Arbiter.TampaServerSoap.BatchJobResponse Tadah.Arbiter.TampaServerSoap.TampaServerSoap.BatchJob(Tadah.Arbiter.TampaServerSoap.BatchJobRequest request)
+        Tadah.Arbiter.TampaSoap.BatchJobResponse Tadah.Arbiter.TampaSoap.TampaSoap.BatchJob(Tadah.Arbiter.TampaSoap.BatchJobRequest request)
         {
             return base.Channel.BatchJob(request);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] BatchJob(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] BatchJob(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
-            Tadah.Arbiter.TampaServerSoap.BatchJobRequest inValue = new Tadah.Arbiter.TampaServerSoap.BatchJobRequest();
+            Tadah.Arbiter.TampaSoap.BatchJobRequest inValue = new Tadah.Arbiter.TampaSoap.BatchJobRequest();
             inValue.job = job;
             inValue.script = script;
-            Tadah.Arbiter.TampaServerSoap.BatchJobResponse retVal = ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).BatchJob(inValue);
+            Tadah.Arbiter.TampaSoap.BatchJobResponse retVal = ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).BatchJob(inValue);
             return retVal.BatchJobResult;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.BatchJobResponse> Tadah.Arbiter.TampaServerSoap.TampaServerSoap.BatchJobAsync(Tadah.Arbiter.TampaServerSoap.BatchJobRequest request)
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.BatchJobResponse> Tadah.Arbiter.TampaSoap.TampaSoap.BatchJobAsync(Tadah.Arbiter.TampaSoap.BatchJobRequest request)
         {
             return base.Channel.BatchJobAsync(request);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.BatchJobResponse> BatchJobAsync(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.BatchJobResponse> BatchJobAsync(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
-            Tadah.Arbiter.TampaServerSoap.BatchJobRequest inValue = new Tadah.Arbiter.TampaServerSoap.BatchJobRequest();
+            Tadah.Arbiter.TampaSoap.BatchJobRequest inValue = new Tadah.Arbiter.TampaSoap.BatchJobRequest();
             inValue.job = job;
             inValue.script = script;
-            return ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).BatchJobAsync(inValue);
+            return ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).BatchJobAsync(inValue);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] BatchJobEx(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] BatchJobEx(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             return base.Channel.BatchJobEx(job, script);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> BatchJobExAsync(Tadah.Arbiter.TampaServerSoap.Job job, Tadah.Arbiter.TampaServerSoap.ScriptExecution script)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> BatchJobExAsync(Tadah.Arbiter.TampaSoap.Job job, Tadah.Arbiter.TampaSoap.ScriptExecution script)
         {
             return base.Channel.BatchJobExAsync(job, script);
         }
@@ -804,36 +804,36 @@ namespace Tadah.Arbiter.TampaServerSoap
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        Tadah.Arbiter.TampaServerSoap.GetAllJobsResponse Tadah.Arbiter.TampaServerSoap.TampaServerSoap.GetAllJobs(Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest request)
+        Tadah.Arbiter.TampaSoap.GetAllJobsResponse Tadah.Arbiter.TampaSoap.TampaSoap.GetAllJobs(Tadah.Arbiter.TampaSoap.GetAllJobsRequest request)
         {
             return base.Channel.GetAllJobs(request);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.Job[] GetAllJobs()
+        public Tadah.Arbiter.TampaSoap.Job[] GetAllJobs()
         {
-            Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest inValue = new Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest();
-            Tadah.Arbiter.TampaServerSoap.GetAllJobsResponse retVal = ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).GetAllJobs(inValue);
+            Tadah.Arbiter.TampaSoap.GetAllJobsRequest inValue = new Tadah.Arbiter.TampaSoap.GetAllJobsRequest();
+            Tadah.Arbiter.TampaSoap.GetAllJobsResponse retVal = ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).GetAllJobs(inValue);
             return retVal.GetAllJobsResult;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.GetAllJobsResponse> Tadah.Arbiter.TampaServerSoap.TampaServerSoap.GetAllJobsAsync(Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest request)
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.GetAllJobsResponse> Tadah.Arbiter.TampaSoap.TampaSoap.GetAllJobsAsync(Tadah.Arbiter.TampaSoap.GetAllJobsRequest request)
         {
             return base.Channel.GetAllJobsAsync(request);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.GetAllJobsResponse> GetAllJobsAsync()
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.GetAllJobsResponse> GetAllJobsAsync()
         {
-            Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest inValue = new Tadah.Arbiter.TampaServerSoap.GetAllJobsRequest();
-            return ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).GetAllJobsAsync(inValue);
+            Tadah.Arbiter.TampaSoap.GetAllJobsRequest inValue = new Tadah.Arbiter.TampaSoap.GetAllJobsRequest();
+            return ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).GetAllJobsAsync(inValue);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.Job[] GetAllJobsEx()
+        public Tadah.Arbiter.TampaSoap.Job[] GetAllJobsEx()
         {
             return base.Channel.GetAllJobsEx();
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.Job[]> GetAllJobsExAsync()
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.Job[]> GetAllJobsExAsync()
         {
             return base.Channel.GetAllJobsExAsync();
         }
@@ -859,40 +859,40 @@ namespace Tadah.Arbiter.TampaServerSoap
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        Tadah.Arbiter.TampaServerSoap.DiagResponse Tadah.Arbiter.TampaServerSoap.TampaServerSoap.Diag(Tadah.Arbiter.TampaServerSoap.DiagRequest request)
+        Tadah.Arbiter.TampaSoap.DiagResponse Tadah.Arbiter.TampaSoap.TampaSoap.Diag(Tadah.Arbiter.TampaSoap.DiagRequest request)
         {
             return base.Channel.Diag(request);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] Diag(int type, string jobID)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] Diag(int type, string jobID)
         {
-            Tadah.Arbiter.TampaServerSoap.DiagRequest inValue = new Tadah.Arbiter.TampaServerSoap.DiagRequest();
+            Tadah.Arbiter.TampaSoap.DiagRequest inValue = new Tadah.Arbiter.TampaSoap.DiagRequest();
             inValue.type = type;
             inValue.jobID = jobID;
-            Tadah.Arbiter.TampaServerSoap.DiagResponse retVal = ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).Diag(inValue);
+            Tadah.Arbiter.TampaSoap.DiagResponse retVal = ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).Diag(inValue);
             return retVal.DiagResult;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.DiagResponse> Tadah.Arbiter.TampaServerSoap.TampaServerSoap.DiagAsync(Tadah.Arbiter.TampaServerSoap.DiagRequest request)
+        System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.DiagResponse> Tadah.Arbiter.TampaSoap.TampaSoap.DiagAsync(Tadah.Arbiter.TampaSoap.DiagRequest request)
         {
             return base.Channel.DiagAsync(request);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.DiagResponse> DiagAsync(int type, string jobID)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.DiagResponse> DiagAsync(int type, string jobID)
         {
-            Tadah.Arbiter.TampaServerSoap.DiagRequest inValue = new Tadah.Arbiter.TampaServerSoap.DiagRequest();
+            Tadah.Arbiter.TampaSoap.DiagRequest inValue = new Tadah.Arbiter.TampaSoap.DiagRequest();
             inValue.type = type;
             inValue.jobID = jobID;
-            return ((Tadah.Arbiter.TampaServerSoap.TampaServerSoap)(this)).DiagAsync(inValue);
+            return ((Tadah.Arbiter.TampaSoap.TampaSoap)(this)).DiagAsync(inValue);
         }
         
-        public Tadah.Arbiter.TampaServerSoap.LuaValue[] DiagEx(int type, string jobID)
+        public Tadah.Arbiter.TampaSoap.LuaValue[] DiagEx(int type, string jobID)
         {
             return base.Channel.DiagEx(type, jobID);
         }
         
-        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaServerSoap.LuaValue[]> DiagExAsync(int type, string jobID)
+        public System.Threading.Tasks.Task<Tadah.Arbiter.TampaSoap.LuaValue[]> DiagExAsync(int type, string jobID)
         {
             return base.Channel.DiagExAsync(type, jobID);
         }

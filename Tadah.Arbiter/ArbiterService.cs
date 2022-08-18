@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -8,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Tadah.Arbiter
 {
-    internal struct Client
+    internal class Client
     {
         public string IpAddress { get; private set; }
         public int Port { get; private set; }
@@ -37,7 +38,7 @@ namespace Tadah.Arbiter
 
             if (local == null && remote == null)
             {
-                throw new Exception("Failed to resolve information from socket");
+                throw new("Failed to resolve information from socket");
             }
         }
     }
@@ -46,35 +47,41 @@ namespace Tadah.Arbiter
     {
         public const int BufferSize = 1024;
         public byte[] Buffer = new byte[BufferSize];
-        public StringBuilder Builder = new StringBuilder();
+        public StringBuilder Builder = new();
         public Socket WorkSocket = null;
         public Client Client;
     }
 
     public class ArbiterService
     {
-        private static string EOFDelimiter = "<<<EOF>>>";
-        private static ManualResetEvent Finished = new ManualResetEvent(false);
+        private static readonly string EOFDelimiter = "<<<EOF>>>";
+        private static readonly ManualResetEvent Finished = new(false);
         private static Socket Listener;
 
         public static int Start()
         {
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, int.Parse(Configuration.AppSettings["ServicePort"]));
+            IPEndPoint localEndPoint = new(IPAddress.Any, Configuration.ServicePort);
 
-            Listener = new Socket(IPAddress.Any.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Listener = new(IPAddress.Any.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             try
             {
                 Listener.Bind(localEndPoint);
                 Listener.Listen(100);
-                Task.Run(() => ListenForConnections());
             }
-            catch
+            finally
             {
-                Log.Error($"Failed to initialize ArbiterService on port {Configuration.AppSettings["ServicePort"]}");
+                try
+                {
+                    Task.Run(() => ListenForConnections());
+                }
+                catch (Exception exception)
+                {
+                    Log.Error($"ListenForConnections failed: {exception}");
+                }
             }
 
-            return int.Parse(Configuration.AppSettings["ServicePort"]);
+            return Configuration.ServicePort;
         }
 
         public static void Stop()
@@ -86,53 +93,40 @@ namespace Tadah.Arbiter
         {
             while (true)
             {
-                try
-                {
-                    Finished.Reset();
-                    Listener.BeginAccept(new AsyncCallback(AcceptCallback), Listener);
-                    Finished.WaitOne();
-                }
-                catch
-                {
-                    // Nah
-                }
+                Finished.Reset();
+                Listener.BeginAccept(new(AcceptCallback), Listener);
+                Finished.WaitOne();
             }
         }
 
         private static void AcceptCallback(IAsyncResult result)
         {
+            Client client = null;
+            Socket handler = null;
+
             try
             {
                 Finished.Set();
 
                 Socket listener = (Socket)result.AsyncState;
-                Socket handler = listener.EndAccept(result);
-                Client client = new Client(handler);
+                handler = listener.EndAccept(result);
+                client = new(handler);
 
                 Log.Write($"[ArbiterService] '{client.IpAddress}' Connected on port {client.Port}", LogSeverity.Event);
-
-                try
-                {
-                    StateObject state = new StateObject();
-                    state.WorkSocket = handler;
-                    state.Client = client;
-
-                    handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-                }
-                catch (Exception)
-                {
-                    // idc
-                }
             }
-            catch (Exception)
+            finally
             {
-                // idc
+                StateObject state = new();
+                state.WorkSocket = handler;
+                state.Client = client;
+
+                handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new(ReadCallback), state);
             }
         }
 
         private static void ReadCallback(IAsyncResult result)
         {
-            String content = String.Empty;
+            string content = string.Empty;
 
             StateObject state = (StateObject)result.AsyncState;
             Socket handler = state.WorkSocket;
@@ -148,9 +142,8 @@ namespace Tadah.Arbiter
 
                     if (content.Length > 0 && !content.StartsWith("%"))
                     {
-                        // YAAAAAAAAAAAAAAAAAAAAY.
                         Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Did not include a signature", LogSeverity.Warning);
-                        SendData(handler, "");
+                        handler.Close();
                     }
 
                     if (content.IndexOf(EOFDelimiter) > -1)
@@ -168,9 +161,9 @@ namespace Tadah.Arbiter
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Log.Write($"[ArbiterService::ReadCallback] - {ex.Message}", LogSeverity.Error);
+                Log.Write($"[ArbiterService::ReadCallback] - {exception}", LogSeverity.Error);
             }
         }
 
@@ -214,11 +207,11 @@ namespace Tadah.Arbiter
                 return "";
             }
 
-            TadahMessage request = null;
+            Dictionary<string, string> request = null;
 
             try
             {
-                request = JsonConvert.DeserializeObject<TadahMessage>(message);
+                request = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
             }
             catch
             {
@@ -228,183 +221,189 @@ namespace Tadah.Arbiter
 
             try
             {
-                switch (request.Operation)
+                switch (request["Operation"])
                 {
                     case "OpenJob":
                         {
-                            if (JobManager.JobExists(request.JobId))
+                            if (JobManager.JobExists(request["JobId"]))
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request.JobId}' - it already exists", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request["JobId"]}' - it already exists", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "OpenJob",
-                                    Success = false,
-                                    Message = "Job already exists"
+                                    { "Operation", "OpenJob" },
+                                    { "Success", false },
+                                    { "Message", "Job already exists" }
                                 });
                             }
 
-                            if (!JobManager.IsValidVersion(request.Version))
+                            if (!JobManager.IsValidVersion(request["Version"]))
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request.JobId}' and version '{request.Version}' - is not a valid version", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request["JobId"]}' and version '{request["Version"]}' - is not a valid version", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "OpenJob",
-                                    Success = false,
-                                    Message = "Invalid version"
+                                    { "Operation", "OpenJob" },
+                                    { "Success", false },
+                                    { "Message", "Invalid ClientVersion" }
                                 });
                             }
 
                             if (JobManager.OpenJobs.Count >= Configuration.MaximumPlaceJobs)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' - maximum amount of jobs reached", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "OpenJob",
-                                    Success = false,
-                                    Message = "Maximum amount of jobs reached"
+                                    { "Operation", "OpenJob" },
+                                    { "Success", false },
+                                    { "Message", "Maximum amount of jobs reached" }
                                 });
                             }
 
-                            Task.Run(() => JobManager.OpenJob(request.JobId, request.PlaceId, request.Version));
-                            return JsonConvert.SerializeObject(new TadahResponse
+                            Task.Run(() => JobManager.OpenJob(request["JobId"], int.Parse(request["PlaceId"]), (ClientVersion)int.Parse(request["Version"])));
+                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
                             {
-                                Operation = "OpenJob",
-                                Success = true
+                                { "Operation", "OpenJob" },
+                                { "Success", true }
                             });
                         }
 
                     case "CloseJob":
                         {
-                            if (JobManager.JobExists(request.JobId))
+                            if (JobManager.JobExists(request["JobId"]))
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'CloseJob' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'CloseJob' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "CloseJob",
-                                    Success = false,
-                                    Message = "Job doesn't exist"
+                                    { "Operation", "CloseJob" },
+                                    { "Success", false },
+                                    { "Message", "Job doesn't exist" }
                                 });
                             }
 
-                            Task.Run(() => JobManager.CloseJob(request.JobId));
-                            return JsonConvert.SerializeObject(new TadahResponse
+                            Task.Run(() => JobManager.CloseJob(request["JobId"]));
+                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
                             {
-                                Operation = "CloseJob",
-                                Success = true
+                                { "Operation", "CloseJob" },
+                                { "Success", true }
                             });
                         }
 
                     case "ExecuteScript":
                         {
-                            Job job = JobManager.GetJobFromId(request.JobId);
+                            Job job = JobManager.GetJobFromId(request["JobId"]);
 
                             if (job == null)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "ExecuteScript",
-                                    Success = false,
-                                    Message = "Job doesn't exist"
+                                    { "Operation", "ExecuteScript" },
+                                    { "Success", false },
+                                    { "Message", "Job doesn't exist" }
                                 });
                             }
 
-                            if (job is MFCJob)
+                            if (job is TaipeiJob)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request.JobId}' - it does not support such capability (is MFCJob)", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request["JobId"]}' - it does not support such capability (is TaipeiJob)", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "ExecuteScript",
-                                    Success = false,
-                                    Message = "Cannot run ExecuteScript on MFCJob"
+                                    { "Operation", "ExecuteScript" },
+                                    { "Success", false },
+                                    { "Message", "Cannot run ExecuteScript on TaipeiJob" }
                                 });
                             }
 
-                            Task.Run(() => { job.ExecuteScript(request.Script); });
-                            return JsonConvert.SerializeObject(new TadahResponse
+                            Task.Run(() => { job.ExecuteScript(request["Script"]); });
+                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
                             {
-                                Operation = "ExecuteScript",
-                                Success = true
+                                { "Operation", "ExecuteScript" },
+                                { "Success", true }
                             });
                         }
 
-                    case "RenewTampaServerJobLease":
+                    case "RenewTampaJobLease":
                         {
-                            Job job = JobManager.GetJobFromId(request.JobId);
+                            Job job = JobManager.GetJobFromId(request["JobId"]);
 
                             if (job == null)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - it doesn't exist", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "RenewTampaServerJobLease",
-                                    Success = false,
-                                    Message = "Job doesn't exist"
+                                    { "Operation", "RenewTampaJobLease" },
+                                    { "Success", false },
+                                    { "Message", "Job doesn't exist" }
                                 });
                             }
 
-                            if (job is not TampaServerJob)
+                            if (job is not TampaJob)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request.JobId}' - is not a TampaServerJob", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new TadahResponse
+                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request["JobId"]}' - is not a TampaJob", LogSeverity.Warning);
+                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                                 {
-                                    Operation = "RenewTampaServerJobLease",
-                                    Success = false,
-                                    Message = "Job is not TampaServerJob"
+                                    { "Operation", "RenewTampaJobLease" },
+                                    { "Success", false },
+                                    { "Message", "Job is not a TampaJob" }
                                 });
                             }
 
-                            TampaServerJob tsJob = (TampaServerJob)job;
-                            Task.Run(() => { tsJob.RenewLease(request.ExpirationInSeconds); });
+                            TampaJob taJob = (TampaJob)job;
+                            Task.Run(() => { taJob.RenewLease(int.Parse(request["ExpirationInSeconds"])); });
 
-                            return JsonConvert.SerializeObject(new TadahResponse
+                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
                             {
-                                Operation = "RenewLease",
-                                Success = true
+                                { "Operation", "RenewTampaJobLease" },
+                                { "Success", true }
                             });
                         }
 
                     case "CloseAllJobs":
                         {
+                            int jobs = JobManager.OpenJobs.Count;
+
                             Task.Run(() => { JobManager.CloseAllJobs(); });
-                            return JsonConvert.SerializeObject(new TadahResponse
+                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
                             {
-                                Operation = "CloseAllJobs",
-                                Success = true
+                                { "Operation", "CloseAllJobs" },
+                                { "Success", true },
+                                { "Data", jobs }
                             });
                         }
 
-                    case "CloseAllTampaServerProcesses":
+                    case "CloseAllTampaProcesses":
                         {
-                            Task.Run(() => { TampaServerProcessManager.CloseAllProcesses(); });
-                            return JsonConvert.SerializeObject(new TadahResponse
+                            int processes = TampaProcessManager.OpenProcesses.Count;
+
+                            Task.Run(() => { TampaProcessManager.CloseAllProcesses(); });
+                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
                             {
-                                Operation = "CloseAllTampaServerProcesses",
-                                Success = true
+                                { "Operation", "CloseAllTampaProcesses" },
+                                { "Success", true },
+                                { "Data", processes }
                             });
                         }
 
                     default:
                         {
-                            Log.Write($"[ArbiterService::{client.IpAddress}] Invalid operation '{request.Operation}'", LogSeverity.Warning);
-                            return JsonConvert.SerializeObject(new TadahResponse
+                            Log.Write($"[ArbiterService::{client.IpAddress}] Invalid operation '{request["Operation"]}'", LogSeverity.Warning);
+                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
                             {
-                                Operation = request.Operation,
-                                Success = false,
-                                Message = "Invalid operation"
+                                { "Operation", request["Operation"] },
+                                { "Success", false },
+                                { "Message", $"Invalid operation '{request["Operation"]}'" }
                             });
                         }
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - {ex.Message}", LogSeverity.Error);
+                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - {exception.Message}", LogSeverity.Error);
 
-                return JsonConvert.SerializeObject(new TadahResponse
+                return JsonConvert.SerializeObject(new Dictionary<string, object>()
                 {
-                    Operation = request.Operation,
-                    Success = false,
-                    Message = ex.Message
+                    { "Operation", request["Operation"] },
+                    { "Success", false },
+                    { "Message", exception.Message }
                 });
             }
         }

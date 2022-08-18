@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace Tadah.Arbiter
 {
-    public class MFCJob : Job
+    public class TaipeiJob : Job
     {
-        public MFCJob(string Id, int PlaceId, int Version, int Port) : base(Id, PlaceId, Version, Port)
+        public TaipeiJob(string Id, int PlaceId, ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
         {
             //
         }
@@ -73,7 +73,6 @@ namespace Tadah.Arbiter
                 this.Process = new Process();
                 this.Process.StartInfo.FileName = CommandLine[0];
                 this.Process.StartInfo.Arguments = CommandLine[1];
-                // this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 this.Process.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
                 this.Process.Start();
                 this.Process.WaitForInputIdle();

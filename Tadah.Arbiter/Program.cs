@@ -5,6 +5,12 @@ using System.Runtime.InteropServices;
 
 namespace Tadah.Arbiter
 {
+    public enum ClientVersion
+    {
+        Taipei = 2011,
+        Tampa = 2016
+    };
+
     public class Program
     {
         internal static void Main(string[] args)
@@ -19,13 +25,13 @@ namespace Tadah.Arbiter
             
             Configuration.Load();
 
-            Log.Write($"Assigned GameserverId: {Configuration.GameserverId}", LogSeverity.Boot);
+            Log.Write($"Assigned GameserverId: {Configuration.Uuid}", LogSeverity.Boot);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Task.Run(() => JobManager.MonitorCrashedJobs());
                 Task.Run(() => JobManager.MonitorUnresponsiveJobs());
-                Task.Run(() => TampaServerProcessManager.MonitorUnresponsiveProcesses());
+                Task.Run(() => TampaProcessManager.MonitorUnresponsiveProcesses());
             }
 
             Task.Run(() => Http.StartResourceReporter());
@@ -60,12 +66,12 @@ namespace Tadah.Arbiter
     {
         public static int GetTimestamp()
         {
-            return (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0))).TotalSeconds;
+            return (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
         }
 
         public static int From(DateTime time)
         {
-            return (Int32)(time - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+            return (int)(time - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
         }
     }
 }

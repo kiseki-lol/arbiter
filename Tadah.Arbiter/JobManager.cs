@@ -9,18 +9,18 @@ namespace Tadah.Arbiter
 {
     public class JobManager
     {
-        public static List<Job> OpenJobs = new List<Job>();
+        public static List<Job> OpenJobs = new();
 
-        [DllImport("User32.dll")]
+        [DllImport("User32.dll", CharSet = CharSet.Unicode)]
         static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
-        [DllImport("User32.dll")]
+        [DllImport("User32.dll", CharSet = CharSet.Unicode)]
         static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
-        [DllImport("User32.dll")]
+        [DllImport("User32.dll", CharSet = CharSet.Unicode)]
         static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
-        [DllImport("User32.dll")]
+        [DllImport("User32.dll", CharSet = CharSet.Unicode)]
         static extern int GetWindowTextLength(IntPtr hWnd);
 
         public static string GetWindowTitle(IntPtr hWnd)
@@ -28,18 +28,19 @@ namespace Tadah.Arbiter
             var length = GetWindowTextLength(hWnd) + 1;
             var title = new StringBuilder(length);
             GetWindowText(hWnd, title, length);
+
             return title.ToString();
         }
 
-        public static string[] GetCommandLine(int version, string scriptUrl, string jobId)
+        public static string[] GetCommandLine(ClientVersion version, string scriptUrl, string jobId)
         {
             switch (version)
             {
-                case 2011:
-                    return new string[] { "Gameservers\\2011\\TadahServer.exe", $"-a https://polygon.pizzaboxer.xyz/Login/Negotiate.ashx -t 0 -j {scriptUrl} -jobId {jobId}" };
+                case ClientVersion.Taipei:
+                    return new string[] { "Versions\\Taipei\\TadahServer.exe", $"-a https://tadah.rocks/Login/Negotiate.ashx -t 0 -j {scriptUrl} -jobId {jobId}" };
 
-                case 2016:
-                    throw new Exception("Attempt to get command line for TampaServerJob");
+                case ClientVersion.Tampa:
+                    throw new Exception("Attempt to get command line for TampaJob");
 
                 default:
                     throw new Exception("Attempt to get command line for invalid version");
@@ -50,7 +51,7 @@ namespace Tadah.Arbiter
         {
             int port = int.Parse(Configuration.AppSettings["BasePort"]);
 
-            for (int i = 0; i < Configuration.MaximumPlaceJobs; i++)
+            for (int i = 0; i < Configuration.BasePlaceJobPort; i++)
             {
                 if (OpenJobs.Find(job => job.Port == port) == null)
                 {
@@ -65,18 +66,18 @@ namespace Tadah.Arbiter
             return port;
         }
 
-        public static Job OpenJob(string jobId, int placeId, int version)
+        public static Job OpenJob(string jobId, int placeId, ClientVersion version)
         {
             Job job;
             int port = GetAvailablePort();
 
-            if (version == 2016)
+            if (version == ClientVersion.Tampa)
             {
-                job = new TampaServerJob(jobId, placeId, version, port);
+                job = new TampaJob(jobId, placeId, version, port);
             }
             else
             {
-                job = new MFCJob(jobId, placeId, version, port);
+                job = new TaipeiJob(jobId, placeId, version, port);
             }
 
             OpenJobs.Add(job);
@@ -109,22 +110,20 @@ namespace Tadah.Arbiter
 
         public static bool IsValidVersion(object version)
         {
-            if (!Int32.TryParse(version.ToString(), out int result))
+            if (!int.TryParse(version.ToString(), out int result))
             {
                 return false;
             }
 
-            return result == 2009 || result == 2013 || result == 2016;
+            return Enum.IsDefined(typeof(ClientVersion), result);
         }
 
         public static void MonitorCrashedJobs()
         {
-            uint processId;
-
             while (true)
             {
                 IntPtr hWnd = FindWindow(null, "Tadah Crash");
-                GetWindowThreadProcessId(hWnd, out processId);
+                GetWindowThreadProcessId(hWnd, out uint processId);
 
                 if (processId != 0)
                 {
@@ -151,7 +150,7 @@ namespace Tadah.Arbiter
                 {
                     foreach (Job job in OpenJobs)
                     {
-                        if (job is TampaServerJob)
+                        if (job is TampaJob)
                         {
                             continue;
                         }
@@ -161,7 +160,7 @@ namespace Tadah.Arbiter
                             continue;
                         }
 
-                        if (job.Version == 2009 && (Unix.From(job.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(job.Process.MainWindowHandle).Contains("Place1"))
+                        if (job.Version == ClientVersion.Taipei && (Unix.From(job.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(job.Process.MainWindowHandle).Contains("Place1"))
                         {
                             job.IsRunning = false;
                         }
@@ -199,12 +198,12 @@ namespace Tadah.Arbiter
             }
 
             OpenJobs.Clear();
-            TampaServerProcessManager.CloseAllProcesses();
+            TampaProcessManager.CloseAllProcesses();
         }
 
         public static void MonitorUnresponsiveJob(Job job)
         {
-            if (job is TampaServerJob)
+            if (job is TampaJob)
             {
                 return;
             }

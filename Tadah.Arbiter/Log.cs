@@ -27,7 +27,7 @@ namespace Tadah.Arbiter
                     Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Logs"));
                 }
 
-                File.Move(LogFile, Path.Combine(Directory.GetCurrentDirectory(), "Logs", $"{DateTime.UtcNow.ToString("yyyy-MM-ddTHH-mm-ss")}.log"));
+                File.Move(LogFile, Path.Combine(Directory.GetCurrentDirectory(), "Logs", $"{DateTime.UtcNow:s}.log"));
             }
             else
             {
@@ -125,7 +125,7 @@ namespace Tadah.Arbiter
                     DateTime time = DateTime.Now;
 
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write($"[{time.ToString("G")}] ");
+                    Console.Write($"[{time:G}] ");
 
                     Console.ForegroundColor = color;
                     Console.Write($"[{_event}]");
@@ -150,7 +150,7 @@ namespace Tadah.Arbiter
 
                 lock (Writer)
                 {
-                    Writer.WriteLine($"[{DateTime.Now.ToString("G")}] [FATAL] {message}");
+                    Writer.WriteLine($"[{DateTime.Now:G}] [FATAL] {message}");
                     Writer.Flush();
                 }
 

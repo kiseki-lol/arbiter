@@ -11,7 +11,7 @@ namespace Tadah.Arbiter
 {
     public static class TadahSignature
     {
-        private static RSACryptoServiceProvider publicRsa = ReadPublicKey("");
+        private static RSACryptoServiceProvider publicRsa = ReadPublicKey(Configuration.AppSettings["PublicKeyPath"]);
 
         private static RSACryptoServiceProvider ReadPublicKey(string path)
         {
@@ -53,10 +53,10 @@ namespace Tadah.Arbiter
 
             try
             {
-                string signature = data.Substring(1, data.Substring(1).IndexOf("%"));
-                string nonce = data.Substring(signature.Length + 2, data.IndexOf(":") - (signature.Length + 2));
+                string signature = data.Substring(1, data[1..].IndexOf("%"));
+                string nonce = data[(signature.Length + 2) .. data.IndexOf(":")];
 
-                message = data.Substring(signature.Length + nonce.Length + 3);
+                message = data[(signature.Length + nonce.Length + 3)..];
 
                 bool signatureOK = Verify(message, signature);
                 bool nonceOK = (Unix.GetTimestamp() - int.Parse(nonce)) <= 5;

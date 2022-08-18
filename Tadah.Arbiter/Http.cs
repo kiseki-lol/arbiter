@@ -12,27 +12,30 @@ namespace Tadah.Arbiter
 {
     public class Http
     {
-        private static readonly HttpClient WebClient = new HttpClient();
-        private static List<Dictionary<string, string>> LogsToSend = new List<Dictionary<string, string>>();
+        private static readonly HttpClient WebClient = new();
+        private static readonly List<Dictionary<string, string>> LogsToSend = new();
 
         public static int GetAvailableMemory()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                PerformanceCounter performance = new PerformanceCounter("Memory", "Available MBytes");
+                PerformanceCounter performance = new("Memory", "Available MBytes");
+
                 return (int)performance.NextValue();
             }
 
-            return (int) ((double)GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1048576.0);
+            return (int)(GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1048576.0);
         }
 
         public static int GetCpuUsage()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                PerformanceCounter performance = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+                PerformanceCounter performance = new("Processor", "% Processor Time", "_Total");
                 performance.NextValue(); // this is always gonna be zero
+
                 Thread.Sleep(500);
+
                 return (int)Math.Round(performance.NextValue());
             }
 
@@ -71,13 +74,13 @@ namespace Tadah.Arbiter
 
         public static string ConstructUrl(string path, bool https = true)
         {
-            string host = "http";
+            string scheme = "http";
 
 #if (!DEBUG)
-            if (https) host += "s";
+            if (https) scheme += "s";
 #endif
 
-            return $"{host}://{Configuration.AppSettings["BaseUrl"]}{path}";
+            return $"{scheme}://{Configuration.AppSettings["BaseUrl"]}{path}";
         }
 
         public static string GetGameserverScript(string jobId, int placeId, int port, bool returnData = false)
@@ -104,19 +107,16 @@ namespace Tadah.Arbiter
                     message.Content = content;
                 }
 
-                using (HttpResponseMessage response = WebClient.SendAsync(message).Result)
-                {
-                    using (HttpContent httpContent = response.Content)
-                    {
-                        return httpContent.ReadAsStringAsync().Result;
-                    }
-                }
+                using HttpResponseMessage response = WebClient.SendAsync(message).Result;
+                using HttpContent httpContent = response.Content;
+
+                return httpContent.ReadAsStringAsync().Result;
             }
         }
 
         public static void Log(LogSeverity severity, int timestamp, string output)
         {
-            Dictionary<string, string> data = new Dictionary<string, string>
+            Dictionary<string, string> data = new()
             {
                 { "severity", ((int) severity).ToString() },
                 { "timestamp", timestamp.ToString() },
@@ -124,7 +124,7 @@ namespace Tadah.Arbiter
                 { "blur", (output.Contains(Configuration.AppSettings["AccessKey"]) ? Configuration.AppSettings["AccessKey"] : "") }
             };
 
-            if (Configuration.GameserverId == Guid.Empty)
+            if (Configuration.Uuid == Guid.Empty)
             {
                 LogsToSend.Add(data);
                 return;
@@ -134,28 +134,28 @@ namespace Tadah.Arbiter
             {
                 foreach (Dictionary<string, string> log in LogsToSend)
                 {
-                    Request($"/{Configuration.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(log));
+                    Request($"/{Configuration.Uuid}/log", HttpMethod.Post, new FormUrlEncodedContent(log));
                 }
 
                 LogsToSend.Clear();
             }
 
-            Request($"/{Configuration.GameserverId}/log", HttpMethod.Post, new FormUrlEncodedContent(data));
+            Request($"/{Configuration.Uuid}/log", HttpMethod.Post, new FormUrlEncodedContent(data));
         }
 
         public static void UpdateState(GameServerState state)
         {
-            Request($"/{Configuration.GameserverId}/status?state={(int)state}", HttpMethod.Get);
+            Request($"/{Configuration.Uuid}/status?state={(int)state}", HttpMethod.Get);
         }
 
         public static void Fatal(string exception)
         {
-            Dictionary<string, string> data = new Dictionary<string, string>
+            Dictionary<string, string> data = new()
             {
                 { "exception", exception }
             };
 
-            Request($"/{Configuration.GameserverId}/fatal", HttpMethod.Post, new FormUrlEncodedContent(data));
+            Request($"/{Configuration.Uuid}/fatal", HttpMethod.Post, new FormUrlEncodedContent(data));
         }
 
         public static void StartResourceReporter()
@@ -166,7 +166,7 @@ namespace Tadah.Arbiter
                 string cpu = GetCpuUsage().ToString();
                 Tuple<int, int> traffic = GetNetworkTraffic();
 
-                Dictionary<string, string> data = new Dictionary<string, string>
+                Dictionary<string, string> data = new()
                 {
                     { "cpu", cpu },
                     { "ram", ram },
@@ -176,7 +176,7 @@ namespace Tadah.Arbiter
 
                 FormUrlEncodedContent content = new FormUrlEncodedContent(data);
 
-                Request($"/{Configuration.GameserverId}/resources", HttpMethod.Post, content);
+                Request($"/{Configuration.Uuid}/resources", HttpMethod.Post, content);
 
                 Thread.Sleep(15000);
             }
@@ -188,24 +188,24 @@ namespace Tadah.Arbiter
 
             if (port != 0)
             {
-                parameters += $"&machineAddress={Configuration.AppSettings["MachineAddress"]}";
+                parameters += $"&machine_address={Configuration.AppSettings["MachineAddress"]}";
             }
 
             Request($"/{jobId}/update?{parameters}", HttpMethod.Get);
         }
 
-        public static Dictionary<string, object> Identify()
+        public static Dictionary<string, string> Identify()
         {
             string offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).ToString();
             offset = offset.Substring(0, offset.Length - 3); // "-07:00:00" -> "-07:00"
 
-            Dictionary<string, string> data = new Dictionary<string, string>
+            Dictionary<string, string> data = new()
             {
-                { "friendly_name", Environment.MachineName },
+                { "machine_name", Environment.MachineName },
                 { "utc_offset", offset }
             };
 
-            return JsonConvert.DeserializeObject<Dictionary<string, object>>(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data)));
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data)));
         }
     }
 }
