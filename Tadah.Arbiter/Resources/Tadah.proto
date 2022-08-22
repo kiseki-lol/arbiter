@@ -16,7 +16,7 @@ message Signal {
     }
 
     enum ClientVersion {
-        NULL = 0;
+        NONE = 0;
         TAIPEI = 2011;
         TAMPA = 2016;
     }

@@ -37,7 +37,7 @@ namespace Tadah.Proto {
             "aW9uEgwKCE9QRU5fSk9CEAASDQoJQ0xPU0VfSk9CEAESEgoORVhFQ1VURV9T",
             "Q1JJUFQQAhIZChVSRU5FV19UQU1QQV9KT0JfTEVBU0UQAxISCg5DTE9TRV9B",
             "TExfSk9CUxAEEh0KGUNMT1NFX0FMTF9UQU1QQV9QUk9DRVNTRVMQBSIyCg1D",
-            "bGllbnRWZXJzaW9uEggKBE5VTEwQABILCgZUQUlQRUkQ2w8SCgoFVEFNUEEQ",
+            "bGllbnRWZXJzaW9uEggKBE5PTkUQABILCgZUQUlQRUkQ2w8SCgoFVEFNUEEQ",
             "4A9CDqoCC1RhZGFoLlByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
@@ -253,7 +253,7 @@ namespace Tadah.Proto {
       }
 
       public enum ClientVersion {
-        [pbr::OriginalName("NULL")] Null = 0,
+        [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("TAIPEI")] Taipei = 2011,
         [pbr::OriginalName("TAMPA")] Tampa = 2016,
       }
