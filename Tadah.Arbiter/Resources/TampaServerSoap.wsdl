@@ -388,7 +388,7 @@
   <wsdl:message name="DiagExSoapOut">
     <wsdl:part name="parameters" element="tns:DiagExResponse" />
   </wsdl:message>
-  <wsdl:portType name="TampaSoap">
+  <wsdl:portType name="TampaServerSoap">
     <wsdl:operation name="HelloWorld">
       <wsdl:input message="tns:HelloWorldSoapIn" />
       <wsdl:output message="tns:HelloWorldSoapOut" />
@@ -462,7 +462,7 @@
       <wsdl:output message="tns:DiagExSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
-  <wsdl:binding name="TampaSoap" type="tns:TampaSoap">
+  <wsdl:binding name="TampaServerSoap" type="tns:TampaServerSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="HelloWorld">
       <soap:operation soapAction="http://tadah.rocks/HelloWorld" style="document" />
@@ -627,7 +627,7 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
-  <wsdl:binding name="TampaSoap12" type="tns:TampaSoap">
+  <wsdl:binding name="TampaServerSoap12" type="tns:TampaServerSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="HelloWorld">
       <soap12:operation soapAction="http://tadah.rocks/HelloWorld" style="document" />

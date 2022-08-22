@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.IO;
-using Tadah.Arbiter.TampaSoap;
+using Tadah;
 
 namespace Tadah.Arbiter
 {
     public class TampaProcess
     {
         public int SoapPort { get; }
-        public TampaSoapClient Client { get; private set; }
+        public TampaServerSoapClient Client { get; private set; }
         public bool Monitored { get; set; }
         public Process Process { get; set; }
         public List<TampaJob> Jobs { get; set; }
@@ -39,7 +39,7 @@ namespace Tadah.Arbiter
                 this.Process.Start();
             }
 
-            this.Client = new TampaSoapClient("http://tadah.rocks/", $"http://127.0.0.1:${this.SoapPort}");
+            this.Client = new TampaServerSoapClient("http://tadah.rocks/", $"http://127.0.0.1:${this.SoapPort}");
         }
 
         internal void Close(bool forceKill = false)
