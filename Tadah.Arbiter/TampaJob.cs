@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Tadah.Arbiter.TampaSoap;
 
 namespace Tadah.Arbiter
 {
@@ -26,7 +25,7 @@ namespace Tadah.Arbiter
 
         protected override void InternalStart()
         {
-            TampaSoap.Job job = new TampaSoap.Job
+            Tadah.Job job = new()
             {
                 id = Id,
                 expirationInSeconds = ExpirationInSeconds,
@@ -34,7 +33,7 @@ namespace Tadah.Arbiter
                 cores = 1
             };
 
-            ScriptExecution script = new ScriptExecution
+            ScriptExecution script = new()
             {
                 name = "Start Server",
                 script = Http.GetGameserverScript(Id, PlaceId, Port, true)
