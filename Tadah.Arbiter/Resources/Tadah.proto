@@ -1,0 +1,50 @@
+syntax = "proto3";
+package tadah;
+
+option csharp_namespace = "Tadah.Proto";
+
+import "google/protobuf/timestamp.proto";
+
+message Signal {
+    enum Operation {
+        OPEN_JOB = 0;
+        CLOSE_JOB = 1;
+        EXECUTE_SCRIPT = 2;
+        RENEW_TAMPA_JOB_LEASE = 3;
+        CLOSE_ALL_JOBS = 4;
+        CLOSE_ALL_TAMPA_PROCESSES = 5;
+    }
+
+    enum ClientVersion {
+        NULL = 0;
+        TAIPEI = 2011;
+        TAMPA = 2016;
+    }
+
+    google.protobuf.Timestamp nonce = 1;
+    string jobId = 2;
+
+    ClientVersion version = 3;
+
+    message Place {
+        uint32 placeId = 1;
+        string script = 2;
+        uint32 expirationInSeconds = 3;
+    }
+
+    message Thumbnail {
+        enum AssetType {
+            CLOTHING = 0;
+            HEAD = 1;
+            MESH = 2;
+            PLACE = 3;
+            USER = 4;
+            HEADSHOT = 5;
+            XML = 6;
+        }
+
+        AssetType type = 1;
+        uint32 assetId = 2;
+        string accessKey = 3;
+    }
+}
