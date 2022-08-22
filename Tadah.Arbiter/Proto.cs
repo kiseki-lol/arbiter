@@ -25,30 +25,46 @@ namespace Tadah.Proto {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChVSZXNvdXJjZXMvVGFkYWgucHJvdG8SBXRhZGFoGh9nb29nbGUvcHJvdG9i",
-            "dWYvdGltZXN0YW1wLnByb3RvIrYECgZTaWduYWwSKQoFbm9uY2UYASABKAsy",
-            "Gi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWpvYklkGAIgASgJEiwK",
-            "B3ZlcnNpb24YAyABKA4yGy50YWRhaC5TaWduYWwuQ2xpZW50VmVyc2lvbhpF",
-            "CgVQbGFjZRIPCgdwbGFjZUlkGAEgASgNEg4KBnNjcmlwdBgCIAEoCRIbChNl",
-            "eHBpcmF0aW9uSW5TZWNvbmRzGAMgASgNGrsBCglUaHVtYm5haWwSLwoEdHlw",
-            "ZRgBIAEoDjIhLnRhZGFoLlNpZ25hbC5UaHVtYm5haWwuQXNzZXRUeXBlEg8K",
-            "B2Fzc2V0SWQYAiABKA0SEQoJYWNjZXNzS2V5GAMgASgJIlkKCUFzc2V0VHlw",
-            "ZRIMCghDTE9USElORxAAEggKBEhFQUQQARIICgRNRVNIEAISCQoFUExBQ0UQ",
-            "AxIICgRVU0VSEAQSDAoISEVBRFNIT1QQBRIHCgNYTUwQBiKKAQoJT3BlcmF0",
-            "aW9uEgwKCE9QRU5fSk9CEAASDQoJQ0xPU0VfSk9CEAESEgoORVhFQ1VURV9T",
-            "Q1JJUFQQAhIZChVSRU5FV19UQU1QQV9KT0JfTEVBU0UQAxISCg5DTE9TRV9B",
-            "TExfSk9CUxAEEh0KGUNMT1NFX0FMTF9UQU1QQV9QUk9DRVNTRVMQBSIyCg1D",
-            "bGllbnRWZXJzaW9uEggKBE5PTkUQABILCgZUQUlQRUkQ2w8SCgoFVEFNUEEQ",
-            "4A9CDqoCC1RhZGFoLlByb3RvYgZwcm90bzM="));
+            "dWYvdGltZXN0YW1wLnByb3RvIs4DCgZTaWduYWwSKQoFbm9uY2UYASABKAsy",
+            "Gi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWpvYklkGAIgASgJEiMK",
+            "CW9wZXJhdGlvbhgDIAEoDjIQLnRhZGFoLk9wZXJhdGlvbhIsCgd2ZXJzaW9u",
+            "GAQgASgOMhsudGFkYWguU2lnbmFsLkNsaWVudFZlcnNpb24aRQoFUGxhY2US",
+            "DwoHcGxhY2VJZBgBIAEoDRIOCgZzY3JpcHQYAiABKAkSGwoTZXhwaXJhdGlv",
+            "bkluU2Vjb25kcxgDIAEoDRq7AQoJVGh1bWJuYWlsEi8KBHR5cGUYASABKA4y",
+            "IS50YWRhaC5TaWduYWwuVGh1bWJuYWlsLkFzc2V0VHlwZRIPCgdhc3NldElk",
+            "GAIgASgNEhEKCWFjY2Vzc0tleRgDIAEoCSJZCglBc3NldFR5cGUSDAoIQ0xP",
+            "VEhJTkcQABIICgRIRUFEEAESCAoETUVTSBACEgkKBVBMQUNFEAMSCAoEVVNF",
+            "UhAEEgwKCEhFQURTSE9UEAUSBwoDWE1MEAYiMgoNQ2xpZW50VmVyc2lvbhII",
+            "CgROT05FEAASCwoGVEFJUEVJENsPEgoKBVRBTVBBEOAPIl8KCFJlc3BvbnNl",
+            "EiMKCW9wZXJhdGlvbhgBIAEoDjIQLnRhZGFoLk9wZXJhdGlvbhIPCgdzdWNj",
+            "ZXNzGAIgASgIEg8KB21lc3NhZ2UYAyABKAkSDAoEZGF0YRgEIAEoCSqKAQoJ",
+            "T3BlcmF0aW9uEgwKCE9QRU5fSk9CEAASDQoJQ0xPU0VfSk9CEAESEgoORVhF",
+            "Q1VURV9TQ1JJUFQQAhIZChVSRU5FV19UQU1QQV9KT0JfTEVBU0UQAxISCg5D",
+            "TE9TRV9BTExfSk9CUxAEEh0KGUNMT1NFX0FMTF9UQU1QQV9QUk9DRVNTRVMQ",
+            "BUIOqgILVGFkYWguUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal), global::Tadah.Proto.Signal.Parser, new[]{ "Nonce", "JobId", "Version" }, null, new[]{ typeof(global::Tadah.Proto.Signal.Types.Operation), typeof(global::Tadah.Proto.Signal.Types.ClientVersion) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Place), global::Tadah.Proto.Signal.Types.Place.Parser, new[]{ "PlaceId", "Script", "ExpirationInSeconds" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Thumbnail), global::Tadah.Proto.Signal.Types.Thumbnail.Parser, new[]{ "Type", "AssetId", "AccessKey" }, null, new[]{ typeof(global::Tadah.Proto.Signal.Types.Thumbnail.Types.AssetType) }, null)})
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Tadah.Proto.Operation), }, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal), global::Tadah.Proto.Signal.Parser, new[]{ "Nonce", "JobId", "Operation", "Version" }, null, new[]{ typeof(global::Tadah.Proto.Signal.Types.ClientVersion) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Place), global::Tadah.Proto.Signal.Types.Place.Parser, new[]{ "PlaceId", "Script", "ExpirationInSeconds" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Thumbnail), global::Tadah.Proto.Signal.Types.Thumbnail.Parser, new[]{ "Type", "AssetId", "AccessKey" }, null, new[]{ typeof(global::Tadah.Proto.Signal.Types.Thumbnail.Types.AssetType) }, null)}),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Response), global::Tadah.Proto.Response.Parser, new[]{ "Operation", "Success", "Message", "Data" }, null, null, null)
           }));
     }
     #endregion
 
   }
+  #region Enums
+  public enum Operation {
+    [pbr::OriginalName("OPEN_JOB")] OpenJob = 0,
+    [pbr::OriginalName("CLOSE_JOB")] CloseJob = 1,
+    [pbr::OriginalName("EXECUTE_SCRIPT")] ExecuteScript = 2,
+    [pbr::OriginalName("RENEW_TAMPA_JOB_LEASE")] RenewTampaJobLease = 3,
+    [pbr::OriginalName("CLOSE_ALL_JOBS")] CloseAllJobs = 4,
+    [pbr::OriginalName("CLOSE_ALL_TAMPA_PROCESSES")] CloseAllTampaProcesses = 5,
+  }
+
+  #endregion
+
   #region Messages
   public sealed partial class Signal : pb::IMessage<Signal> {
     private static readonly pb::MessageParser<Signal> _parser = new pb::MessageParser<Signal>(() => new Signal());
@@ -77,6 +93,7 @@ namespace Tadah.Proto {
     public Signal(Signal other) : this() {
       nonce_ = other.nonce_ != null ? other.nonce_.Clone() : null;
       jobId_ = other.jobId_;
+      operation_ = other.operation_;
       version_ = other.version_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -108,8 +125,19 @@ namespace Tadah.Proto {
       }
     }
 
+    /// <summary>Field number for the "operation" field.</summary>
+    public const int OperationFieldNumber = 3;
+    private global::Tadah.Proto.Operation operation_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Tadah.Proto.Operation Operation {
+      get { return operation_; }
+      set {
+        operation_ = value;
+      }
+    }
+
     /// <summary>Field number for the "version" field.</summary>
-    public const int VersionFieldNumber = 3;
+    public const int VersionFieldNumber = 4;
     private global::Tadah.Proto.Signal.Types.ClientVersion version_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Tadah.Proto.Signal.Types.ClientVersion Version {
@@ -134,6 +162,7 @@ namespace Tadah.Proto {
       }
       if (!object.Equals(Nonce, other.Nonce)) return false;
       if (JobId != other.JobId) return false;
+      if (Operation != other.Operation) return false;
       if (Version != other.Version) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -143,6 +172,7 @@ namespace Tadah.Proto {
       int hash = 1;
       if (nonce_ != null) hash ^= Nonce.GetHashCode();
       if (JobId.Length != 0) hash ^= JobId.GetHashCode();
+      if (Operation != 0) hash ^= Operation.GetHashCode();
       if (Version != 0) hash ^= Version.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -165,8 +195,12 @@ namespace Tadah.Proto {
         output.WriteRawTag(18);
         output.WriteString(JobId);
       }
-      if (Version != 0) {
+      if (Operation != 0) {
         output.WriteRawTag(24);
+        output.WriteEnum((int) Operation);
+      }
+      if (Version != 0) {
+        output.WriteRawTag(32);
         output.WriteEnum((int) Version);
       }
       if (_unknownFields != null) {
@@ -182,6 +216,9 @@ namespace Tadah.Proto {
       }
       if (JobId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(JobId);
+      }
+      if (Operation != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Operation);
       }
       if (Version != 0) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Version);
@@ -205,6 +242,9 @@ namespace Tadah.Proto {
       }
       if (other.JobId.Length != 0) {
         JobId = other.JobId;
+      }
+      if (other.Operation != 0) {
+        Operation = other.Operation;
       }
       if (other.Version != 0) {
         Version = other.Version;
@@ -232,6 +272,10 @@ namespace Tadah.Proto {
             break;
           }
           case 24: {
+            operation_ = (global::Tadah.Proto.Operation) input.ReadEnum();
+            break;
+          }
+          case 32: {
             version_ = (global::Tadah.Proto.Signal.Types.ClientVersion) input.ReadEnum();
             break;
           }
@@ -243,15 +287,6 @@ namespace Tadah.Proto {
     /// <summary>Container for nested types declared in the Signal message type.</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static partial class Types {
-      public enum Operation {
-        [pbr::OriginalName("OPEN_JOB")] OpenJob = 0,
-        [pbr::OriginalName("CLOSE_JOB")] CloseJob = 1,
-        [pbr::OriginalName("EXECUTE_SCRIPT")] ExecuteScript = 2,
-        [pbr::OriginalName("RENEW_TAMPA_JOB_LEASE")] RenewTampaJobLease = 3,
-        [pbr::OriginalName("CLOSE_ALL_JOBS")] CloseAllJobs = 4,
-        [pbr::OriginalName("CLOSE_ALL_TAMPA_PROCESSES")] CloseAllTampaProcesses = 5,
-      }
-
       public enum ClientVersion {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("TAIPEI")] Taipei = 2011,
@@ -647,6 +682,219 @@ namespace Tadah.Proto {
 
     }
     #endregion
+
+  }
+
+  public sealed partial class Response : pb::IMessage<Response> {
+    private static readonly pb::MessageParser<Response> _parser = new pb::MessageParser<Response>(() => new Response());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<Response> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Tadah.Proto.TadahReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Response() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Response(Response other) : this() {
+      operation_ = other.operation_;
+      success_ = other.success_;
+      message_ = other.message_;
+      data_ = other.data_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Response Clone() {
+      return new Response(this);
+    }
+
+    /// <summary>Field number for the "operation" field.</summary>
+    public const int OperationFieldNumber = 1;
+    private global::Tadah.Proto.Operation operation_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Tadah.Proto.Operation Operation {
+      get { return operation_; }
+      set {
+        operation_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "success" field.</summary>
+    public const int SuccessFieldNumber = 2;
+    private bool success_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Success {
+      get { return success_; }
+      set {
+        success_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "message" field.</summary>
+    public const int MessageFieldNumber = 3;
+    private string message_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Message {
+      get { return message_; }
+      set {
+        message_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "data" field.</summary>
+    public const int DataFieldNumber = 4;
+    private string data_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Data {
+      get { return data_; }
+      set {
+        data_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as Response);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(Response other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Operation != other.Operation) return false;
+      if (Success != other.Success) return false;
+      if (Message != other.Message) return false;
+      if (Data != other.Data) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Operation != 0) hash ^= Operation.GetHashCode();
+      if (Success != false) hash ^= Success.GetHashCode();
+      if (Message.Length != 0) hash ^= Message.GetHashCode();
+      if (Data.Length != 0) hash ^= Data.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Operation != 0) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Operation);
+      }
+      if (Success != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(Success);
+      }
+      if (Message.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Message);
+      }
+      if (Data.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Data);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Operation != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Operation);
+      }
+      if (Success != false) {
+        size += 1 + 1;
+      }
+      if (Message.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Message);
+      }
+      if (Data.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Data);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(Response other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Operation != 0) {
+        Operation = other.Operation;
+      }
+      if (other.Success != false) {
+        Success = other.Success;
+      }
+      if (other.Message.Length != 0) {
+        Message = other.Message;
+      }
+      if (other.Data.Length != 0) {
+        Data = other.Data;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            operation_ = (global::Tadah.Proto.Operation) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            Success = input.ReadBool();
+            break;
+          }
+          case 26: {
+            Message = input.ReadString();
+            break;
+          }
+          case 34: {
+            Data = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
 
   }
 

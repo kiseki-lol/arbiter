@@ -5,16 +5,16 @@ option csharp_namespace = "Tadah.Proto";
 
 import "google/protobuf/timestamp.proto";
 
-message Signal {
-    enum Operation {
-        OPEN_JOB = 0;
-        CLOSE_JOB = 1;
-        EXECUTE_SCRIPT = 2;
-        RENEW_TAMPA_JOB_LEASE = 3;
-        CLOSE_ALL_JOBS = 4;
-        CLOSE_ALL_TAMPA_PROCESSES = 5;
-    }
+enum Operation {
+    OPEN_JOB = 0;
+    CLOSE_JOB = 1;
+    EXECUTE_SCRIPT = 2;
+    RENEW_TAMPA_JOB_LEASE = 3;
+    CLOSE_ALL_JOBS = 4;
+    CLOSE_ALL_TAMPA_PROCESSES = 5;
+}
 
+message Signal {
     enum ClientVersion {
         NONE = 0;
         TAIPEI = 2011;
@@ -23,8 +23,8 @@ message Signal {
 
     google.protobuf.Timestamp nonce = 1;
     string jobId = 2;
-
-    ClientVersion version = 3;
+    Operation operation = 3;
+    ClientVersion version = 4;
 
     message Place {
         uint32 placeId = 1;
@@ -47,4 +47,11 @@ message Signal {
         uint32 assetId = 2;
         string accessKey = 3;
     }
+}
+
+message Response {
+    Operation operation = 1;
+    bool success = 2;
+    string message = 3;
+    string data = 4;
 }

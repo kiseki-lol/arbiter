@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Packer = MessagePack.MessagePackSerializer;
 
 namespace Tadah.Arbiter
 {
@@ -152,7 +152,7 @@ namespace Tadah.Arbiter
 #if DEBUG
                         Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Read all data, sending response", LogSeverity.Debug);
 #endif
-                        string response = ProcessData(content, state.Client);
+                        string response = Encoding.Default.GetString(ProcessData(content, state.Client));
                         SendData(handler, response);
                     }
                     else
@@ -196,7 +196,7 @@ namespace Tadah.Arbiter
             }
         }
 
-        private static string ProcessData(string data, Client client)
+        private static byte[] ProcessData(string data, Client client)
         {
 
             if (!TadahSignature.VerifyData(data, out string message))
@@ -204,19 +204,19 @@ namespace Tadah.Arbiter
 #if DEBUG
                 Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid signature", LogSeverity.Debug);
 #endif
-                return "";
+                return Array.Empty<byte>();
             }
 
             Dictionary<string, string> request = null;
 
             try
             {
-                request = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
+                request = Packer.Deserialize<Dictionary<string, string>>(Encoding.Default.GetBytes(message));
             }
             catch
             {
                 Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid data", LogSeverity.Warning);
-                return "";
+                return Array.Empty<byte>();
             }
 
             try
@@ -228,7 +228,7 @@ namespace Tadah.Arbiter
                             if (JobManager.JobExists(request["JobId"]))
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request["JobId"]}' - it already exists", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "OpenJob" },
                                     { "Success", false },
@@ -239,7 +239,7 @@ namespace Tadah.Arbiter
                             if (!JobManager.IsValidVersion(request["Version"]))
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request["JobId"]}' and version '{request["Version"]}' - is not a valid version", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "OpenJob" },
                                     { "Success", false },
@@ -250,7 +250,7 @@ namespace Tadah.Arbiter
                             if (JobManager.OpenJobs.Count >= Configuration.MaximumPlaceJobs)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' - maximum amount of jobs reached", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "OpenJob" },
                                     { "Success", false },
@@ -259,7 +259,7 @@ namespace Tadah.Arbiter
                             }
 
                             Task.Run(() => JobManager.OpenJob(request["JobId"], int.Parse(request["PlaceId"]), (ClientVersion)int.Parse(request["Version"])));
-                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                            return Packer.Serialize(new Dictionary<string, object>()
                             {
                                 { "Operation", "OpenJob" },
                                 { "Success", true }
@@ -271,7 +271,7 @@ namespace Tadah.Arbiter
                             if (JobManager.JobExists(request["JobId"]))
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'CloseJob' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "CloseJob" },
                                     { "Success", false },
@@ -280,7 +280,7 @@ namespace Tadah.Arbiter
                             }
 
                             Task.Run(() => JobManager.CloseJob(request["JobId"]));
-                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                            return Packer.Serialize(new Dictionary<string, object>()
                             {
                                 { "Operation", "CloseJob" },
                                 { "Success", true }
@@ -294,7 +294,7 @@ namespace Tadah.Arbiter
                             if (job == null)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "ExecuteScript" },
                                     { "Success", false },
@@ -305,7 +305,7 @@ namespace Tadah.Arbiter
                             if (job is TaipeiJob)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request["JobId"]}' - it does not support such capability (is TaipeiJob)", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "ExecuteScript" },
                                     { "Success", false },
@@ -314,7 +314,7 @@ namespace Tadah.Arbiter
                             }
 
                             Task.Run(() => { job.ExecuteScript(request["Script"]); });
-                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                            return Packer.Serialize(new Dictionary<string, object>()
                             {
                                 { "Operation", "ExecuteScript" },
                                 { "Success", true }
@@ -328,7 +328,7 @@ namespace Tadah.Arbiter
                             if (job == null)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "RenewTampaJobLease" },
                                     { "Success", false },
@@ -339,7 +339,7 @@ namespace Tadah.Arbiter
                             if (job is not TampaJob)
                             {
                                 Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request["JobId"]}' - is not a TampaJob", LogSeverity.Warning);
-                                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                                return Packer.Serialize(new Dictionary<string, object>()
                                 {
                                     { "Operation", "RenewTampaJobLease" },
                                     { "Success", false },
@@ -350,7 +350,7 @@ namespace Tadah.Arbiter
                             TampaJob taJob = (TampaJob)job;
                             Task.Run(() => { taJob.RenewLease(int.Parse(request["ExpirationInSeconds"])); });
 
-                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                            return Packer.Serialize(new Dictionary<string, object>()
                             {
                                 { "Operation", "RenewTampaJobLease" },
                                 { "Success", true }
@@ -362,7 +362,7 @@ namespace Tadah.Arbiter
                             int jobs = JobManager.OpenJobs.Count;
 
                             Task.Run(() => { JobManager.CloseAllJobs(); });
-                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                            return Packer.Serialize(new Dictionary<string, object>()
                             {
                                 { "Operation", "CloseAllJobs" },
                                 { "Success", true },
@@ -375,7 +375,7 @@ namespace Tadah.Arbiter
                             int processes = TampaProcessManager.OpenProcesses.Count;
 
                             Task.Run(() => { TampaProcessManager.CloseAllProcesses(); });
-                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                            return Packer.Serialize(new Dictionary<string, object>()
                             {
                                 { "Operation", "CloseAllTampaProcesses" },
                                 { "Success", true },
@@ -386,7 +386,7 @@ namespace Tadah.Arbiter
                     default:
                         {
                             Log.Write($"[ArbiterService::{client.IpAddress}] Invalid operation '{request["Operation"]}'", LogSeverity.Warning);
-                            return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                            return Packer.Serialize(new Dictionary<string, object>()
                             {
                                 { "Operation", request["Operation"] },
                                 { "Success", false },
@@ -399,7 +399,7 @@ namespace Tadah.Arbiter
             {
                 Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - {exception.Message}", LogSeverity.Error);
 
-                return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                return Packer.Serialize(new Dictionary<string, object>()
                 {
                     { "Operation", request["Operation"] },
                     { "Success", false },

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
+using Packer = MessagePack.MessagePackSerializer;
 
 namespace Tadah.Arbiter
 {
@@ -205,7 +206,7 @@ namespace Tadah.Arbiter
                 { "utc_offset", offset }
             };
 
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data)));
+            return Packer.Deserialize<Dictionary<string, string>>(Encoding.Default.GetBytes(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data))));
         }
     }
 }
