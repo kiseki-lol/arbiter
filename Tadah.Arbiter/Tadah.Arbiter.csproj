@@ -36,7 +36,11 @@
       <TargetPath>AppSettings.json</TargetPath>
     </Content>
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <None Include="Scripts/**" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="Resources\Tadah.Arbiter.png">
       <Pack>True</Pack>
