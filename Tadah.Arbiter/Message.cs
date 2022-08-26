@@ -36,7 +36,7 @@ namespace Tadah
             ushort bufSize;
             byte[] bufData;
 
-            // Read through MSG* and CHKSUM
+            // Extract MSG* and CHKSUM
             if (buffer[0] != 0x02 || buffer.Length < 11)
                 return false;
 
@@ -63,7 +63,7 @@ namespace Tadah
                 return false;
 
             sigData = new byte[sigSize];
-            Buffer.BlockCopy(buffer, 8, sigData, 0, sigSize);
+            Buffer.BlockCopy(buffer, 8, sigData, 0, sigSize - 1);
 
             // Extract BUF*
             if (buffer.Length < 8 + sigSize + 3 || buffer[8 + sigSize + 1] != 0x02)
@@ -75,7 +75,7 @@ namespace Tadah
                 return false;
 
             bufData = new byte[bufSize];
-            Buffer.BlockCopy(buffer, 8 + sigSize + 3, bufData, 0, bufSize);
+            Buffer.BlockCopy(buffer, 8 + sigSize + 3, bufData, 0, bufSize - 1);
 
             // Check signature length (should be 256 bytes; is SHA256)
             if (sigSize != 256)
