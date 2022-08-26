@@ -142,7 +142,7 @@ namespace Tadah.Arbiter
                      * 
                      * From this, we can do some sanity checks while getting a complete read *and* fending off potential attackers;
                      * - See if the message begins with our MSGREAD
-                     * - If it does, recieve next 2 bytes; try parsing as a uint8 and use that as message size
+                     * - If it does, then recieve next 2 bytes; try parsing as a uint8 and use that as message size
                      * - Read message up to the specified message size
                      * - Try parsing the entire message
                      * - Verify buffer with given signature
