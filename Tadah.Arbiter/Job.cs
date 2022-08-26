@@ -16,8 +16,8 @@ namespace Tadah.Arbiter
     public abstract class Job
     {
         public string Id { get; set; }
-        public int PlaceId { get; set; }
-        public ClientVersion Version { get; set; }
+        public uint PlaceId { get; set; }
+        public Proto.ClientVersion Version { get; set; }
         public int Port { get; set; }
         public bool IsRunning { get; set; }
         public JobStatus Status { get; set; }
@@ -27,7 +27,7 @@ namespace Tadah.Arbiter
         public Process Process;
 
         protected abstract void InternalStart();
-        protected abstract string InternalClose(bool forceClose = false);
+        protected abstract JobStatus InternalClose(bool forceClose = false);
         public abstract void ExecuteScript(string script);
 
         protected void Log(string message, LogSeverity severity = LogSeverity.Information)
@@ -45,36 +45,36 @@ namespace Tadah.Arbiter
         public void Start()
         {
             this.Log($"Starting {Version} on port {Port} ...", LogSeverity.Event);
-            Http.UpdateJob(Id, "Loading", Port);
+            Http.UpdateJob(Id, JobStatus.Pending, Port);
 
             this.InternalStart();
 
             this.IsRunning = true;
             this.Status = JobStatus.Started;
             this.TimeStarted = DateTime.UtcNow;
-            Http.UpdateJob(Id, "Started");
+            Http.UpdateJob(Id, JobStatus.Started);
 
             this.Log($"Started!", LogSeverity.Event);
         }
 
         public void Close(bool forceClose = false)
         {
-            string result = this.InternalClose(forceClose);
+            JobStatus state = this.InternalClose(forceClose);
 
-            this.Status = (JobStatus)Enum.Parse(typeof(JobStatus), result);
+            this.Status = state;
             this.TimeClosed = DateTime.UtcNow;
 
-            Http.UpdateJob(Id, result);
+            Http.UpdateJob(Id, state);
 
             if (this.Status == JobStatus.Crashed)
             {
                 this.Log($"Crashed!", LogSeverity.Error);
             }
 
-            this.Log($"Closed with result 'JobStatus.{result}'", LogSeverity.Information);
+            this.Log($"Closed with result '{Enum.GetName(state)}'", LogSeverity.Information);
         }
 
-        public Job(string Id, int PlaceId, ClientVersion Version, int Port)
+        public Job(string Id, uint PlaceId, Proto.ClientVersion Version, int Port)
         {
             this.Id = Id;
             this.PlaceId = PlaceId;

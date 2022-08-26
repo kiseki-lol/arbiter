@@ -17,11 +17,11 @@ namespace Tadah.Arbiter
         {
             using (TextReader reader = new StringReader(File.ReadAllText(path)))
             {
-                PemReader pem = new PemReader(reader);
+                PemReader pem = new(reader);
                 AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pem.ReadObject();
                 RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaKeyParameters)publicKey);
 
-                RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
+                RSACryptoServiceProvider csp = new();
                 csp.ImportParameters(rsaParams);
                 return csp;
             }

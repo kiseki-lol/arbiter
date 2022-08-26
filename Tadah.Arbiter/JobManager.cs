@@ -32,14 +32,14 @@ namespace Tadah.Arbiter
             return title.ToString();
         }
 
-        public static string[] GetCommandLine(ClientVersion version, string scriptUrl, string jobId)
+        public static string[] GetCommandLine(Proto.ClientVersion version, string scriptUrl, string jobId)
         {
             switch (version)
             {
-                case ClientVersion.Taipei:
+                case Proto.ClientVersion.Taipei:
                     return new string[] { "Versions\\Taipei\\TadahServer.exe", $"-a https://tadah.rocks/Login/Negotiate.ashx -t 0 -j {scriptUrl} -jobId {jobId}" };
 
-                case ClientVersion.Tampa:
+                case Proto.ClientVersion.Tampa:
                     throw new Exception("Attempt to get command line for TampaJob");
 
                 default:
@@ -66,12 +66,12 @@ namespace Tadah.Arbiter
             return port;
         }
 
-        public static Job OpenJob(string jobId, int placeId, ClientVersion version)
+        public static Job OpenJob(string jobId, uint placeId, Proto.ClientVersion version)
         {
             Job job;
             int port = GetAvailablePort();
 
-            if (version == ClientVersion.Tampa)
+            if (version == Proto.ClientVersion.Tampa)
             {
                 job = new TampaJob(jobId, placeId, version, port);
             }
@@ -115,7 +115,7 @@ namespace Tadah.Arbiter
                 return false;
             }
 
-            return Enum.IsDefined(typeof(ClientVersion), result);
+            return Enum.IsDefined(typeof(Proto.ClientVersion), result);
         }
 
         public static void MonitorCrashedJobs()
@@ -160,7 +160,7 @@ namespace Tadah.Arbiter
                             continue;
                         }
 
-                        if (job.Version == ClientVersion.Taipei && (Unix.From(job.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(job.Process.MainWindowHandle).Contains("Place1"))
+                        if (job.Version == Proto.ClientVersion.Taipei && (Unix.From(job.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(job.Process.MainWindowHandle).Contains("Place1"))
                         {
                             job.IsRunning = false;
                         }

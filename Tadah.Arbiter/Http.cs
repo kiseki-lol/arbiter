@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using Packer = MessagePack.MessagePackSerializer;
+using Newtonsoft.Json;
 
 namespace Tadah.Arbiter
 {
@@ -84,7 +84,7 @@ namespace Tadah.Arbiter
             return $"{scheme}://{Configuration.AppSettings["BaseUrl"]}{path}";
         }
 
-        public static string GetGameserverScript(string jobId, int placeId, int port, bool returnData = false)
+        public static string GetGameserverScript(string jobId, uint placeId, int port, bool returnData = false)
         {
             string url = $"/{jobId}/script?placeId={placeId}&port={port}&maxPlayers=10";
 
@@ -119,7 +119,7 @@ namespace Tadah.Arbiter
         {
             Dictionary<string, string> data = new()
             {
-                { "severity", ((int) severity).ToString() },
+                { "severity", ((int)severity).ToString() },
                 { "timestamp", timestamp.ToString() },
                 { "output", output },
                 { "blur", (output.Contains(Configuration.AppSettings["AccessKey"]) ? Configuration.AppSettings["AccessKey"] : "") }
@@ -175,7 +175,7 @@ namespace Tadah.Arbiter
                     { "outbound", traffic.Item2.ToString() }
                 };
 
-                FormUrlEncodedContent content = new FormUrlEncodedContent(data);
+                FormUrlEncodedContent content = new(data);
 
                 Request($"/{Configuration.Uuid}/resources", HttpMethod.Post, content);
 
@@ -183,9 +183,9 @@ namespace Tadah.Arbiter
             }
         }
 
-        public static void UpdateJob(string jobId, string status, int port = 0)
+        public static void UpdateJob(string jobId, JobStatus status, int port = 0)
         {
-            string parameters = $"status={status}";
+            string parameters = $"status={(int)status}";
 
             if (port != 0)
             {
@@ -195,10 +195,10 @@ namespace Tadah.Arbiter
             Request($"/{jobId}/update?{parameters}", HttpMethod.Get);
         }
 
-        public static Dictionary<string, string> Identify()
+        public static Dictionary<string, object> Identify()
         {
             string offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).ToString();
-            offset = offset.Substring(0, offset.Length - 3); // "-07:00:00" -> "-07:00"
+            offset = offset[0 .. ^3]; // "-07:00:00" -> "-07:00"
 
             Dictionary<string, string> data = new()
             {
@@ -206,7 +206,7 @@ namespace Tadah.Arbiter
                 { "utc_offset", offset }
             };
 
-            return Packer.Deserialize<Dictionary<string, string>>(Encoding.Default.GetBytes(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data))));
+            return JsonConvert.DeserializeObject<Dictionary<string, object>>(Request($"/identify", HttpMethod.Post, new FormUrlEncodedContent(data)));
         }
     }
 }

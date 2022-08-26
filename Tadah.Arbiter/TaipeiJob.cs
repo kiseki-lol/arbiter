@@ -7,16 +7,16 @@ namespace Tadah.Arbiter
 {
     public class TaipeiJob : Job
     {
-        public TaipeiJob(string Id, int PlaceId, ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
+        public TaipeiJob(string Id, uint PlaceId, Proto.ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
         {
             //
         }
 
-        protected override string InternalClose(bool forceClose = false)
+        protected override JobStatus InternalClose(bool forceClose = false)
         {
             if (forceClose)
             {
-                return "Crashed";
+                return JobStatus.Crashed;
             }
 
             try
@@ -40,26 +40,26 @@ namespace Tadah.Arbiter
                     this.Process.CloseMainWindow();
                     this.Process.Close();
 
-                    return "Closed";
+                    return JobStatus.Closed;
                 }
                 else if (Status == JobStatus.Crashed || !this.Process.Responding)
                 {
                     this.Process.Kill();
                     this.Process.Close();
 
-                    return "Crashed";
+                    return JobStatus.Crashed;
                 }
                 else
                 {
                     this.Process.CloseMainWindow();
                     this.Process.Close();
 
-                    return "Crashed";
+                    return JobStatus.Crashed;
                 }
             }
             catch (InvalidOperationException)
             {
-                return "Crashed";
+                return JobStatus.Crashed;
             }
         }
 

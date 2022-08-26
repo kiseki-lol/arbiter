@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Packer = MessagePack.MessagePackSerializer;
+using Google.Protobuf;
 
 namespace Tadah.Arbiter
 {
@@ -152,7 +152,7 @@ namespace Tadah.Arbiter
 #if DEBUG
                         Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Read all data, sending response", LogSeverity.Debug);
 #endif
-                        string response = Encoding.Default.GetString(ProcessData(content, state.Client));
+                        string response = Encoding.Default.GetString(ProcessData(content, state.Client).ToArray());
                         SendData(handler, response);
                     }
                     else
@@ -196,7 +196,28 @@ namespace Tadah.Arbiter
             }
         }
 
-        private static byte[] ProcessData(string data, Client client)
+        private static MemoryStream SignalError(Proto.Signal signal, Client client, string reason)
+        {
+            MemoryStream stream = new();
+
+            try
+            {
+                Log.Write($"[ArbiterService::{client.IpAddress}] Tried '{Enum.GetName(signal.Operation)}' with '{signal.JobId}' - {reason}", LogSeverity.Warning);
+            }
+            finally
+            {
+                new Proto.Response
+                {
+                    Operation = signal.Operation,
+                    Success = false,
+                    Message = reason
+                }.WriteTo(stream);
+            }
+
+            return stream;
+        }
+
+        private static MemoryStream ProcessData(string data, Client client)
         {
 
             if (!TadahSignature.VerifyData(data, out string message))
@@ -204,194 +225,167 @@ namespace Tadah.Arbiter
 #if DEBUG
                 Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid signature", LogSeverity.Debug);
 #endif
-                return Array.Empty<byte>();
+                return new();
             }
 
-            Dictionary<string, string> request = null;
+            Proto.Signal signal = null;
 
             try
             {
-                request = Packer.Deserialize<Dictionary<string, string>>(Encoding.Default.GetBytes(message));
+                signal = Proto.Signal.Parser.ParseFrom(Encoding.Default.GetBytes(message));
             }
             catch
             {
                 Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid data", LogSeverity.Warning);
-                return Array.Empty<byte>();
+                return new();
             }
+
+            // Last security check (see if nonce >= 10 seconds old)
+            // This is so that people can't re-send signed data with destructive commands (i.e. "CloseAllJobs")
+            if (Unix.GetTimestamp() + 10 > Unix.From(signal.Nonce.ToDateTime()))
+            {
+                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Old data", LogSeverity.Warning);
+                return new();
+            }
+
+            MemoryStream stream = new();
+            bool success = false;
+            object responseData = null;
 
             try
             {
-                switch (request["Operation"])
+                switch (signal.Operation)
                 {
-                    case "OpenJob":
+                    case Proto.Operation.OpenJob:
                         {
-                            if (JobManager.JobExists(request["JobId"]))
+                            if (signal.Place.Count == 0)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request["JobId"]}' - it already exists", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "OpenJob" },
-                                    { "Success", false },
-                                    { "Message", "Job already exists" }
-                                });
+                                return SignalError(signal, client, "No place specified");
                             }
 
-                            if (!JobManager.IsValidVersion(request["Version"]))
+                            Proto.Signal.Types.Place place = signal.Place[0];
+
+                            if (JobManager.JobExists(signal.JobId))
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' with '{request["JobId"]}' and version '{request["Version"]}' - is not a valid version", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "OpenJob" },
-                                    { "Success", false },
-                                    { "Message", "Invalid ClientVersion" }
-                                });
+                                return SignalError(signal, client, "Job already exists");
+                            }
+
+                            if (!JobManager.IsValidVersion(signal.Version))
+                            {
+                                return SignalError(signal, client, "Invalid ClientVersion");
                             }
 
                             if (JobManager.OpenJobs.Count >= Configuration.MaximumPlaceJobs)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'OpenJob' - maximum amount of jobs reached", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "OpenJob" },
-                                    { "Success", false },
-                                    { "Message", "Maximum amount of jobs reached" }
-                                });
+                                return SignalError(signal, client, "Maximum amount of jobs reached on this arbiter -- please try another");
                             }
 
-                            Task.Run(() => JobManager.OpenJob(request["JobId"], int.Parse(request["PlaceId"]), (ClientVersion)int.Parse(request["Version"])));
-                            return Packer.Serialize(new Dictionary<string, object>()
-                            {
-                                { "Operation", "OpenJob" },
-                                { "Success", true }
-                            });
+                            Task.Run(() => JobManager.OpenJob(signal.JobId, place.PlaceId, signal.Version));
+                            success = true;
+
+                            break;
                         }
 
-                    case "CloseJob":
+                    case Proto.Operation.CloseJob:
                         {
-                            if (JobManager.JobExists(request["JobId"]))
+                            if (JobManager.JobExists(signal.JobId))
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'CloseJob' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "CloseJob" },
-                                    { "Success", false },
-                                    { "Message", "Job doesn't exist" }
-                                });
+                                return SignalError(signal, client, "Job doesn't exist");
                             }
 
-                            Task.Run(() => JobManager.CloseJob(request["JobId"]));
-                            return Packer.Serialize(new Dictionary<string, object>()
-                            {
-                                { "Operation", "CloseJob" },
-                                { "Success", true }
-                            });
+                            Task.Run(() => JobManager.CloseJob(signal.JobId));
+                            success = true;
+
+                            break;
                         }
 
-                    case "ExecuteScript":
+                    case Proto.Operation.ExecuteScript:
                         {
-                            Job job = JobManager.GetJobFromId(request["JobId"]);
+                            Job job = JobManager.GetJobFromId(signal.JobId);
 
                             if (job == null)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "ExecuteScript" },
-                                    { "Success", false },
-                                    { "Message", "Job doesn't exist" }
-                                });
+                                return SignalError(signal, client, "Job does not exist");
                             }
 
                             if (job is TaipeiJob)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'ExecuteScript' on job '{request["JobId"]}' - it does not support such capability (is TaipeiJob)", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "ExecuteScript" },
-                                    { "Success", false },
-                                    { "Message", "Cannot run ExecuteScript on TaipeiJob" }
-                                });
+                                return SignalError(signal, client, "Job does not support such functionality (is TaipeiJob)");
                             }
 
-                            Task.Run(() => { job.ExecuteScript(request["Script"]); });
-                            return Packer.Serialize(new Dictionary<string, object>()
+                            if (signal.Place.Count == 0)
                             {
-                                { "Operation", "ExecuteScript" },
-                                { "Success", true }
-                            });
+                                return SignalError(signal, client, "No place specified");
+                            }
+
+                            Proto.Signal.Types.Place place = signal.Place[0];
+                            Task.Run(() => { job.ExecuteScript(place.Script); });
+
+                            success = true;
+
+                            break;
                         }
 
-                    case "RenewTampaJobLease":
+                    case Proto.Operation.RenewTampaJobLease:
                         {
-                            Job job = JobManager.GetJobFromId(request["JobId"]);
+                            Job job = JobManager.GetJobFromId(signal.JobId);
 
                             if (job == null)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request["JobId"]}' - it doesn't exist", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "RenewTampaJobLease" },
-                                    { "Success", false },
-                                    { "Message", "Job doesn't exist" }
-                                });
+                                return SignalError(signal, client, "Job doesn't exist");
                             }
 
                             if (job is not TampaJob)
                             {
-                                Log.Write($"[ArbiterService::{client.IpAddress}] Tried 'RenewLease' on job '{request["JobId"]}' - is not a TampaJob", LogSeverity.Warning);
-                                return Packer.Serialize(new Dictionary<string, object>()
-                                {
-                                    { "Operation", "RenewTampaJobLease" },
-                                    { "Success", false },
-                                    { "Message", "Job is not a TampaJob" }
-                                });
+                                return SignalError(signal, client, "Job does not support such functionality (is TampaJob)");
+                            }
+
+                            if (signal.Place.Count == 0)
+                            {
+                                return SignalError(signal, client, "No place specified");
                             }
 
                             TampaJob taJob = (TampaJob)job;
-                            Task.Run(() => { taJob.RenewLease(int.Parse(request["ExpirationInSeconds"])); });
+                            Task.Run(() => { taJob.RenewLease(signal.Place[0].ExpirationInSeconds); });
 
-                            return Packer.Serialize(new Dictionary<string, object>()
-                            {
-                                { "Operation", "RenewTampaJobLease" },
-                                { "Success", true }
-                            });
+                            success = true;
+
+                            break;
                         }
 
-                    case "CloseAllJobs":
+                    case Proto.Operation.CloseAllJobs:
                         {
                             int jobs = JobManager.OpenJobs.Count;
 
                             Task.Run(() => { JobManager.CloseAllJobs(); });
-                            return Packer.Serialize(new Dictionary<string, object>()
-                            {
-                                { "Operation", "CloseAllJobs" },
-                                { "Success", true },
-                                { "Data", jobs }
-                            });
+
+                            success = true;
+                            responseData = jobs;
+
+                            break;
                         }
 
-                    case "CloseAllTampaProcesses":
+                    case Proto.Operation.CloseAllTampaProcesses:
                         {
                             int processes = TampaProcessManager.OpenProcesses.Count;
 
                             Task.Run(() => { TampaProcessManager.CloseAllProcesses(); });
-                            return Packer.Serialize(new Dictionary<string, object>()
-                            {
-                                { "Operation", "CloseAllTampaProcesses" },
-                                { "Success", true },
-                                { "Data", processes }
-                            });
+
+                            success = true;
+                            responseData = processes;
+
+                            break;
                         }
 
                     default:
                         {
-                            Log.Write($"[ArbiterService::{client.IpAddress}] Invalid operation '{request["Operation"]}'", LogSeverity.Warning);
-                            return Packer.Serialize(new Dictionary<string, object>()
+                            new Proto.Response
                             {
-                                { "Operation", request["Operation"] },
-                                { "Success", false },
-                                { "Message", $"Invalid operation '{request["Operation"]}'" }
-                            });
+                                Success = false,
+                                Message = "No such operation exists"
+                            }.WriteTo(stream);
+
+                            break;
                         }
                 }
             }
@@ -399,13 +393,41 @@ namespace Tadah.Arbiter
             {
                 Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - {exception.Message}", LogSeverity.Error);
 
-                return Packer.Serialize(new Dictionary<string, object>()
+#if DEBUG
+                new Proto.Response
                 {
-                    { "Operation", request["Operation"] },
-                    { "Success", false },
-                    { "Message", exception.Message }
-                });
+                    Operation = signal.Operation,
+                    Success = false,
+                    Message = exception.Message,
+                }.WriteTo(stream);
+#else
+                // Will just give a blank error
+#endif
             }
+
+            if (success)
+            {
+                Proto.Response response = new()
+                {
+                    Operation = signal.Operation,
+                    Success = true
+                };
+
+                if (responseData != null)
+                {
+                    response.Data = (string)responseData;
+                }
+
+                response.WriteTo(stream);
+            }
+            else
+            {
+                // If it wasn't successful, the stream has already been written to
+                // In the case of an exception or the "default" fallthrough in the switch statement.
+            }
+
+
+            return stream;
         }
     }
 }

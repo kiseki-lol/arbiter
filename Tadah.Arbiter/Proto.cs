@@ -25,28 +25,30 @@ namespace Tadah.Proto {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChVSZXNvdXJjZXMvVGFkYWgucHJvdG8SBVRhZGFoGh9nb29nbGUvcHJvdG9i",
-            "dWYvdGltZXN0YW1wLnByb3RvIs4DCgZTaWduYWwSKQoFbm9uY2UYASABKAsy",
+            "dWYvdGltZXN0YW1wLnByb3RvIvYCCgZTaWduYWwSKQoFbm9uY2UYASABKAsy",
             "Gi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWpvYklkGAIgASgJEiMK",
-            "CW9wZXJhdGlvbhgDIAEoDjIQLlRhZGFoLk9wZXJhdGlvbhIsCgd2ZXJzaW9u",
-            "GAQgASgOMhsuVGFkYWguU2lnbmFsLkNsaWVudFZlcnNpb24aRQoFUGxhY2US",
-            "DwoHcGxhY2VJZBgBIAEoDRIOCgZzY3JpcHQYAiABKAkSGwoTZXhwaXJhdGlv",
-            "bkluU2Vjb25kcxgDIAEoDRq7AQoJVGh1bWJuYWlsEi8KBHR5cGUYASABKA4y",
-            "IS5UYWRhaC5TaWduYWwuVGh1bWJuYWlsLkFzc2V0VHlwZRIPCgdhc3NldElk",
-            "GAIgASgNEhEKCWFjY2Vzc0tleRgDIAEoCSJZCglBc3NldFR5cGUSDAoIQ0xP",
+            "CW9wZXJhdGlvbhgDIAEoDjIQLlRhZGFoLk9wZXJhdGlvbhIlCgd2ZXJzaW9u",
+            "GAQgASgOMhQuVGFkYWguQ2xpZW50VmVyc2lvbhIiCgVwbGFjZRgFIAMoCzIT",
+            "LlRhZGFoLlNpZ25hbC5QbGFjZRIqCgl0aHVtYm5haWwYBiADKAsyFy5UYWRh",
+            "aC5TaWduYWwuVGh1bWJuYWlsGkUKBVBsYWNlEg8KB3BsYWNlSWQYASABKA0S",
+            "DgoGc2NyaXB0GAIgASgJEhsKE2V4cGlyYXRpb25JblNlY29uZHMYAyABKA0a",
+            "TwoJVGh1bWJuYWlsEh4KBHR5cGUYASABKA4yEC5UYWRhaC5Bc3NldFR5cGUS",
+            "DwoHYXNzZXRJZBgCIAEoDRIRCglhY2Nlc3NLZXkYAyABKAkiXwoIUmVzcG9u",
+            "c2USIwoJb3BlcmF0aW9uGAEgASgOMhAuVGFkYWguT3BlcmF0aW9uEg8KB3N1",
+            "Y2Nlc3MYAiABKAgSDwoHbWVzc2FnZRgDIAEoCRIMCgRkYXRhGAQgASgJKpkB",
+            "CglPcGVyYXRpb24SDAoIT1BFTl9KT0IQABINCglDTE9TRV9KT0IQARISCg5F",
+            "WEVDVVRFX1NDUklQVBACEhkKFVJFTkVXX1RBTVBBX0pPQl9MRUFTRRADEhIK",
+            "DkNMT1NFX0FMTF9KT0JTEAQSHQoZQ0xPU0VfQUxMX1RBTVBBX1BST0NFU1NF",
+            "UxAFEg0KCVRIVU1CTkFJTBAGKjIKDUNsaWVudFZlcnNpb24SCAoETk9ORRAA",
+            "EgsKBlRBSVBFSRDbDxIKCgVUQU1QQRDgDypZCglBc3NldFR5cGUSDAoIQ0xP",
             "VEhJTkcQABIICgRIRUFEEAESCAoETUVTSBACEgkKBVBMQUNFEAMSCAoEVVNF",
-            "UhAEEgwKCEhFQURTSE9UEAUSBwoDWE1MEAYiMgoNQ2xpZW50VmVyc2lvbhII",
-            "CgROT05FEAASCwoGVEFJUEVJENsPEgoKBVRBTVBBEOAPIl8KCFJlc3BvbnNl",
-            "EiMKCW9wZXJhdGlvbhgBIAEoDjIQLlRhZGFoLk9wZXJhdGlvbhIPCgdzdWNj",
-            "ZXNzGAIgASgIEg8KB21lc3NhZ2UYAyABKAkSDAoEZGF0YRgEIAEoCSqKAQoJ",
-            "T3BlcmF0aW9uEgwKCE9QRU5fSk9CEAASDQoJQ0xPU0VfSk9CEAESEgoORVhF",
-            "Q1VURV9TQ1JJUFQQAhIZChVSRU5FV19UQU1QQV9KT0JfTEVBU0UQAxISCg5D",
-            "TE9TRV9BTExfSk9CUxAEEh0KGUNMT1NFX0FMTF9UQU1QQV9QUk9DRVNTRVMQ",
-            "BUIOqgILVGFkYWguUHJvdG9iBnByb3RvMw=="));
+            "UhAEEgwKCEhFQURTSE9UEAUSBwoDWE1MEAZCDqoCC1RhZGFoLlByb3RvYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Tadah.Proto.Operation), }, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal), global::Tadah.Proto.Signal.Parser, new[]{ "Nonce", "JobId", "Operation", "Version" }, null, new[]{ typeof(global::Tadah.Proto.Signal.Types.ClientVersion) }, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Place), global::Tadah.Proto.Signal.Types.Place.Parser, new[]{ "PlaceId", "Script", "ExpirationInSeconds" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Thumbnail), global::Tadah.Proto.Signal.Types.Thumbnail.Parser, new[]{ "Type", "AssetId", "AccessKey" }, null, new[]{ typeof(global::Tadah.Proto.Signal.Types.Thumbnail.Types.AssetType) }, null)}),
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Tadah.Proto.Operation), typeof(global::Tadah.Proto.ClientVersion), typeof(global::Tadah.Proto.AssetType), }, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal), global::Tadah.Proto.Signal.Parser, new[]{ "Nonce", "JobId", "Operation", "Version", "Place", "Thumbnail" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Place), global::Tadah.Proto.Signal.Types.Place.Parser, new[]{ "PlaceId", "Script", "ExpirationInSeconds" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Signal.Types.Thumbnail), global::Tadah.Proto.Signal.Types.Thumbnail.Parser, new[]{ "Type", "AssetId", "AccessKey" }, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Tadah.Proto.Response), global::Tadah.Proto.Response.Parser, new[]{ "Operation", "Success", "Message", "Data" }, null, null, null)
           }));
     }
@@ -61,6 +63,23 @@ namespace Tadah.Proto {
     [pbr::OriginalName("RENEW_TAMPA_JOB_LEASE")] RenewTampaJobLease = 3,
     [pbr::OriginalName("CLOSE_ALL_JOBS")] CloseAllJobs = 4,
     [pbr::OriginalName("CLOSE_ALL_TAMPA_PROCESSES")] CloseAllTampaProcesses = 5,
+    [pbr::OriginalName("THUMBNAIL")] Thumbnail = 6,
+  }
+
+  public enum ClientVersion {
+    [pbr::OriginalName("NONE")] None = 0,
+    [pbr::OriginalName("TAIPEI")] Taipei = 2011,
+    [pbr::OriginalName("TAMPA")] Tampa = 2016,
+  }
+
+  public enum AssetType {
+    [pbr::OriginalName("CLOTHING")] Clothing = 0,
+    [pbr::OriginalName("HEAD")] Head = 1,
+    [pbr::OriginalName("MESH")] Mesh = 2,
+    [pbr::OriginalName("PLACE")] Place = 3,
+    [pbr::OriginalName("USER")] User = 4,
+    [pbr::OriginalName("HEADSHOT")] Headshot = 5,
+    [pbr::OriginalName("XML")] Xml = 6,
   }
 
   #endregion
@@ -95,6 +114,8 @@ namespace Tadah.Proto {
       jobId_ = other.jobId_;
       operation_ = other.operation_;
       version_ = other.version_;
+      place_ = other.place_.Clone();
+      thumbnail_ = other.thumbnail_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -138,13 +159,33 @@ namespace Tadah.Proto {
 
     /// <summary>Field number for the "version" field.</summary>
     public const int VersionFieldNumber = 4;
-    private global::Tadah.Proto.Signal.Types.ClientVersion version_ = 0;
+    private global::Tadah.Proto.ClientVersion version_ = 0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Tadah.Proto.Signal.Types.ClientVersion Version {
+    public global::Tadah.Proto.ClientVersion Version {
       get { return version_; }
       set {
         version_ = value;
       }
+    }
+
+    /// <summary>Field number for the "place" field.</summary>
+    public const int PlaceFieldNumber = 5;
+    private static readonly pb::FieldCodec<global::Tadah.Proto.Signal.Types.Place> _repeated_place_codec
+        = pb::FieldCodec.ForMessage(42, global::Tadah.Proto.Signal.Types.Place.Parser);
+    private readonly pbc::RepeatedField<global::Tadah.Proto.Signal.Types.Place> place_ = new pbc::RepeatedField<global::Tadah.Proto.Signal.Types.Place>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::Tadah.Proto.Signal.Types.Place> Place {
+      get { return place_; }
+    }
+
+    /// <summary>Field number for the "thumbnail" field.</summary>
+    public const int ThumbnailFieldNumber = 6;
+    private static readonly pb::FieldCodec<global::Tadah.Proto.Signal.Types.Thumbnail> _repeated_thumbnail_codec
+        = pb::FieldCodec.ForMessage(50, global::Tadah.Proto.Signal.Types.Thumbnail.Parser);
+    private readonly pbc::RepeatedField<global::Tadah.Proto.Signal.Types.Thumbnail> thumbnail_ = new pbc::RepeatedField<global::Tadah.Proto.Signal.Types.Thumbnail>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::Tadah.Proto.Signal.Types.Thumbnail> Thumbnail {
+      get { return thumbnail_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -164,6 +205,8 @@ namespace Tadah.Proto {
       if (JobId != other.JobId) return false;
       if (Operation != other.Operation) return false;
       if (Version != other.Version) return false;
+      if(!place_.Equals(other.place_)) return false;
+      if(!thumbnail_.Equals(other.thumbnail_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -174,6 +217,8 @@ namespace Tadah.Proto {
       if (JobId.Length != 0) hash ^= JobId.GetHashCode();
       if (Operation != 0) hash ^= Operation.GetHashCode();
       if (Version != 0) hash ^= Version.GetHashCode();
+      hash ^= place_.GetHashCode();
+      hash ^= thumbnail_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -203,6 +248,8 @@ namespace Tadah.Proto {
         output.WriteRawTag(32);
         output.WriteEnum((int) Version);
       }
+      place_.WriteTo(output, _repeated_place_codec);
+      thumbnail_.WriteTo(output, _repeated_thumbnail_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -223,6 +270,8 @@ namespace Tadah.Proto {
       if (Version != 0) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Version);
       }
+      size += place_.CalculateSize(_repeated_place_codec);
+      size += thumbnail_.CalculateSize(_repeated_thumbnail_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -249,6 +298,8 @@ namespace Tadah.Proto {
       if (other.Version != 0) {
         Version = other.Version;
       }
+      place_.Add(other.place_);
+      thumbnail_.Add(other.thumbnail_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -276,7 +327,15 @@ namespace Tadah.Proto {
             break;
           }
           case 32: {
-            version_ = (global::Tadah.Proto.Signal.Types.ClientVersion) input.ReadEnum();
+            version_ = (global::Tadah.Proto.ClientVersion) input.ReadEnum();
+            break;
+          }
+          case 42: {
+            place_.AddEntriesFrom(input, _repeated_place_codec);
+            break;
+          }
+          case 50: {
+            thumbnail_.AddEntriesFrom(input, _repeated_thumbnail_codec);
             break;
           }
         }
@@ -287,12 +346,6 @@ namespace Tadah.Proto {
     /// <summary>Container for nested types declared in the Signal message type.</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static partial class Types {
-      public enum ClientVersion {
-        [pbr::OriginalName("NONE")] None = 0,
-        [pbr::OriginalName("TAIPEI")] Taipei = 2011,
-        [pbr::OriginalName("TAMPA")] Tampa = 2016,
-      }
-
       public sealed partial class Place : pb::IMessage<Place> {
         private static readonly pb::MessageParser<Place> _parser = new pb::MessageParser<Place>(() => new Place());
         private pb::UnknownFieldSet _unknownFields;
@@ -516,9 +569,9 @@ namespace Tadah.Proto {
 
         /// <summary>Field number for the "type" field.</summary>
         public const int TypeFieldNumber = 1;
-        private global::Tadah.Proto.Signal.Types.Thumbnail.Types.AssetType type_ = 0;
+        private global::Tadah.Proto.AssetType type_ = 0;
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-        public global::Tadah.Proto.Signal.Types.Thumbnail.Types.AssetType Type {
+        public global::Tadah.Proto.AssetType Type {
           get { return type_; }
           set {
             type_ = value;
@@ -646,7 +699,7 @@ namespace Tadah.Proto {
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
                 break;
               case 8: {
-                type_ = (global::Tadah.Proto.Signal.Types.Thumbnail.Types.AssetType) input.ReadEnum();
+                type_ = (global::Tadah.Proto.AssetType) input.ReadEnum();
                 break;
               }
               case 16: {
@@ -660,23 +713,6 @@ namespace Tadah.Proto {
             }
           }
         }
-
-        #region Nested types
-        /// <summary>Container for nested types declared in the Thumbnail message type.</summary>
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-        public static partial class Types {
-          public enum AssetType {
-            [pbr::OriginalName("CLOTHING")] Clothing = 0,
-            [pbr::OriginalName("HEAD")] Head = 1,
-            [pbr::OriginalName("MESH")] Mesh = 2,
-            [pbr::OriginalName("PLACE")] Place = 3,
-            [pbr::OriginalName("USER")] User = 4,
-            [pbr::OriginalName("HEADSHOT")] Headshot = 5,
-            [pbr::OriginalName("XML")] Xml = 6,
-          }
-
-        }
-        #endregion
 
       }
 

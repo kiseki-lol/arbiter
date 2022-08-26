@@ -32,17 +32,17 @@ namespace Tadah.Arbiter
 
         public static void Load()
         {
-            Dictionary<string, string> identification = Http.Identify();
+            Dictionary<string, object> identification = Http.Identify();
 
-            Uuid = Guid.Parse(identification["uuid"]);
-            BasePlaceJobPort = int.Parse(identification["base_place_job_port"]);
-            BaseTampaSoapPort = int.Parse(identification["base_tampa_soap_port"]);
-            MaximumTampaProcesses = int.Parse(identification["maximum_tampa_processes"]);
-            MaximumJobsPerTampaProcess = int.Parse(identification["maximum_jobs_per_tampa_process"]);
-            MaximumPlaceJobs = int.Parse(identification["maximum_place_jobs"]);
-            MaximumThumbnailJobs = int.Parse(identification["maximum_thumbnail_jobs"]);
-            MaximumThumbnailJobsPerThumbnailer = int.Parse(identification["maximum_thumbnail_jobs_per_thumbnailer"]);
-            Thumbnailers = int.Parse(identification["thumbnailers"]);
+            Uuid = Guid.Parse((string)identification["uuid"]);
+            BasePlaceJobPort = (int)identification["base_place_job_port"];
+            BaseTampaSoapPort = (int)identification["base_tampa_soap_port"];
+            MaximumTampaProcesses = (int)identification["maximum_tampa_processes"];
+            MaximumJobsPerTampaProcess = (int)identification["maximum_jobs_per_tampa_process"];
+            MaximumPlaceJobs = (int)identification["maximum_place_jobs"];
+            MaximumThumbnailJobs = (int)identification["maximum_thumbnail_jobs"];
+            MaximumThumbnailJobsPerThumbnailer = (int)identification["maximum_thumbnail_jobs_per_thumbnailer"];
+            Thumbnailers = (int)identification["thumbnailers"];
         }
     }
 }

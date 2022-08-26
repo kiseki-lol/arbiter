@@ -12,15 +12,26 @@ enum Operation {
     RENEW_TAMPA_JOB_LEASE = 3;
     CLOSE_ALL_JOBS = 4;
     CLOSE_ALL_TAMPA_PROCESSES = 5;
+    THUMBNAIL = 6;
+}
+
+enum ClientVersion {
+    NONE = 0;
+    TAIPEI = 2011;
+    TAMPA = 2016;
+}
+
+enum AssetType {
+    CLOTHING = 0;
+    HEAD = 1;
+    MESH = 2;
+    PLACE = 3;
+    USER = 4;
+    HEADSHOT = 5;
+    XML = 6;
 }
 
 message Signal {
-    enum ClientVersion {
-        NONE = 0;
-        TAIPEI = 2011;
-        TAMPA = 2016;
-    }
-
     google.protobuf.Timestamp nonce = 1;
     string jobId = 2;
     Operation operation = 3;
@@ -33,20 +44,13 @@ message Signal {
     }
 
     message Thumbnail {
-        enum AssetType {
-            CLOTHING = 0;
-            HEAD = 1;
-            MESH = 2;
-            PLACE = 3;
-            USER = 4;
-            HEADSHOT = 5;
-            XML = 6;
-        }
-
         AssetType type = 1;
         uint32 assetId = 2;
         string accessKey = 3;
     }
+
+    repeated Place place = 5;
+    repeated Thumbnail thumbnail = 6;
 }
 
 message Response {

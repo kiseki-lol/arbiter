@@ -15,9 +15,9 @@ namespace Tadah.Arbiter
             }
         }
 
-        private TampaProcess _process;
+        private readonly TampaProcess _process;
 
-        public TampaJob(string Id, int PlaceId, ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
+        public TampaJob(string Id, uint PlaceId, Proto.ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
         {
             this.ExpirationInSeconds = 86400;
             _process = TampaProcessManager.Best();
@@ -43,7 +43,7 @@ namespace Tadah.Arbiter
             this.IsRunning = true;
         }
 
-        protected override string InternalClose(bool forceClose)
+        protected override JobStatus InternalClose(bool forceClose)
         {
             if (!forceClose)
             {
@@ -51,7 +51,7 @@ namespace Tadah.Arbiter
             }
 
             this.IsRunning = false;
-            return "Closed";
+            return JobStatus.Closed;
         }
 
         public override void ExecuteScript(string script)
@@ -61,7 +61,7 @@ namespace Tadah.Arbiter
                 return;
             }
 
-            ScriptExecution execution = new ScriptExecution
+            ScriptExecution execution = new()
             {
                 name = "Tadah.Arbiter." + Guid.NewGuid(),
                 script = lua
@@ -70,7 +70,7 @@ namespace Tadah.Arbiter
             _process.Client.ExecuteEx(Id, execution);
         }
 
-        public void RenewLease(int seconds)
+        public void RenewLease(uint seconds)
         {
             _process.Client.RenewLease(Id, seconds);
         }

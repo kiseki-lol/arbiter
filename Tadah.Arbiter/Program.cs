@@ -5,10 +5,12 @@ using System.Runtime.InteropServices;
 
 namespace Tadah.Arbiter
 {
-    public enum ClientVersion
+    public enum GameServerState
     {
-        Taipei = 2011,
-        Tampa = 2016
+        Online = 0,
+        Offline = 1,
+        Crashed = 2,
+        Paused = 3
     };
 
     public class Program
