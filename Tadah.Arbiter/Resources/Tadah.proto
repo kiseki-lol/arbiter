@@ -2,6 +2,7 @@ syntax = "proto3";
 package Tadah;
 
 option csharp_namespace = "Tadah.Proto";
+option php_namespace = "App/Proto";
 
 import "google/protobuf/timestamp.proto";
 
