@@ -136,9 +136,9 @@ namespace Tadah.Arbiter
                     /*
                      * TadahMessage format:
                      * 
-                     * 0x02      0x00 0x00 0x02      0x00 0x00 .. ..     0x02      0x00 0x00 .. ..
-                     * (STX)     (UINT16)  (STX)     (UINT16)  (DATA)    (STX)     (UINT16)  (DATA)
-                     * (MSGREAD) (MSGSIZE) (SIGREAD) (SIGSIZE) (SIGDATA) (BUFREAD) (BUFSIZE) (BUFDATA)
+                     * 0x02      0x00 0x00 0x00 0x00 0x02      0x00 0x00 .. ..     0x02      0x00 0x00 .. ..
+                     * (STX)     (UINT16)  (UINT16)  (STX)     (UINT16)  (DATA)    (STX)     (UINT16)  (DATA)
+                     * (MSGREAD) (MSGSIZE) (CHKSUM)  (SIGREAD) (SIGSIZE) (SIGDATA) (BUFREAD) (BUFSIZE) (BUFDATA)
                      * 
                      * From this, we can do some sanity checks while getting a complete read *and* fending off potential attackers;
                      * - See if the message begins with our MSGREAD
