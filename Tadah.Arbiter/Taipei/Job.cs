@@ -3,20 +3,20 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Tadah.Arbiter
+namespace Tadah.Taipei
 {
-    public class TaipeiJob : Job
+    public class Job : Arbiter.Job
     {
-        public TaipeiJob(string Id, uint PlaceId, Proto.ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
+        public Job(string Id, uint PlaceId, Proto.ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
         {
             //
         }
 
-        protected override JobStatus InternalClose(bool forceClose = false)
+        protected override Arbiter.JobStatus InternalClose(bool forceClose = false)
         {
             if (forceClose)
             {
-                return JobStatus.Crashed;
+                return Arbiter.JobStatus.Crashed;
             }
 
             try
@@ -40,33 +40,33 @@ namespace Tadah.Arbiter
                     this.Process.CloseMainWindow();
                     this.Process.Close();
 
-                    return JobStatus.Closed;
+                    return Arbiter.JobStatus.Closed;
                 }
-                else if (Status == JobStatus.Crashed || !this.Process.Responding)
+                else if (Status == Arbiter.JobStatus.Crashed || !this.Process.Responding)
                 {
                     this.Process.Kill();
                     this.Process.Close();
 
-                    return JobStatus.Crashed;
+                    return Arbiter.JobStatus.Crashed;
                 }
                 else
                 {
                     this.Process.CloseMainWindow();
                     this.Process.Close();
 
-                    return JobStatus.Crashed;
+                    return Arbiter.JobStatus.Crashed;
                 }
             }
             catch (InvalidOperationException)
             {
-                return JobStatus.Crashed;
+                return Arbiter.JobStatus.Crashed;
             }
         }
 
         protected override void InternalStart()
         {
-            string GameserverScript = Http.GetGameserverScript(Id, PlaceId, Port);
-            string[] CommandLine = JobManager.GetCommandLine(Version, GameserverScript, this.Id);
+            string GameserverScript = Arbiter.Http.GetGameserverScript(Id, PlaceId, Port);
+            string[] CommandLine = Arbiter.JobManager.GetCommandLine(Version, GameserverScript, this.Id);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

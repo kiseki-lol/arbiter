@@ -32,11 +32,11 @@ namespace Tadah.Arbiter
 
         protected void Log(string message, LogSeverity severity = LogSeverity.Information)
         {
-            if (this is TampaJob)
+            if (this is Tampa.Job)
             {
                 Arbiter.Log.Write($"[TampaJob-{this.Id}] {message}", severity);
             }
-            else if (this is TaipeiJob)
+            else if (this is Taipei.Job)
             {
                 Arbiter.Log.Write($"[TaipeiJob-{this.Id}] {message}", severity);
             }

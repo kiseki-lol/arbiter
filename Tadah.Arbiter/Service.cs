@@ -45,16 +45,14 @@ namespace Tadah.Arbiter
 
     internal class StateObject
     {
-        public const int BufferSize = 1024;
-        public byte[] Buffer = new byte[BufferSize];
-        public StringBuilder Builder = new();
+        public byte[] Buffer = new byte[1024];
+        public ushort Size = 0;
         public Socket WorkSocket = null;
         public Client Client;
     }
 
-    public class ArbiterService
+    public class Service
     {
-        private static readonly string EOFDelimiter = "<<<EOF>>>";
         private static readonly ManualResetEvent Finished = new(false);
         private static Socket Listener;
 
@@ -120,14 +118,12 @@ namespace Tadah.Arbiter
                 state.WorkSocket = handler;
                 state.Client = client;
 
-                handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new(ReadCallback), state);
+                handler.BeginReceive(state.Buffer, 0, 1024, 0, new(ReadCallback), state);
             }
         }
 
         private static void ReadCallback(IAsyncResult result)
         {
-            string content = string.Empty;
-
             StateObject state = (StateObject)result.AsyncState;
             Socket handler = state.WorkSocket;
 
@@ -137,28 +133,82 @@ namespace Tadah.Arbiter
 
                 if (read > 0)
                 {
-                    state.Builder.Append(Encoding.ASCII.GetString(state.Buffer, 0, read));
-                    content = state.Builder.ToString();
+                    /*
+                     * TadahMessage format:
+                     * 
+                     * 0x02      0x00 0x00 0x02      0x00 0x00 .. ..     0x02      0x00 0x00 .. ..
+                     * (STX)     (UINT16)  (STX)     (UINT16)  (DATA)    (STX)     (UINT16)  (DATA)
+                     * (MSGREAD) (MSGSIZE) (SIGREAD) (SIGSIZE) (SIGDATA) (BUFREAD) (BUFSIZE) (BUFDATA)
+                     * 
+                     * From this, we can do some sanity checks while getting a complete read *and* fending off potential attackers;
+                     * - See if the message begins with our MSGREAD
+                     * - If it does, recieve next 2 bytes; try parsing as a uint8 and use that as message size
+                     * - Read message up to the specified message size
+                     * - Try parsing the entire message
+                     * - Verify buffer with given signature
+                     * - Send buffer to ProcessData
+                     */
 
-                    if (content.Length > 0 && !content.StartsWith("%"))
+                    if (state.Buffer[0] != 0x02)
                     {
-                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Did not include a signature", LogSeverity.Warning);
+                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Not a TadahMessage", LogSeverity.Warning);
                         handler.Close();
                     }
 
-                    if (content.IndexOf(EOFDelimiter) > -1)
+                    if (read == 3)
                     {
-                        content = content.Replace(EOFDelimiter, "");
-#if DEBUG
-                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Read all data, sending response", LogSeverity.Debug);
-#endif
-                        string response = Encoding.Default.GetString(ProcessData(content, state.Client).ToArray());
-                        SendData(handler, response);
+                        if (state.Size == 0)
+                        {
+                            ushort parsed = 0;
+
+                            try
+                            {
+                                parsed = BitConverter.ToUInt16(state.Buffer, 1); // Offset by 1 (MSGREAD[STX])
+                            }
+                            catch
+                            {
+                                Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Not a TadahMessage", LogSeverity.Warning);
+                                handler.Close();
+                            }
+                            finally
+                            {
+                                if (parsed == 0)
+                                {
+                                    Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Not a TadahMessage", LogSeverity.Warning);
+                                    handler.Close();
+                                }
+
+                                state.Size = parsed;
+                            }
+                        }
+
+                        handler.BeginReceive(state.Buffer, 0, state.Size - 3, 0, new AsyncCallback(ReadCallback), state); // state.Size - 3 for 3 bytes already read (MSGREAD[STX], MSGSIZE[UINT8])
                     }
-                    else
+
+                    // Parse given data
+                    if (!Message.TryParse(state.Buffer, out Message message))
                     {
-                        handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Not a TadahMessage", LogSeverity.Warning);
+                        handler.Close();
                     }
+
+                    // Verify signature
+                    if (!Signature.Verify(message.Data, message.Signature))
+                    {
+                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Bad or invalid signature", LogSeverity.Warning);
+                        handler.Close();
+                    }
+
+                    // See if signal is older than ten seconds (so that people can't re-send signed destructive commands, such as "CloseAllJobs")
+                    if (Unix.Now() + 10 > Unix.From(message.Signal.Nonce.ToDateTime()))
+                    {
+                        Log.Write($"[ArbiterService::ReadCallback] '{state.Client.IpAddress}' - Too old message received", LogSeverity.Warning);
+                        handler.Close();
+                    }
+
+                    // Process data
+                    byte[] response = ProcessSignal(message.Signal, state.Client);
+                    SendData(handler, response);
                 }
             }
             catch (Exception exception)
@@ -183,12 +233,11 @@ namespace Tadah.Arbiter
             }
         }
 
-        private static void SendData(Socket handler, string data)
+        private static void SendData(Socket handler, byte[] data)
         {
             try
             {
-                byte[] dataBytes = Encoding.ASCII.GetBytes(data);
-                handler.BeginSend(dataBytes, 0, dataBytes.Length, 0, new AsyncCallback(SendCallback), handler);
+                handler.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), handler);
             }
             catch (Exception ex)
             {
@@ -196,9 +245,9 @@ namespace Tadah.Arbiter
             }
         }
 
-        private static MemoryStream SignalError(Proto.Signal signal, Client client, string reason)
+        private static byte[] SignalError(Proto.Signal signal, Client client, string reason)
         {
-            MemoryStream stream = new();
+            byte[] stream = new byte[1024];
 
             try
             {
@@ -217,38 +266,9 @@ namespace Tadah.Arbiter
             return stream;
         }
 
-        private static MemoryStream ProcessData(string data, Client client)
+        private static byte[] ProcessSignal(Proto.Signal signal, Client client)
         {
-
-            if (!TadahSignature.VerifyData(data, out string message))
-            {
-#if DEBUG
-                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid signature", LogSeverity.Debug);
-#endif
-                return new();
-            }
-
-            Proto.Signal signal = null;
-
-            try
-            {
-                signal = Proto.Signal.Parser.ParseFrom(Encoding.Default.GetBytes(message));
-            }
-            catch
-            {
-                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Bad or invalid data", LogSeverity.Warning);
-                return new();
-            }
-
-            // Last security check (see if nonce >= 10 seconds old)
-            // This is so that people can't re-send signed data with destructive commands (i.e. "CloseAllJobs")
-            if (Unix.GetTimestamp() + 10 > Unix.From(signal.Nonce.ToDateTime()))
-            {
-                Log.Write($"[ArbiterService::ProcessData] '{client.IpAddress}' - Old data", LogSeverity.Warning);
-                return new();
-            }
-
-            MemoryStream stream = new();
+            byte[] stream = new byte[1024];
             bool success = false;
             object responseData = null;
 
@@ -308,7 +328,7 @@ namespace Tadah.Arbiter
                                 return SignalError(signal, client, "Job does not exist");
                             }
 
-                            if (job is TaipeiJob)
+                            if (job is Taipei.Job)
                             {
                                 return SignalError(signal, client, "Job does not support such functionality (is TaipeiJob)");
                             }
@@ -335,7 +355,7 @@ namespace Tadah.Arbiter
                                 return SignalError(signal, client, "Job doesn't exist");
                             }
 
-                            if (job is not TampaJob)
+                            if (job is not Tampa.Job)
                             {
                                 return SignalError(signal, client, "Job does not support such functionality (is TampaJob)");
                             }
@@ -345,7 +365,7 @@ namespace Tadah.Arbiter
                                 return SignalError(signal, client, "No place specified");
                             }
 
-                            TampaJob taJob = (TampaJob)job;
+                            Tampa.Job taJob = (Tampa.Job)job;
                             Task.Run(() => { taJob.RenewLease(signal.Place[0].ExpirationInSeconds); });
 
                             success = true;
@@ -367,9 +387,9 @@ namespace Tadah.Arbiter
 
                     case Proto.Operation.CloseAllTampaProcesses:
                         {
-                            int processes = TampaProcessManager.OpenProcesses.Count;
+                            int processes = Tampa.ProcessManager.OpenProcesses.Count;
 
-                            Task.Run(() => { TampaProcessManager.CloseAllProcesses(); });
+                            Task.Run(() => { Tampa.ProcessManager.CloseAllProcesses(); });
 
                             success = true;
                             responseData = processes;
@@ -425,7 +445,6 @@ namespace Tadah.Arbiter
                 // If it wasn't successful, the stream has already been written to
                 // In the case of an exception or the "default" fallthrough in the switch statement.
             }
-
 
             return stream;
         }

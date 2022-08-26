@@ -122,7 +122,7 @@ namespace Tadah.Arbiter
                 {
                     ConsoleColor color = SeverityToColor(severity);
                     string _event = SeverityToEvent(severity);
-                    DateTime time = DateTime.Now;
+                    int time = Unix.Now();
 
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write($"[{time:G}] ");
@@ -135,7 +135,7 @@ namespace Tadah.Arbiter
 
                     Writer.WriteLine($"[{time}] [{_event}] {message.Replace(Configuration.AppSettings["AccessKey"], "*********")}");
 
-                    Http.Log(severity, (int)((DateTimeOffset)time).ToUnixTimeSeconds(), message);
+                    Http.Log(severity, time, message);
 
                     Writer.Flush();
                 }

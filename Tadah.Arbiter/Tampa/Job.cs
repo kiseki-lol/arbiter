@@ -1,31 +1,31 @@
 ﻿using System;
-using System.Diagnostics;
+using Tadah.Tampa.Server;
 
-namespace Tadah.Arbiter
+namespace Tadah.Tampa
 {
-    public class TampaJob : Job
+    public class Job : Arbiter.Job
     {
         public int ExpirationInSeconds { get; private set; }
         public int Cores { get; private set; }
-        public new Process Process
+        public new System.Diagnostics.Process Process
         {
             get
             {
-                return _process.Process;
+                return _process.Handle;
             }
         }
 
-        private readonly TampaProcess _process;
+        private readonly Process _process;
 
-        public TampaJob(string Id, uint PlaceId, Proto.ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
+        public Job(string Id, uint PlaceId, Proto.ClientVersion Version, int Port) : base(Id, PlaceId, Version, Port)
         {
             this.ExpirationInSeconds = 86400;
-            _process = TampaProcessManager.Best();
+            _process = ProcessManager.Best();
         }
 
         protected override void InternalStart()
         {
-            Tadah.Job job = new()
+            Tampa.Server.Job job = new()
             {
                 id = Id,
                 expirationInSeconds = ExpirationInSeconds,
@@ -36,14 +36,14 @@ namespace Tadah.Arbiter
             ScriptExecution script = new()
             {
                 name = "Start Server",
-                script = Http.GetGameserverScript(Id, PlaceId, Port, true)
+                script = Arbiter.Http.GetGameserverScript(Id, PlaceId, Port, true)
             };
 
             _process.Client.OpenJob(job, script);
             this.IsRunning = true;
         }
 
-        protected override JobStatus InternalClose(bool forceClose)
+        protected override Arbiter.JobStatus InternalClose(bool forceClose)
         {
             if (!forceClose)
             {
@@ -51,12 +51,12 @@ namespace Tadah.Arbiter
             }
 
             this.IsRunning = false;
-            return JobStatus.Closed;
+            return Arbiter.JobStatus.Closed;
         }
 
         public override void ExecuteScript(string script)
         {
-            if (!TadahSignature.VerifyData(script, out string lua))
+            if (!Signature.VerifyData(script, out string lua))
             {
                 return;
             }

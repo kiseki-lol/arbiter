@@ -73,11 +73,15 @@ namespace Tadah.Arbiter
 
             if (version == Proto.ClientVersion.Tampa)
             {
-                job = new TampaJob(jobId, placeId, version, port);
+                job = new Tampa.Job(jobId, placeId, version, port);
+            }
+            else if (version == Proto.ClientVersion.Taipei)
+            {
+                job = new Taipei.Job(jobId, placeId, version, port);
             }
             else
             {
-                job = new TaipeiJob(jobId, placeId, version, port);
+                throw new Exception("Invalid ClientVersion");
             }
 
             OpenJobs.Add(job);
@@ -150,7 +154,7 @@ namespace Tadah.Arbiter
                 {
                     foreach (Job job in OpenJobs)
                     {
-                        if (job is TampaJob)
+                        if (job is Tampa.Job)
                         {
                             continue;
                         }
@@ -160,7 +164,7 @@ namespace Tadah.Arbiter
                             continue;
                         }
 
-                        if (job.Version == Proto.ClientVersion.Taipei && (Unix.From(job.TimeStarted) + 5 < Unix.GetTimestamp()) && !GetWindowTitle(job.Process.MainWindowHandle).Contains("Place1"))
+                        if (job.Version == Proto.ClientVersion.Taipei && (Unix.From(job.TimeStarted) + 5 < Unix.Now()) && !GetWindowTitle(job.Process.MainWindowHandle).Contains("Place1"))
                         {
                             job.IsRunning = false;
                         }
@@ -198,12 +202,12 @@ namespace Tadah.Arbiter
             }
 
             OpenJobs.Clear();
-            TampaProcessManager.CloseAllProcesses();
+            Tampa.ProcessManager.CloseAllProcesses();
         }
 
         public static void MonitorUnresponsiveJob(Job job)
         {
-            if (job is TampaJob)
+            if (job is Job)
             {
                 return;
             }

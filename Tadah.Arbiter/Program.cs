@@ -33,7 +33,7 @@ namespace Tadah.Arbiter
             {
                 Task.Run(() => JobManager.MonitorCrashedJobs());
                 Task.Run(() => JobManager.MonitorUnresponsiveJobs());
-                Task.Run(() => TampaProcessManager.MonitorUnresponsiveProcesses());
+                Task.Run(() => Tampa.ProcessManager.MonitorUnresponsiveProcesses());
             }
 
             Task.Run(() => Http.StartResourceReporter());
@@ -41,14 +41,14 @@ namespace Tadah.Arbiter
             Http.UpdateState(GameServerState.Online);
 
             Log.Write("Initializing Tadah Arbiter Service", LogSeverity.Boot);
-            int ServicePort = ArbiterService.Start();
+            int ServicePort = Service.Start();
             Log.Write($"Service Started on port {ServicePort}", LogSeverity.Boot);
 
             Console.CancelKeyPress += delegate
             {
                 Log.Write("Service shutting down...", LogSeverity.Event);
 
-                ArbiterService.Stop();
+                Service.Stop();
                 JobManager.CloseAllJobs();
 
                 Http.UpdateState(GameServerState.Offline);
@@ -61,19 +61,6 @@ namespace Tadah.Arbiter
             {
                 Thread.Sleep(1000);
             }
-        }
-    }
-
-    public class Unix
-    {
-        public static int GetTimestamp()
-        {
-            return (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
-        }
-
-        public static int From(DateTime time)
-        {
-            return (int)(time - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
         }
     }
 }
