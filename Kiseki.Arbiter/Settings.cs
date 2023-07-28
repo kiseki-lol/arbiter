@@ -1,5 +1,3 @@
-using System;
-
 namespace Kiseki.Arbiter
 {
     public class Settings
@@ -7,6 +5,11 @@ namespace Kiseki.Arbiter
         public static string GetPublicKeyPath()
         {
             return "public.pem";
+        }
+
+        public static string GetAccessKey()
+        {
+            return "";
         }
     }
 }

@@ -7,7 +7,7 @@ using Org.BouncyCastle.Security;
 
 namespace Kiseki.Arbiter
 {
-    public static class Signature
+    static class Signature
     {
         private static readonly RSACryptoServiceProvider rsa = ReadPublicKey(Settings.GetPublicKeyPath());
 
