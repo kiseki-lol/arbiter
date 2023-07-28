@@ -1,4 +1,3 @@
-using System.IO;
 using System.Security.Cryptography;
 
 using Org.BouncyCastle.Crypto;
@@ -29,7 +28,7 @@ namespace Kiseki.Arbiter
         {
             try
             {
-                return rsa.VerifyData(data, CryptoConfig.MapNameToOID("SHA256"), signature);
+                return rsa.VerifyData(data, CryptoConfig.MapNameToOID("SHA256")!, signature);
             }
             catch
             {
