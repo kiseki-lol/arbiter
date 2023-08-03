@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+[Ll]icense.bin
+[Aa]pp[Ss]ettings.json
 .vscode/
 
 # User-specific files
