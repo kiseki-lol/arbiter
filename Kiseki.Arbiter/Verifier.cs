@@ -11,23 +11,32 @@ public static class Verifier
 {
     private static RSACryptoServiceProvider? rsa;
 
-    public static void Initialize()
+    public static bool Initialize()
     {
-        using TextReader reader = new StringReader(File.ReadAllText(Settings.GetPublicKeyPath()));
+        try
+        {
+            using TextReader reader = new StringReader(File.ReadAllText(Settings.GetPublicKeyPath()));
 
-        PemReader pem = new(reader);
-        AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pem.ReadObject();
-        RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaKeyParameters)publicKey);
+            PemReader pem = new(reader);
+            AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pem.ReadObject();
+            RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaKeyParameters)publicKey);
 
-        rsa = new();
-        rsa.ImportParameters(rsaParams);
+            rsa = new();
+            rsa.ImportParameters(rsaParams);
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public static bool Verify(byte[] data, byte[] signature)
     {
         try
         {
-            return rsa?.VerifyData(data, CryptoConfig.MapNameToOID("SHA256")!, signature) ?? false;
+            return rsa!.VerifyData(data, CryptoConfig.MapNameToOID("SHA256")!, signature);
         }
         catch
         {

@@ -74,4 +74,14 @@ public static class Web
 
         return true;
     }
+
+    public static void Fatal(DateTime time, string message)
+    {
+        
+    }
+
+    public static void Log(DateTime time, LogSeverity severity, string message)
+    {
+
+    }
 }

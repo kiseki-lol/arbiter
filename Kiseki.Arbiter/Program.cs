@@ -1,33 +1,44 @@
-﻿using System;
-
-namespace Kiseki.Arbiter;
+﻿namespace Kiseki.Arbiter;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
         Paths.Initialize(AppContext.BaseDirectory);
+
         if (!Settings.Initialize())
         {
-            Console.WriteLine("Failed to initialize settings.");
+            Log.Write("Failed to initialize settings.", LogSeverity.Error);
             return;
         }
 
         bool isConnected = Web.Initialize();
         if (!isConnected && Web.IsInMaintenance)
         {
-            // Try licensing this launcher and attempt to connect again
-            Web.LoadLicense(File.ReadAllText(Settings.GetPublicKeyPath()));
-            isConnected = Web.Initialize(false);
+            // Try licensing this arbiter and attempt to connect again
+
+            try
+            {
+                Web.LoadLicense(File.ReadAllText(Settings.GetPublicKeyPath()));
+                isConnected = Web.Initialize(false);
+            }
+            catch
+            {
+                Log.Write("Failed to load license.", LogSeverity.Error);
+                return;
+            }
         }
 
         if (!isConnected)
         {
-            Console.WriteLine($"Failed to connect to {Constants.PROJECT_NAME}.");
+            Log.Write($"Failed to connect to {Constants.PROJECT_NAME}.", LogSeverity.Error);
             return;
         }
 
-        Verifier.Initialize();
+        if (!Verifier.Initialize())
+        {
+            Log.Write("Failed to initialize verifier.", LogSeverity.Error);
+        }
         
         Console.WriteLine("Hello World!");
     }

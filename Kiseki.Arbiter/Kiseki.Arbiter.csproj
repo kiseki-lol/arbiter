@@ -1,17 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <StartupObject>Kiseki.Arbiter.Program</StartupObject>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishSingleFile>true</PublishSingleFile>
-    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>Resources\IconKisekiArbiter.ico</ApplicationIcon>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Copyright>Kiseki</Copyright>
     <Version>1.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
