@@ -18,7 +18,7 @@ public class Program
         {
             // Try licensing this launcher and attempt to connect again
             Web.LoadLicense(File.ReadAllText(Settings.GetPublicKeyPath()));
-            isConnected = Web.Initialize();
+            isConnected = Web.Initialize(false);
         }
 
         if (!isConnected)

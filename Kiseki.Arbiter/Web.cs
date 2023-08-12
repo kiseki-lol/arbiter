@@ -1,5 +1,6 @@
 namespace Kiseki.Arbiter;
 
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 public static class Web
@@ -13,8 +14,13 @@ public static class Web
 
     public static readonly HttpClient HttpClient = new();
 
-    public static bool Initialize()
+    public static bool Initialize(bool setAccessKey = true)
     {
+        if (setAccessKey)
+        {
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.GetAccessKey());
+        }
+
         CurrentUrl = IsInMaintenance ? $"{Constants.MAINTENANCE_DOMAIN}.{Constants.BASE_URL}" : Constants.BASE_URL;
         
         // Synchronous block is intentional
@@ -25,7 +31,10 @@ public static class Web
 
         if (response != RESPONSE_SUCCESS)
         {
-            if (response == RESPONSE_MAINTENANCE) IsInMaintenance = true;
+            if (response == RESPONSE_MAINTENANCE)
+            {
+                IsInMaintenance = true;
+            }
 
             return false;
         }
@@ -33,7 +42,10 @@ public static class Web
         return true;
     }
 
-    public static string Url(string path) => $"https://{CurrentUrl}{path}";
+    public static string Url(string path)
+    {
+        return $"https://{CurrentUrl}{path}";
+    }
 
     public static async Task<Models.WebResponse> CheckHealth()
     {
@@ -44,8 +56,6 @@ public static class Web
 
     public static bool LoadLicense(string license)
     {
-        // The license is just headers required to access the website in a JSON document
-
         Dictionary<string, string> headers;
 
         try
