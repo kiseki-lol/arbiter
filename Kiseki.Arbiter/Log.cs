@@ -20,7 +20,7 @@ public static class Log
         }
         else
         {
-            File.Create(filename);
+            File.Create(filename).Close();
         }
 
         Writer = new StreamWriter(filename);
