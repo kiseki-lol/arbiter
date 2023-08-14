@@ -6,7 +6,7 @@ public static class LogSeverityEx
     {
         return severity switch
         {
-            LogSeverity.Fatal => "FATAL",
+            LogSeverity.Fatal => "fatal",
             LogSeverity.Error => "error",
             LogSeverity.Warning => "warn",
             LogSeverity.Event => "event",

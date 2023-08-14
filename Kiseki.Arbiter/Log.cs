@@ -16,7 +16,7 @@ public static class Log
                 Directory.CreateDirectory(Paths.Logs);
             }
 
-            File.Move(filename, Path.Combine(Paths.Logs, $"{File.GetCreationTimeUtc(filename).ToFileName()}.log"));
+            File.Move(filename, Path.Combine(Paths.Logs, $"{File.GetCreationTimeUtc(filename).ToUniversalIso8601().Replace(":", "_")}.log"));
         }
         else
         {
@@ -26,7 +26,7 @@ public static class Log
         Writer = new StreamWriter(filename);
     }
 
-    public static void Write(string message, LogSeverity severity = LogSeverity.Information)
+    public static async void Write(string message, LogSeverity severity = LogSeverity.Information)
     {
 #if RELEASE
         if (severity == LogSeverity.Debug)
@@ -38,7 +38,7 @@ public static class Log
         DateTime timestamp = DateTime.Now;
 
         // Spit to web
-        Web.Log(timestamp.ToUniversalTime(), severity, message);
+        await Web.ReportLog(timestamp.ToUniversalTime(), severity, message);
 
         // Spit to file
         if (Writer != null)
@@ -55,12 +55,12 @@ public static class Log
         Print(timestamp, message, severity);
     }
 
-    public static void Fatal(string message)
+    public static async void Fatal(string exception)
     {
         DateTime timestamp = DateTime.Now;
 
         // Spit to web
-        Web.Fatal(timestamp.ToUniversalTime(), message);
+        await Web.ReportFatal(timestamp.ToUniversalTime(), exception);
 
         // Spit to file
         if (Writer != null)
@@ -68,13 +68,13 @@ public static class Log
             lock (Writer)
             {
                 // Spit to file
-                Writer.WriteLine($"[{timestamp.ToUniversalIso8601()}] [fatal] {message}");
+                Writer.WriteLine($"[{timestamp.ToUniversalIso8601()}] [fatal] {exception}");
                 Writer.Flush();
             }
         }
 
         // Spit to user
-        Print(timestamp, message, LogSeverity.Fatal);
+        Print(timestamp, exception, LogSeverity.Fatal);
 
         Environment.Exit(1);
     }

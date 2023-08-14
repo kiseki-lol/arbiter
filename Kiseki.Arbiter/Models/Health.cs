@@ -2,7 +2,7 @@ namespace Kiseki.Arbiter.Models;
 
 using System.Text.Json.Serialization;
 
-public class HealthCheck
+public class Health
 {
     [JsonPropertyName("status")]
     public int Status { get; set; } = -1;
