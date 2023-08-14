@@ -16,8 +16,10 @@ public static class Web
     private static readonly List<Dictionary<string, string>> LogQueue = new();
     public static readonly HttpClient HttpClient = new();
 
-    public static async Task<bool> Initialize(bool setAccessKey = true)
+    public static bool Initialize(bool setAccessKey = true)
     {
+        // All synchronous blocks here, since we're an initializing function!
+
         if (setAccessKey)
         {
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.GetAccessKey());
@@ -25,11 +27,11 @@ public static class Web
 
         CurrentUrl = IsInMaintenance ? $"{Constants.MAINTENANCE_DOMAIN}.{Constants.BASE_URL}" : Constants.BASE_URL;
         
-        int response = await GetHealth();
+        Task<int> health = GetHealth();
 
-        if (response != RESPONSE_SUCCESS)
+        if (health.Result != RESPONSE_SUCCESS)
         {
-            if (response == RESPONSE_MAINTENANCE)
+            if (health.Result == RESPONSE_MAINTENANCE)
             {
                 IsInMaintenance = true;
             }
@@ -38,7 +40,9 @@ public static class Web
         }
 
         // If we've initialized, we certainly may identify ourselves!
-        return await Identify();
+        Task<bool> identification = Identify();
+
+        return identification.Result;
     }
 
     public static bool License(string license)
