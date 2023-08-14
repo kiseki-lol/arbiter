@@ -46,6 +46,30 @@ public class Program
         Log.Write("Web::Initialize - OK", LogSeverity.Debug);
         Log.Write($"Assigned game server ID is '{Web.GameServerId}'", LogSeverity.Boot);
 
-        Log.Write("Service starting...", LogSeverity.Boot);
+        Log.Write("Starting service...", LogSeverity.Boot);
+        
+        int port = Service.Start();
+
+        if (port == -1)
+        {
+            Log.Fatal("Failed to start arbiter service.");
+            return;
+        }
+
+        Log.Write($"Started service on port {port}.", LogSeverity.Boot);
+
+        Console.CancelKeyPress += async delegate
+        {
+            Log.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
+
+            await Service.Stop();
+
+            await Web.UpdateGameServerStatus(GameServerStatus.Offline);
+        };
+
+        while (true)
+        {
+            Thread.Sleep(1000);
+        }
     }
 }
