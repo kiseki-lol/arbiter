@@ -79,7 +79,7 @@ public static class Web
 
         try
         {
-            var response = await Helpers.Http.PostJson<Models.Identification>(FormatUrl("/api/arbiter/identify"), data);
+            var response = await Helpers.Http.PostJson<Models.Identification>(FormatUrl("/arbiter/identify"), data);
             GameServerId = response?.GameServerId ?? null;
         }
         catch
@@ -103,19 +103,19 @@ public static class Web
 
     public static string FormatServerScriptUrl(string jobId, uint placeId, int port)
     {
-        return FormatUrl($"/api/arbiter/jobs/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
+        return FormatUrl($"/arbiter/jobs/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
     }
 
     public static async Task<int> GetHealth()
     {
-        var response = await Helpers.Http.GetJson<Models.Health>(FormatUrl("/api/health"));
+        var response = await Helpers.Http.GetJson<Models.Health>(FormatUrl("/health"));
         
         return response?.Status ?? RESPONSE_FAILURE;
     }
 
     public static async Task ReportFatal(DateTime timestamp, string exception)
     {
-        string url = FormatUrl($"/api/arbiter/{GameServerId}/fatal");
+        string url = FormatUrl($"/arbiter/{GameServerId}/fatal");
 
         Dictionary<string, string> data = new()
         {
@@ -128,7 +128,7 @@ public static class Web
 
     public static async Task ReportLog(DateTime timestamp, LogSeverity severity, string message)
     {
-        string url = FormatUrl($"/api/arbiter/{GameServerId}/log");
+        string url = FormatUrl($"/arbiter/{GameServerId}/log");
 
         Dictionary<string, string> data = new()
         {
@@ -158,7 +158,7 @@ public static class Web
 
     public static async Task UpdateGameServerStatus(GameServerStatus state)
     {
-        string url = FormatUrl($"/api/arbiter/{GameServerId}/status");
+        string url = FormatUrl($"/arbiter/{GameServerId}/status");
 
         Dictionary<string, string> data = new()
         {
@@ -170,7 +170,7 @@ public static class Web
 
     public static async Task UpdateJob(string jobId, JobStatus status, int port = -1)
     {
-        string url = FormatUrl($"/api/arbiter/jobs/{jobId}");
+        string url = FormatUrl($"/arbiter/jobs/{jobId}");
 
         Dictionary<string, string> data = new()
         {
