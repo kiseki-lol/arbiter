@@ -90,15 +90,16 @@ public static class Web
         return true;
     }
 
-    public static string FormatUrl(string path)
+    public static string FormatUrl(string path, string? subdomain = null)
     {
         string scheme = "https";
+        string url = subdomain == null ? CurrentUrl! : $"{subdomain!}.{CurrentUrl!}";
 
 #if DEBUG
         scheme = "http";
 #endif
 
-        return $"{scheme}://{CurrentUrl}{path}";
+        return $"{scheme}://{url}{path}";
     }
 
     public static string FormatServerScriptUrl(string jobId, uint placeId, int port)
