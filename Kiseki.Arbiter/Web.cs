@@ -27,11 +27,11 @@ public static class Web
 
         CurrentUrl = IsInMaintenance ? $"{Constants.MAINTENANCE_DOMAIN}.{Constants.BASE_URL}" : Constants.BASE_URL;
         
-        Task<int> health = GetHealth();
+        int health = GetHealth().GetAwaiter().GetResult();
 
-        if (health.Result != RESPONSE_SUCCESS)
+        if (health != RESPONSE_SUCCESS)
         {
-            if (health.Result == RESPONSE_MAINTENANCE)
+            if (health == RESPONSE_MAINTENANCE)
             {
                 IsInMaintenance = true;
             }
@@ -40,9 +40,9 @@ public static class Web
         }
 
         // If we've initialized, we certainly may identify ourselves!
-        Task<bool> identification = Identify();
+        bool identified = Identify().GetAwaiter().GetResult();
 
-        return identification.Result;
+        return identified;
     }
 
     public static bool License(string license)
