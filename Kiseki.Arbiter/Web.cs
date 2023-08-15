@@ -119,7 +119,7 @@ public static class Web
 
         Dictionary<string, string> data = new()
         {
-            { "timestamp", timestamp.ToUniversalIso8601() },
+            { "timestamp", timestamp.ToUnixTime().ToString() },
             { "exception", exception }
         };
 
@@ -132,7 +132,7 @@ public static class Web
 
         Dictionary<string, string> data = new()
         {
-            { "timestamp", timestamp.ToUniversalIso8601() },
+            { "timestamp", timestamp.ToUnixTime().ToString() },
             { "severity", ((int)severity).ToString() },
             { "message", message }
         };
