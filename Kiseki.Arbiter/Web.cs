@@ -103,7 +103,7 @@ public static class Web
 
     public static string FormatServerScriptUrl(string jobId, uint placeId, int port)
     {
-        return FormatUrl($"/arbiter/jobs/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
+        return FormatUrl($"/arbiter/job/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
     }
 
     public static async Task<int> GetHealth()
@@ -170,7 +170,7 @@ public static class Web
 
     public static async Task UpdateJob(string jobId, JobStatus status, int port = -1)
     {
-        string url = FormatUrl($"/arbiter/jobs/{jobId}");
+        string url = FormatUrl($"/arbiter/job/{jobId}");
 
         Dictionary<string, string> data = new()
         {
