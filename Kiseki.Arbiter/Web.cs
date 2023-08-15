@@ -170,7 +170,7 @@ public static class Web
 
     public static async Task UpdateJob(string jobId, JobStatus status, int port = -1)
     {
-        string url = FormatUrl($"/arbiter/job/{jobId}");
+        string url = FormatUrl($"/arbiter/job/{jobId}/status");
 
         Dictionary<string, string> data = new()
         {
