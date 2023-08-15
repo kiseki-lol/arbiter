@@ -9,7 +9,7 @@ public static class Web
     public const int RESPONSE_SUCCESS = 0;
     public const int RESPONSE_MAINTENANCE = 1;
 
-    public static Guid? GameServerId { get; private set; } = null;
+    public static Guid? GameServerUuid { get; private set; } = null;
     public static string? CurrentUrl { get; private set; } = null;
     public static bool IsInMaintenance { get; private set; } = false;
 
@@ -80,7 +80,7 @@ public static class Web
         try
         {
             var response = await Helpers.Http.PostJson<Models.Identification>(FormatUrl("/arbiter/identify"), data);
-            GameServerId = response?.GameServerId ?? null;
+            GameServerUuid = response?.GameServerUuid ?? null;
         }
         catch
         {
@@ -115,7 +115,7 @@ public static class Web
 
     public static async Task ReportFatal(DateTime timestamp, string exception)
     {
-        string url = FormatUrl($"/arbiter/{GameServerId}/fatal");
+        string url = FormatUrl($"/arbiter/{GameServerUuid}/fatal");
 
         Dictionary<string, string> data = new()
         {
@@ -128,7 +128,7 @@ public static class Web
 
     public static async Task ReportLog(DateTime timestamp, LogSeverity severity, string message)
     {
-        string url = FormatUrl($"/arbiter/{GameServerId}/log");
+        string url = FormatUrl($"/arbiter/{GameServerUuid}/log");
 
         Dictionary<string, string> data = new()
         {
@@ -137,7 +137,7 @@ public static class Web
             { "message", message }
         };
 
-        if (GameServerId == null)
+        if (GameServerUuid == null)
         {
             LogQueue.Add(data);
             return;
@@ -158,7 +158,7 @@ public static class Web
 
     public static async Task UpdateGameServerStatus(GameServerStatus state)
     {
-        string url = FormatUrl($"/arbiter/{GameServerId}/status");
+        string url = FormatUrl($"/arbiter/{GameServerUuid}/status");
 
         Dictionary<string, string> data = new()
         {

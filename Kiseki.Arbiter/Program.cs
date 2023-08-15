@@ -44,7 +44,7 @@ public class Program
         }
 
         Log.Write("Web::Initialize - OK", LogSeverity.Debug);
-        Log.Write($"Assigned game server ID is '{Web.GameServerId}'", LogSeverity.Boot);
+        Log.Write($"Assigned game server UUID is '{Web.GameServerUuid}'", LogSeverity.Boot);
 
         Log.Write("Starting service...", LogSeverity.Boot);
         
