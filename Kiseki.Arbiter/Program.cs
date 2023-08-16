@@ -39,7 +39,7 @@ public class Program
 
         if (!isConnected)
         {
-            Log.Write($"Failed to connect to {Constants.PROJECT_NAME}.", LogSeverity.Error);
+            Log.Write($"Failed to connect to {Constants.BASE_URL}.", LogSeverity.Error);
             return;
         }
 

@@ -109,7 +109,7 @@ public static class Web
 
     public static async Task<int> GetHealth()
     {
-        var response = await Helpers.Http.GetJson<Models.Health>(FormatUrl("/health"));
+        var response = await Helpers.Http.GetJson<Models.Health>(FormatUrl("/api/health"));
         
         return response?.Status ?? RESPONSE_FAILURE;
     }
