@@ -14,7 +14,7 @@ public class Program
 
         if (!Settings.Initialize())
         {
-            Log.Fatal("Failed to initialize settings. Does 'settings.json' exist in the arbiter's directory?");
+            Log.Fatal("Failed to initialize settings. Does 'AppSettings.json' exist in the arbiter's directory?");
             return;
         }
 
