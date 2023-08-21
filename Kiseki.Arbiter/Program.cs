@@ -14,17 +14,18 @@ public class Program
 
         if (!Settings.Initialize())
         {
-            Log.Fatal("Failed to initialize settings. Does AppSettings.json exist?");
+            Log.Fatal("Failed to initialize settings. Does 'settings.json' exist in the arbiter's directory?");
             return;
         }
 
-        Log.Write("Settings::Initialize - OK", LogSeverity.Debug);
+#if DEBUG
+        Log.Write("Settings::Initialize - OK!", LogSeverity.Debug);
+#endif
 
         bool isConnected = Web.Initialize();
         if (!isConnected && Web.IsInMaintenance)
         {
             // Try licensing this arbiter and attempt to connect again
-
             try
             {
                 Web.License(File.ReadAllText(Settings.GetLicensePath()!));
@@ -39,12 +40,15 @@ public class Program
 
         if (!isConnected)
         {
-            Log.Write($"Failed to connect to {Constants.BASE_URL}.", LogSeverity.Error);
+            Log.Write($"Failed to connect to {Constants.PROJECT_NAME}.", LogSeverity.Error);
             return;
         }
 
-        Log.Write("Web::Initialize - OK", LogSeverity.Debug);
-        Log.Write($"Assigned game server UUID is '{Web.GameServerUuid}'", LogSeverity.Boot);
+#if DEBUG
+        Log.Write("Web::Initialize - OK!", LogSeverity.Debug);
+#endif
+
+        Log.Write($"Assigned game server UUID is '{Web.GameServerUuid}'.", LogSeverity.Boot);
 
         Log.Write("Starting service...", LogSeverity.Boot);
         
@@ -52,19 +56,20 @@ public class Program
 
         if (port == -1)
         {
-            Log.Fatal("Failed to start arbiter service.");
+            Log.Fatal("Failed to start service.");
             return;
         }
 
         Log.Write($"Started service on port {port}.", LogSeverity.Boot);
+        Web.UpdateGameServerStatus(GameServerStatus.Online);
 
-        Console.CancelKeyPress += async delegate
+        Console.CancelKeyPress += delegate
         {
             Log.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
 
-            await Service.Stop();
+            Service.Stop();
 
-            await Web.UpdateGameServerStatus(GameServerStatus.Offline);
+            Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
 
         while (true)

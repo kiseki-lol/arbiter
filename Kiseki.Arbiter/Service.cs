@@ -4,11 +4,11 @@ public class Service
 {
     public static int Start()
     {
-        return -1;
+        return Settings.GetServicePort();
     }
 
-    public static async Task Stop()
+    public static void Stop()
     {
-        //
+        return;
     }
 }

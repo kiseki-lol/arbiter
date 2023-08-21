@@ -26,7 +26,7 @@ public static class Log
         Writer = new StreamWriter(filename);
     }
 
-    public static async void Write(string message, LogSeverity severity = LogSeverity.Information)
+    public static void Write(string message, LogSeverity severity = LogSeverity.Information)
     {
 #if RELEASE
         if (severity == LogSeverity.Debug)
@@ -38,7 +38,7 @@ public static class Log
         DateTime timestamp = DateTime.Now;
 
         // Spit to web
-        await Web.ReportLog(timestamp.ToUniversalTime(), severity, message);
+        Task.Run(() => Web.ReportLog(timestamp.ToUniversalTime(), severity, message));
 
         // Spit to file
         if (Writer != null)
@@ -55,12 +55,12 @@ public static class Log
         Print(timestamp, message, severity);
     }
 
-    public static async void Fatal(string exception)
+    public static void Fatal(string exception)
     {
         DateTime timestamp = DateTime.Now;
 
-        // Spit to web
-        await Web.ReportFatal(timestamp.ToUniversalTime(), exception);
+        // Spit to web (synchronously, since web needs to know first)
+        Web.ReportFatal(timestamp.ToUniversalTime(), exception);
 
         // Spit to file
         if (Writer != null)

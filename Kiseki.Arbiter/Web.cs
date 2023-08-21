@@ -18,8 +18,6 @@ public static class Web
 
     public static bool Initialize(bool setAccessKey = true)
     {
-        // All synchronous blocks here, since we're an initializing function!
-
         if (setAccessKey)
         {
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.GetAccessKey());
@@ -27,7 +25,7 @@ public static class Web
 
         CurrentUrl = IsInMaintenance ? $"{Constants.MAINTENANCE_DOMAIN}.{Constants.BASE_URL}" : Constants.BASE_URL;
         
-        int health = GetHealth().GetAwaiter().GetResult();
+        int health = GetHealth();
 
         if (health != RESPONSE_SUCCESS)
         {
@@ -39,8 +37,15 @@ public static class Web
             return false;
         }
 
-        // If we've initialized, we certainly may identify ourselves!
-        bool identified = Identify().GetAwaiter().GetResult();
+#if DEBUG
+        Log.Write($"Web::Initialize - Connected!", LogSeverity.Debug);
+#endif
+
+        bool identified = Identify();
+
+#if DEBUG
+        Log.Write($"Web::Initialize - Identified: {identified}", LogSeverity.Debug);
+#endif
 
         return identified;
     }
@@ -66,7 +71,7 @@ public static class Web
         return true;
     }
 
-    private static async Task<bool> Identify()
+    private static bool Identify()
     {
         string offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).ToString();
         offset = offset[..^3]; // "-07:00:00" -> "-07:00"
@@ -79,7 +84,7 @@ public static class Web
 
         try
         {
-            var response = await Helpers.Http.PostJson<Models.Identification>(FormatUrl("/arbiter/identify"), data);
+            var response = Helpers.Http.PostJson<Models.Identification>(FormatUrl("/arbiter/identify"), data);
             GameServerUuid = response?.GameServerUuid ?? null;
         }
         catch
@@ -107,14 +112,14 @@ public static class Web
         return FormatUrl($"/arbiter/job/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
     }
 
-    public static async Task<int> GetHealth()
+    public static int GetHealth()
     {
-        var response = await Helpers.Http.GetJson<Models.Health>(FormatUrl("/api/health"));
+        var response = Helpers.Http.GetJson<Models.Health>(FormatUrl("/health"));
         
         return response?.Status ?? RESPONSE_FAILURE;
     }
 
-    public static async Task ReportFatal(DateTime timestamp, string exception)
+    public static void ReportFatal(DateTime timestamp, string exception)
     {
         string url = FormatUrl($"/arbiter/{GameServerUuid}/fatal");
 
@@ -124,10 +129,10 @@ public static class Web
             { "exception", exception }
         };
 
-        await Helpers.Http.PostJson<object>(url, data);
+        Helpers.Http.PostJson<object>(url, data);
     }
 
-    public static async Task ReportLog(DateTime timestamp, LogSeverity severity, string message)
+    public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)
     {
         string url = FormatUrl($"/arbiter/{GameServerUuid}/log");
 
@@ -148,16 +153,16 @@ public static class Web
         {
             foreach (var log in LogQueue)
             {
-                await Helpers.Http.PostJson<object>(url, log);
+                Helpers.Http.PostJson<object>(url, log);
             }
 
             LogQueue.Clear();
         }
 
-        await Helpers.Http.PostJson<object>(url, data);
+        Helpers.Http.PostJson<object>(url, data);
     }
 
-    public static async Task UpdateGameServerStatus(GameServerStatus state)
+    public static void UpdateGameServerStatus(GameServerStatus state)
     {
         string url = FormatUrl($"/arbiter/{GameServerUuid}/status");
 
@@ -166,10 +171,10 @@ public static class Web
             { "status", ((int)state).ToString() }
         };
 
-        await Helpers.Http.PostJson<object>(url, data);
+        Helpers.Http.PostJson<object>(url, data);
     }
 
-    public static async Task UpdateJob(string jobId, JobStatus status, int port = -1)
+    public static void UpdateJob(string jobId, JobStatus status, int port = -1)
     {
         string url = FormatUrl($"/arbiter/job/{jobId}/status");
 
@@ -185,6 +190,6 @@ public static class Web
             data.Add("port", port.ToString());
         }
 
-        await Helpers.Http.PostJson<object>(url, data);
+        Helpers.Http.PostJson<object>(url, data);
     }
 }
