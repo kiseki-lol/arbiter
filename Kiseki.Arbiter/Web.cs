@@ -174,6 +174,21 @@ public static class Web
         Helpers.Http.PostJson<object>(url, data);
     }
 
+    public static void ReportResources(string ram, string cpu, string networkIn, string networkOut)
+    {
+        string url = FormatUrl($"/arbiter/resources");
+
+        Dictionary<string, string> data = new()
+        {
+            { "ram", ram },
+            { "cpu", cpu },
+            { "network_in", networkIn },
+            { "network_out", networkOut }
+        };
+
+        Helpers.Http.PostJson<object>(url, data);
+    }
+
     public static void UpdateGameServerStatus(GameServerStatus state)
     {
         string url = FormatUrl($"/arbiter/status");

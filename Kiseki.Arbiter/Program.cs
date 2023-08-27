@@ -63,7 +63,10 @@ public class Program
         }
 
         Log.Write($"Started service on port {port}.", LogSeverity.Boot);
+        
+        // And now we're up!
         Web.UpdateGameServerStatus(GameServerStatus.Online);
+        ResourceReporter.Start();
 
         Console.CancelKeyPress += delegate
         {
@@ -73,26 +76,6 @@ public class Program
 
             Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
-
-#if DEBUG
-        Task.Run(() => {
-            string[] text = {
-                "I'm a little teapot,",
-                "Short and stout.",
-                "Here is my handle,",
-                "Here is my spout.",
-                "When I get all steamed up,",
-                "Hear me shout,",
-                "Tip me over and pour me out!"
-            };
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                Log.Write(text[i], LogSeverity.Information);
-                Thread.Sleep(1000);
-            }
-        });
-#endif
 
         while (true)
         {
