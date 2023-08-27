@@ -10,6 +10,9 @@ public class AppSettings
     [JsonPropertyName("machine_address")]
     public string MachineAddress { get; set; } = "";
 
+    [JsonPropertyName("public_key_path")]
+    public string PublicKeyPath { get; set; } = "";
+
     [JsonPropertyName("license_path")]
     public string? LicensePath { get; set; } = null;
 
