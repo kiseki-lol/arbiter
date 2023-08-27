@@ -112,6 +112,11 @@ public static class Web
         return true;
     }
 
+    public static void Ping()
+    {
+        Helpers.Http.GetJson<object>(FormatUrl("/arbiter/ping"));
+    }
+
     public static string FormatUrl(string path, string? subdomain = null)
     {
         string scheme = "https";
