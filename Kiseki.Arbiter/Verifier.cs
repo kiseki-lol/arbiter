@@ -3,8 +3,8 @@ namespace Kiseki.Arbiter;
 using System.Security.Cryptography;
 
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 
 public static class Verifier
