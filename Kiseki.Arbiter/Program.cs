@@ -22,14 +22,16 @@ public class Program
         Log.Write("Settings::Initialize - OK!", LogSeverity.Debug);
 #endif
 
-        bool isConnected = Web.Initialize();
-        if (!isConnected && Web.IsInMaintenance)
+        Web.Initialize();
+
+        if (!Web.IsConnected && Web.IsInMaintenance)
         {
             // Try licensing this arbiter and attempt to connect again
+
             try
             {
                 Web.License(File.ReadAllText(Settings.GetLicensePath()!));
-                isConnected = Web.Initialize(false);
+                Web.Initialize(false);
             }
             catch
             {
@@ -38,7 +40,7 @@ public class Program
             }
         }
 
-        if (!isConnected)
+        if (!Web.IsConnected)
         {
             Log.Write($"Failed to connect to {Constants.PROJECT_NAME}.", LogSeverity.Error);
             return;
@@ -71,6 +73,26 @@ public class Program
 
             Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
+
+#if DEBUG
+        Task.Run(() => {
+            string[] text = {
+                "I'm a little teapot,",
+                "Short and stout.",
+                "Here is my handle,",
+                "Here is my spout.",
+                "When I get all steamed up,",
+                "Hear me shout,",
+                "Tip me over and pour me out!"
+            };
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                Log.Write(text[i], LogSeverity.Information);
+                Thread.Sleep(1000);
+            }
+        });
+#endif
 
         while (true)
         {

@@ -11,12 +11,13 @@ public static class Web
 
     public static Guid? GameServerUuid { get; private set; } = null;
     public static string? CurrentUrl { get; private set; } = null;
+    public static bool IsConnected { get; private set; } = false;
     public static bool IsInMaintenance { get; private set; } = false;
 
     private static readonly List<Dictionary<string, string>> LogQueue = new();
     public static readonly HttpClient HttpClient = new();
 
-    public static bool Initialize(bool setAccessKey = true)
+    public static void Initialize(bool setAccessKey = true)
     {
         if (setAccessKey)
         {
@@ -34,7 +35,7 @@ public static class Web
                 IsInMaintenance = true;
             }
 
-            return false;
+            return;
         }
 
 #if DEBUG
@@ -44,10 +45,30 @@ public static class Web
         bool identified = Identify();
 
 #if DEBUG
-        Log.Write($"Web::Initialize - Identified: {identified}", LogSeverity.Debug);
+        string state = identified ? "YES" : "NO";
+        Log.Write($"Web::Initialize - Identified: {state}!", LogSeverity.Debug);
 #endif
 
-        return identified;
+        if (identified && LogQueue.Count > 0)
+        {
+#if DEBUG
+            int count = LogQueue.Count + 1; // +1 to account for the log below which will be queued :P
+            Log.Write($"Web::Initialize - Pushing {count} queued logs...", LogSeverity.Debug);
+#endif
+
+            foreach (var log in LogQueue)
+            {
+                Helpers.Http.PostJson<object>(FormatUrl($"/arbiter/{GameServerUuid}/log"), log);
+            }
+
+            LogQueue.Clear();
+
+#if DEBUG
+            Log.Write($"Web::Initialize - Pushed {count} logs!", LogSeverity.Debug);
+#endif
+        }
+
+        IsConnected = true;
     }
 
     public static bool License(string license)
@@ -72,14 +93,10 @@ public static class Web
     }
 
     private static bool Identify()
-    {
-        string offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).ToString();
-        offset = offset[..^3]; // "-07:00:00" -> "-07:00"
-        
+    {        
         Dictionary<string, string> data = new()
         {
-            { "machine_name", Environment.MachineName },
-            { "utc_offset", offset }
+            { "machine_name", Environment.MachineName }
         };
 
         try
@@ -143,20 +160,10 @@ public static class Web
             { "message", message }
         };
 
-        if (GameServerUuid == null)
+        if (!IsConnected)
         {
             LogQueue.Add(data);
             return;
-        }
-
-        if (LogQueue.Count > 0)
-        {
-            foreach (var log in LogQueue)
-            {
-                Helpers.Http.PostJson<object>(url, log);
-            }
-
-            LogQueue.Clear();
         }
 
         Helpers.Http.PostJson<object>(url, data);
