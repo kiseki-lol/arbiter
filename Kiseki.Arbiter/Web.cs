@@ -58,7 +58,7 @@ public static class Web
 
             foreach (var log in LogQueue)
             {
-                Helpers.Http.PostJson<object>(FormatUrl($"/arbiter/{GameServerUuid}/log"), log);
+                Helpers.Http.PostJson<object>(FormatUrl($"/arbiter/log"), log);
             }
 
             LogQueue.Clear();
@@ -114,7 +114,7 @@ public static class Web
 
     public static void Ping()
     {
-        Helpers.Http.GetJson<object>(FormatUrl("/arbiter/ping"));
+        Helpers.Http.GetJson<object>(FormatUrl($"/arbiter/ping"));
     }
 
     public static string FormatUrl(string path, string? subdomain = null)
@@ -143,7 +143,7 @@ public static class Web
 
     public static void ReportFatal(DateTime timestamp, string exception)
     {
-        string url = FormatUrl($"/arbiter/{GameServerUuid}/fatal");
+        string url = FormatUrl($"/arbiter/fatal");
 
         Dictionary<string, string> data = new()
         {
@@ -156,7 +156,7 @@ public static class Web
 
     public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)
     {
-        string url = FormatUrl($"/arbiter/{GameServerUuid}/log");
+        string url = FormatUrl($"/arbiter/log");
 
         Dictionary<string, string> data = new()
         {
@@ -176,7 +176,7 @@ public static class Web
 
     public static void UpdateGameServerStatus(GameServerStatus state)
     {
-        string url = FormatUrl($"/arbiter/{GameServerUuid}/status");
+        string url = FormatUrl($"/arbiter/status");
 
         Dictionary<string, string> data = new()
         {
