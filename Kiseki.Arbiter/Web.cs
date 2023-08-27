@@ -109,7 +109,7 @@ public static class Web
             return false;
         }
 
-        return true;
+        return GameServerUuid != null;
     }
 
     public static void Ping()
