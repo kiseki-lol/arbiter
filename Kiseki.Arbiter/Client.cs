@@ -5,9 +5,9 @@ using System.Net.Sockets;
 
 public class Client
 {
-    public string IpAddress { get; private set; } = "";
-    public int Port { get; private set; } = -1;
-    public Socket Socket { get; set; }
+    public string? IpAddress { get; private set; }
+    public int? Port { get; private set; }
+    public Socket Socket { get; private set; }
 
     public Client(Socket socket)
     {
@@ -28,7 +28,7 @@ public class Client
             Port = local.Port;
         }
 
-        if (local == null || remote == null)
+        if (local == null && remote == null)
         {
             throw new("Failed to resolve information from socket");
         }

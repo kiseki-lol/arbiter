@@ -2,24 +2,25 @@ namespace Kiseki.Arbiter;
 
 public class Message
 {
-    public byte[]? Data { get; private set; } = null;
-    public Proto.Signal? Signal { get; private set; } = null;
-    public byte[]? Signature { get; private set; } = null;
+    public byte[] Data { get; private set; }
+    public Proto.Signal Signal { get; private set; }
+    public byte[] Signature { get; private set; }
 
-    public Message(byte[]? data, Proto.Signal? signal, byte[]? signature)
+    public Message(byte[] data, Proto.Signal signal, byte[] signature)
     {
         Data = data;
         Signal = signal;
         Signature = signature;
     }
 
-    public static bool TryParse(byte[] buffer, out Message message)
+    public static bool TryParse(byte[] buffer, out Message? message)
     {
-        message = new Message(null, null, null);
+        message = null;
 
         /*
+         * The Kiseki arbiter message format is as follows: 
          * 0x02      0x00 0x00 0x00 0x00 0x02      0x00 0x00 .. ..     0x02      0x00 0x00 .. ..
-         * (STX)     (UINT8)   (UINT8)   (STX)     (UINT8)   (DATA)    (STX)     (UINT8)   (DATA)
+         * (STX)     (UINT16)  (UINT16)  (STX)     (UINT16)  (DATA)    (STX)     (UINT16)  (DATA)
          * (MSGREAD) (MSGSIZE) (CHKSUM)  (SIGREAD) (SIGSIZE) (SIGDATA) (BUFREAD) (BUFSIZE) (BUFDATA)
          */
 
