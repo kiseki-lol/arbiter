@@ -1,5 +1,4 @@
 syntax = "proto3";
-package Kiseki;
 
 option csharp_namespace = "Kiseki.Arbiter.Proto";
 option php_namespace = "App\\Proto";

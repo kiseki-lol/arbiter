@@ -1,12 +1,12 @@
 namespace Kiseki.Arbiter;
 
-public class Client
+public class TcpClient
 {
     public string? IpAddress { get; private set; }
     public int? Port { get; private set; }
     public Socket Socket { get; private set; }
 
-    public Client(Socket socket)
+    public TcpClient(Socket socket)
     {
         Socket = socket;
 

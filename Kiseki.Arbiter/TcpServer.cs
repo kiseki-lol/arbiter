@@ -7,10 +7,10 @@ internal class SocketState
     public byte[] Buffer = new byte[1024];
     public ushort Size = 0;
     public Socket? Socket = null;
-    public Client? Client;
+    public TcpClient? TcpClient;
 }
 
-public class Service
+public class TcpServer
 {
     private static readonly ManualResetEvent Finished = new(false);
     private static Socket? Listener;
@@ -18,7 +18,7 @@ public class Service
 
     public static int Start()
     {
-        const string LOG_IDENT = "Service::Start";
+        const string LOG_IDENT = "TcpServer::Start";
 
         IPEndPoint localEndPoint = new(IPAddress.Any, Settings.GetServicePort());
 
@@ -48,7 +48,7 @@ public class Service
         }
         catch (Exception ex)
         {
-            Logger.Write(LOG_IDENT, $"Failed to start service: {ex}", LogSeverity.Error);
+            Logger.Write(LOG_IDENT, $"Failed to start TcpServer: {ex}", LogSeverity.Error);
 
             return -1;
         }
@@ -74,10 +74,10 @@ public class Service
 
     private static void AcceptCallback(IAsyncResult result)
     {
-        const string LOG_IDENT = "Service::AcceptCallback";
+        const string LOG_IDENT = "TcpServer::AcceptCallback";
 
         Socket? handler = null;
-        Client? client = null;
+        TcpClient? TcpClient = null;
 
         try
         {
@@ -86,9 +86,9 @@ public class Service
             Socket listener = (Socket)result.AsyncState!;
             
             handler = listener.EndAccept(result);
-            client = new(handler);
+            TcpClient = new(handler);
 
-            Logger.Write(LOG_IDENT, $"Machine '{client.IpAddress}' connected on port {client.Port}.", LogSeverity.Event);
+            Logger.Write(LOG_IDENT, $"Machine '{TcpClient.IpAddress}' connected on port {TcpClient.Port}.", LogSeverity.Event);
         }
         catch (Exception ex)
         {
@@ -103,7 +103,7 @@ public class Service
         SocketState state = new()
         {
             Socket = handler,
-            Client = client
+            TcpClient = TcpClient
         };
 
         handler!.BeginReceive(state.Buffer, 0, 1024, 0, new(ReadCallback), state);
@@ -111,7 +111,7 @@ public class Service
 
     private static void ReadCallback(IAsyncResult result)
     {
-        const string LOG_IDENT = "Service::ReadCallback";
+        const string LOG_IDENT = "TcpServer::ReadCallback";
 
         SocketState state = (SocketState)result.AsyncState!;
         Socket handler = state.Socket!;
@@ -127,7 +127,7 @@ public class Service
 
             if (state.Buffer[0] != 0x02)
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.Client!.IpAddress}' did not send a valid message (no MSGREAD byte).", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no MSGREAD byte).", LogSeverity.Warning);
                 handler.Close();
             }
 
@@ -154,7 +154,7 @@ public class Service
                 }
                 catch
                 {
-                    Logger.Write(LOG_IDENT, $"Machine '{state.Client!.IpAddress}' did not send a valid message (no MSGSIZE bytes).", LogSeverity.Warning);
+                    Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no MSGSIZE bytes).", LogSeverity.Warning);
                     handler.Close();
 
                     return;
@@ -162,7 +162,7 @@ public class Service
 
                 if (size < ushort.MinValue || size > ushort.MaxValue)
                 {
-                    Logger.Write(LOG_IDENT, $"Machine '{state.Client!.IpAddress}' did not send a valid message (MSGSIZE was out of range).", LogSeverity.Warning);
+                    Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (MSGSIZE was out of range).", LogSeverity.Warning);
                     handler.Close();
                 }
 
@@ -177,7 +177,7 @@ public class Service
             // If we've reached this far, we should now be able to parse this into a workable message.
             if (!Message.TryParse(state.Buffer, out Message? message))
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.Client!.IpAddress}' did not send a valid message.", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message.", LogSeverity.Warning);
                 handler.Close();
                 
                 return;
@@ -186,7 +186,7 @@ public class Service
             // Verify signature
             if (!Verifier.Verify(message!.Data!, message.Signature!))
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.Client!.IpAddress}' sent a message with a bad or malformed signature.", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' sent a message with a bad or malformed signature.", LogSeverity.Warning);
                 handler.Close();
 
                 return;
@@ -196,12 +196,12 @@ public class Service
             int elapsed = DateTime.Now.ToUnixTime() - message.Signal!.Nonce.ToDateTime().ToUnixTime();
             if (elapsed > 10)
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.Client!.IpAddress}' sent an expired message (was {elapsed - 10} seconds past expiry).", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' sent an expired message (was {elapsed - 10} seconds past expiry).", LogSeverity.Warning);
                 handler.Close();
             }
 
             // Process and send response data
-            SendData(handler, ProcessSignal(message.Signal, state.Client!));
+            SendData(handler, ProcessSignal(message.Signal, state.TcpClient!));
         }
         catch (Exception ex)
         {
@@ -211,7 +211,7 @@ public class Service
 
     private static void SendCallback(IAsyncResult result)
     {
-        const string LOG_IDENT = "Service::SendCallback";
+        const string LOG_IDENT = "TcpServer::SendCallback";
 
         try
         {
@@ -229,7 +229,7 @@ public class Service
 
     private static void SendData(Socket handler, byte[] data)
     {
-        const string LOG_IDENT = "Service::SendData";
+        const string LOG_IDENT = "TcpServer::SendData";
 
         try
         {
@@ -241,7 +241,7 @@ public class Service
         }
     }
 
-    private static byte[] ProcessSignal(Proto.Signal signal, Client client)
+    private static byte[] ProcessSignal(Proto.Signal signal, TcpClient TcpClient)
     {
         return new byte[1024];
     }

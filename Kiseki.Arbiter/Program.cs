@@ -46,7 +46,7 @@ public class Program
         Logger.Write($"Assigned game server UUID is '{Web.GameServerUuid}'.", LogSeverity.Boot);
         Logger.Write("Starting service...", LogSeverity.Boot);
         
-        int port = Service.Start();
+        int port = TcpServer.Start();
 
         if (port == -1)
         {
@@ -58,13 +58,13 @@ public class Program
         
         // We're up!
         Web.UpdateGameServerStatus(GameServerStatus.Online);
-        Monitor.Start();
+        ResourceMonitor.Start();
 
         Console.CancelKeyPress += delegate
         {
             Logger.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
 
-            Service.Stop();
+            TcpServer.Stop();
 
             Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
