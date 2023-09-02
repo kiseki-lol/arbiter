@@ -28,16 +28,27 @@ public class Service
             Listener.Bind(localEndPoint);
             Listener.Listen(100);
         }
-        finally
+        catch (Exception ex)
         {
-            try
+            Logger.Write(LOG_IDENT, $"Failed to bind to port {Settings.GetServicePort()}: {ex}", LogSeverity.Error);
+
+            if (ex is SocketException)
             {
-                Task.Run(ListenForConnections);
+                Logger.Write(LOG_IDENT, $"Is another instance of {Constants.PROJECT_NAME}.Arbiter running?", LogSeverity.Error);
             }
-            catch (Exception ex)
-            {
-                Logger.Write(LOG_IDENT, $"Failed to start service: {ex}", LogSeverity.Error);
-            }
+
+            return -1;
+        }
+
+        try
+        {
+            Task.Run(ListenForConnections);
+        }
+        catch (Exception ex)
+        {
+            Logger.Write(LOG_IDENT, $"Failed to start service: {ex}", LogSeverity.Error);
+
+            return -1;
         }
 
         return Settings.GetServicePort();
@@ -76,16 +87,20 @@ public class Service
 
             Logger.Write(LOG_IDENT, $"Machine '{client.IpAddress}' connected on port {client.Port}.", LogSeverity.Event);
         }
-        finally
+        catch (Exception ex)
         {
-            SocketState state = new()
-            {
-                Socket = handler,
-                Client = client
-            };
+            Logger.Write(LOG_IDENT, $"Failed to accept connection: {ex}", LogSeverity.Error);
 
-            handler!.BeginReceive(state.Buffer, 0, 1024, 0, new(ReadCallback), state);
+            return;
         }
+
+        SocketState state = new()
+        {
+            Socket = handler,
+            Client = client
+        };
+
+        handler!.BeginReceive(state.Buffer, 0, 1024, 0, new(ReadCallback), state);
     }
 
     private static void ReadCallback(IAsyncResult result)
