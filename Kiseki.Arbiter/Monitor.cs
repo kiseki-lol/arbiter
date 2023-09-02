@@ -6,6 +6,8 @@ public static class Monitor
 
     public static void Start()
     {
+        const string LOG_IDENT = "Monitor::Start";
+
         Task.Run(async () => {
             var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(REPORT_TIMEOUT));
 
@@ -14,6 +16,8 @@ public static class Monitor
                 Report();
             }
         });
+
+        Logger.Write(LOG_IDENT, "Started arbiter resource monitor!", LogSeverity.Debug);
     }
 
     public static void Report()

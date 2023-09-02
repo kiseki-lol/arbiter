@@ -41,6 +41,8 @@ public class Program
             return;
         }
 
+        Verifier.Initialize();
+
         Logger.Write($"Assigned game server UUID is '{Web.GameServerUuid}'.", LogSeverity.Boot);
         Logger.Write("Starting service...", LogSeverity.Boot);
         
