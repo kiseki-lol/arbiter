@@ -1,0 +1,59 @@
+syntax = "proto3";
+package Kiseki;
+
+option csharp_namespace = "Kiseki.Arbiter.Proto";
+option php_namespace = "App\\Proto";
+
+import "google/protobuf/timestamp.proto";
+
+enum Operation {
+    OPEN_JOB = 0;
+    CLOSE_JOB = 1;
+    EXECUTE_SCRIPT = 2;
+    CLOSE_ALL_JOBS = 4;
+    THUMBNAIL = 6;
+}
+
+enum ClientVersion {
+    NONE = 0;
+    ELEVEN = 2011;
+}
+
+enum AssetType {
+    CLOTHING = 0;
+    HEAD = 1;
+    MESH = 2;
+    PLACE = 3;
+    USER = 4;
+    HEADSHOT = 5;
+    XML = 6;
+}
+
+message Signal {
+    google.protobuf.Timestamp nonce = 1;
+    string jobId = 2;
+    Operation operation = 3;
+    ClientVersion version = 4;
+
+    message Place {
+        uint32 placeId = 1;
+        string script = 2;
+        uint32 expirationInSeconds = 3;
+    }
+
+    message Thumbnail {
+        AssetType type = 1;
+        uint32 assetId = 2;
+        string accessKey = 3;
+    }
+
+    repeated Place place = 5;
+    repeated Thumbnail thumbnail = 6;
+}
+
+message Response {
+    Operation operation = 1;
+    bool success = 2;
+    string message = 3;
+    string data = 4;
+}
