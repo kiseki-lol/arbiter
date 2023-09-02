@@ -14,6 +14,7 @@ public class Service
 {
     private static readonly ManualResetEvent Finished = new(false);
     private static Socket? Listener;
+    private static bool IsListening = false;
 
     public static int Start()
     {
@@ -42,6 +43,7 @@ public class Service
 
         try
         {
+            IsListening = true;
             Task.Run(ListenForConnections);
         }
         catch (Exception ex)
@@ -56,12 +58,13 @@ public class Service
 
     public static void Stop()
     {
+        IsListening = false;
         Listener!.Close();
     }
 
     private static void ListenForConnections()
     {
-        while (true)
+        while (IsListening)
         {
             Finished.Reset();
             Listener!.BeginAccept(new(AcceptCallback), Listener);
@@ -89,7 +92,10 @@ public class Service
         }
         catch (Exception ex)
         {
-            Logger.Write(LOG_IDENT, $"Failed to accept connection: {ex}", LogSeverity.Error);
+            if (IsListening)
+            {
+                Logger.Write(LOG_IDENT, $"Failed to accept connection: {ex}", LogSeverity.Error);
+            }
 
             return;
         }

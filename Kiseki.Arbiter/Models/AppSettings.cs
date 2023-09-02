@@ -15,8 +15,8 @@ public class AppSettings
     public string? LicensePath { get; set; } = null;
 
     [JsonPropertyName("service_port")]
-    public int ServicePort { get; set; } = 0;
+    public int ServicePort { get; set; } = 64989;
 
     [JsonPropertyName("base_job_port")]
-    public int BasePort { get; set; } = 0;
+    public int BasePort { get; set; } = 53640;
 }

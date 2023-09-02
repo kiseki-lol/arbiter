@@ -12,8 +12,10 @@ public static class Settings
         {
             AppSettings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(Path.Combine(Paths.Base, "AppSettings.json")))!;
         }
-        catch
+        catch (Exception ex)
         {
+            Logger.Write(LOG_IDENT, $"Failed: {ex}", LogSeverity.Debug);
+
             return false;
         }
 

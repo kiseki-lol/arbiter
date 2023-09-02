@@ -13,6 +13,8 @@ public static class Verifier
 
     public static bool Initialize()
     {
+        const string LOG_IDENT = "Verifier::Initialize";
+
         try
         {
             using TextReader reader = new StringReader(File.ReadAllText(Settings.GetPublicKeyPath()));
@@ -24,10 +26,14 @@ public static class Verifier
             rsa = new();
             rsa.ImportParameters(rsaParams);
         }
-        catch
+        catch (Exception ex)
         {
+            Logger.Write(LOG_IDENT, $"Failed: {ex}", LogSeverity.Debug);
+
             return false;
         }
+
+        Logger.Write(LOG_IDENT, "OK!", LogSeverity.Debug);
 
         return true;
     }

@@ -32,11 +32,16 @@ public static class Web
             return;
         }
 
-        Logger.Write(LOG_IDENT, "Connected!", LogSeverity.Debug);
+        Logger.Write(LOG_IDENT, $"Connected to {Constants.PROJECT_NAME}!", LogSeverity.Debug);
 
         bool identified = Identify();
 
-        Logger.Write(LOG_IDENT, $"{(identified ? "Successfully identified!" : "Failed identification check.")}!", LogSeverity.Debug);
+        Logger.Write(LOG_IDENT, $"{(identified ? "Successfully identified!" : "Failed identification check.")}", LogSeverity.Debug);
+
+        if (!identified)
+        {
+            return;
+        }
 
         IsConnected = true;
 
@@ -47,7 +52,7 @@ public static class Web
                 Http.PostJson<object>(FormatUrl($"/arbiter/log"), log);
             }
 
-            Logger.Write(LOG_IDENT, $"Pushed ${LogQueue.Count} queued log(s)!", LogSeverity.Debug);
+            Logger.Write(LOG_IDENT, $"Pushed {LogQueue.Count} queued log(s)!", LogSeverity.Debug);
 
             LogQueue.Clear();
         }
