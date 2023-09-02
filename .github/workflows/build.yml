@@ -8,7 +8,7 @@ jobs:
         configuration: [Debug, Release]
 
     name: Windows
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -30,4 +30,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Kiseki.Arbiter (${{ matrix.configuration }})
-        path: .\Kiseki.Arbiter\bin\${{ matrix.configuration }}\net7.0-windows\win-x64\publish\*
+        path: ./Kiseki.Arbiter/bin/${{ matrix.configuration }}/net7.0/win-x64/publish/*
