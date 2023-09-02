@@ -18,10 +18,16 @@ public class Message
         message = null;
 
         /*
-         * The Kiseki arbiter message format is as follows: 
          * 0x02      0x00 0x00 0x00 0x00 0x02      0x00 0x00 .. ..     0x02      0x00 0x00 .. ..
          * (STX)     (UINT16)  (UINT16)  (STX)     (UINT16)  (DATA)    (STX)     (UINT16)  (DATA)
          * (MSGREAD) (MSGSIZE) (CHKSUM)  (SIGREAD) (SIGSIZE) (SIGDATA) (BUFREAD) (BUFSIZE) (BUFDATA)
+         *
+         * Key notes:
+         * - MSGSIZE is the size of everything AFTER it (including CHKSUM.)
+         * - SIGSIZE is more of a sanity check than anything -- its always expected to be 256.
+         * - CHKSUM is the sum of all bytes after it. This means its a checksum of the signature and buffer.
+         * - The buffer always will contain the signal in byte form (encoded via ProtoBuf.)
+         * - The first 3 bytes (i.e. MSGREAD, MSGSIZE) are mostly to assist the arbiter's TCP service.
          */
 
         ushort msgSize;
@@ -72,11 +78,11 @@ public class Message
         bufData = new byte[bufSize];
         Buffer.BlockCopy(buffer, 8 + sigSize + 3, bufData, 0, bufSize - 1);
 
-        // Check signature length (should be 256 bytes; is SHA256)
+        // Check signature length (should be always 256 bytes because the signature is always SHA256)
         if (sigSize != 256)
             return false;
 
-        // Convert signal
+        // Parse signal
         Proto.Signal signal;
         
         try

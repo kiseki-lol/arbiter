@@ -1,21 +1,23 @@
 namespace Kiseki.Arbiter;
 
-using System.Text.Json;
-
 public static class Settings
 {
-    private static Models.AppSettings? AppSettings;
+    private static AppSettings? AppSettings;
     
     public static bool Initialize()
     {
+        const string LOG_IDENT = "Settings::Initialize";
+
         try
         {
-            AppSettings = JsonSerializer.Deserialize<Models.AppSettings>(File.ReadAllText(Path.Combine(Paths.Base, "AppSettings.json")))!;
+            AppSettings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(Path.Combine(Paths.Base, "AppSettings.json")))!;
         }
         catch
         {
             return false;
         }
+
+        Logger.Write(LOG_IDENT, "OK!", LogSeverity.Debug);
 
         return true;
     }

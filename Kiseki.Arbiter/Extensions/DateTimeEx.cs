@@ -1,4 +1,4 @@
-namespace Kiseki.Arbiter;
+namespace Kiseki.Arbiter.Extensions;
 
 public static class DateTimeEx
 {

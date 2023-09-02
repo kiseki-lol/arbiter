@@ -1,6 +1,4 @@
-namespace Kiseki.Arbiter.Helpers;
-
-using System.Text.Json;
+namespace Kiseki.Arbiter.Utilities;
 
 public static class Http
 {

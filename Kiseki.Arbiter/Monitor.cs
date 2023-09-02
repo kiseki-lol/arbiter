@@ -1,20 +1,17 @@
 namespace Kiseki.Arbiter;
 
-using System.Diagnostics;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices;
-
-public static class ResourceReporter
+public static class Monitor
 {
-    public const int REPORT_TIMEOUT = 15 * 1000; // 15sec
+    public const int REPORT_TIMEOUT = 15 * 1000; // Measured in milliseconds
 
     public static void Start()
     {
-        Task.Run(() => {
-            while (true)
+        Task.Run(async () => {
+            var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(REPORT_TIMEOUT));
+
+            while (await timer.WaitForNextTickAsync())
             {
                 Report();
-                Thread.Sleep(REPORT_TIMEOUT);
             }
         });
     }

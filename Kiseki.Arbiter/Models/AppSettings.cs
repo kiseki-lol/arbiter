@@ -1,7 +1,5 @@
 namespace Kiseki.Arbiter.Models;
 
-using System.Text.Json.Serialization;
-
 public class AppSettings
 {
     [JsonPropertyName("access_key")]

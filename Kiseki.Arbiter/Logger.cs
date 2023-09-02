@@ -1,10 +1,10 @@
 namespace Kiseki.Arbiter;
 
-public static class Log
+public static class Logger
 {
     private static readonly StreamWriter? Writer;
 
-    static Log()
+    static Logger()
     {
         string filename = Path.Combine(Paths.Base, "latest.log");
 
@@ -53,6 +53,8 @@ public static class Log
         // Spit to user
         Print(timestamp, message, severity);
     }
+
+    public static void Write(string identification, string message, LogSeverity severity = LogSeverity.Information) => Write($"[{identification}] {message}", severity);
 
     public static void Fatal(string exception)
     {

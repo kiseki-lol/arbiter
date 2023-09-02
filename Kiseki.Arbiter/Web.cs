@@ -1,14 +1,7 @@
 namespace Kiseki.Arbiter;
 
-using System.Net.Http.Headers;
-using System.Text.Json;
-
 public static class Web
 {
-    public const int RESPONSE_FAILURE = -1;
-    public const int RESPONSE_SUCCESS = 0;
-    public const int RESPONSE_MAINTENANCE = 1;
-
     public static Guid? GameServerUuid { get; private set; } = null;
     public static string? CurrentUrl { get; private set; } = null;
     public static bool IsConnected { get; private set; } = false;
@@ -19,6 +12,8 @@ public static class Web
 
     public static void Initialize(bool setAccessKey = true)
     {
+        const string LOG_IDENT = "Web::Initialize";
+
         if (setAccessKey)
         {
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.GetAccessKey());
@@ -26,11 +21,10 @@ public static class Web
 
         CurrentUrl = IsInMaintenance ? $"{Constants.MAINTENANCE_DOMAIN}.{Constants.BASE_URL}" : Constants.BASE_URL;
         
-        int health = GetHealth();
-
-        if (health != RESPONSE_SUCCESS)
+        Healthiness health = GetHealth();
+        if (health != Healthiness.Normal)
         {
-            if (health == RESPONSE_MAINTENANCE)
+            if (health == Healthiness.Maintenance)
             {
                 IsInMaintenance = true;
             }
@@ -38,37 +32,27 @@ public static class Web
             return;
         }
 
-#if DEBUG
-        Log.Write($"Web::Initialize - Connected!", LogSeverity.Debug);
-#endif
+        Logger.Write(LOG_IDENT, "Connected!", LogSeverity.Debug);
 
         bool identified = Identify();
 
-#if DEBUG
-        string state = identified ? "YES" : "NO";
-        Log.Write($"Web::Initialize - Identified: {state}!", LogSeverity.Debug);
-#endif
+        Logger.Write(LOG_IDENT, $"{(identified ? "Successfully identified!" : "Failed identification check.")}!", LogSeverity.Debug);
+
+        IsConnected = true;
 
         if (identified && LogQueue.Count > 0)
         {
-#if DEBUG
-            int count = LogQueue.Count + 1; // +1 to account for the log below which will be queued :P
-            Log.Write($"Web::Initialize - Pushing {count} queued logs...", LogSeverity.Debug);
-#endif
-
             foreach (var log in LogQueue)
             {
-                Helpers.Http.PostJson<object>(FormatUrl($"/arbiter/log"), log);
+                Http.PostJson<object>(FormatUrl($"/arbiter/log"), log);
             }
 
-            LogQueue.Clear();
+            Logger.Write(LOG_IDENT, $"Pushed ${LogQueue.Count} queued log(s)!", LogSeverity.Debug);
 
-#if DEBUG
-            Log.Write($"Web::Initialize - Pushed {count} logs!", LogSeverity.Debug);
-#endif
+            LogQueue.Clear();
         }
 
-        IsConnected = true;
+        Logger.Write(LOG_IDENT, $"OK!", LogSeverity.Debug);
     }
 
     public static bool License(string license)
@@ -101,7 +85,7 @@ public static class Web
 
         try
         {
-            var response = Helpers.Http.PostJson<Models.Identification>(FormatUrl("/arbiter/identify"), data);
+            var response = Http.PostJson<Identification>(FormatUrl("/arbiter/identify"), data);
             GameServerUuid = response?.GameServerUuid ?? null;
         }
         catch
@@ -114,7 +98,7 @@ public static class Web
 
     public static void Ping()
     {
-        Helpers.Http.GetJson<object>(FormatUrl($"/arbiter/ping"));
+        Http.GetJson<object>(FormatUrl($"/arbiter/ping"));
     }
 
     public static string FormatUrl(string path, string? subdomain = null)
@@ -134,11 +118,11 @@ public static class Web
         return FormatUrl($"/arbiter/job/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
     }
 
-    public static int GetHealth()
+    public static Healthiness GetHealth()
     {
-        var response = Helpers.Http.GetJson<Models.Health>(FormatUrl("/health"));
+        var response = Http.GetJson<Health>(FormatUrl("/health"));
         
-        return response?.Status ?? RESPONSE_FAILURE;
+        return response?.Status ?? Healthiness.Dead;
     }
 
     public static void ReportFatal(DateTime timestamp, string exception)
@@ -151,7 +135,7 @@ public static class Web
             { "exception", exception }
         };
 
-        Helpers.Http.PostJson<object>(url, data);
+        Http.PostJson<object>(url, data);
     }
 
     public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)
@@ -171,7 +155,7 @@ public static class Web
             return;
         }
 
-        Helpers.Http.PostJson<object>(url, data);
+        Http.PostJson<object>(url, data);
     }
 
     public static void ReportResources(string ram, string cpu, string networkIn, string networkOut)
@@ -186,7 +170,7 @@ public static class Web
             { "network_out", networkOut }
         };
 
-        Helpers.Http.PostJson<object>(url, data);
+        Http.PostJson<object>(url, data);
     }
 
     public static void UpdateGameServerStatus(GameServerStatus state)
@@ -198,7 +182,7 @@ public static class Web
             { "status", ((int)state).ToString() }
         };
 
-        Helpers.Http.PostJson<object>(url, data);
+        Http.PostJson<object>(url, data);
     }
 
     public static void UpdateJob(string jobId, JobStatus status, int port = -1)
@@ -217,6 +201,6 @@ public static class Web
             data.Add("port", port.ToString());
         }
 
-        Helpers.Http.PostJson<object>(url, data);
+        Http.PostJson<object>(url, data);
     }
 }
