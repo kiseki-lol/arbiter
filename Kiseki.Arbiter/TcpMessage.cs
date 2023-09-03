@@ -2,9 +2,6 @@ namespace Kiseki.Arbiter;
 
 /**
  * TCP message format (from start to end):
- * 
- * - Message start (SOH, 0x01) **Discarded after processing**
- * - Message size (uint16, 2 bytes) **Discarded after processing**
  *
  * - Signature read (SOH, 0x01)
  * - Signature size (uint16, 2 bytes)
@@ -17,8 +14,11 @@ namespace Kiseki.Arbiter;
  * Notes:
  * - 6 total control bytes
  * - Minimum of 8 bytes for a message (6 control bytes + 2 buffers with a minimum of 1 byte)
- * - Annotated offsets are included for readability but are meaningless on their own. Please see TcpMessage::TryParse
+ * - Annotated offsets are included for readability but are meaningless on their own -- see TcpMessage::TryParse
+ * - An envelope contains header information (3 bytes, a SOH byte and a uint16 representing total size) message (TcpMessage). Envelopes are what the TcpServer always expects to receive
  */
+
+using MessagePack;
 
 public class TcpMessage
 {
@@ -26,13 +26,13 @@ public class TcpMessage
     public byte[] Signature { get; private set; }
     public byte[] Raw { get; private set; }
 
-    private const int MINIMUM_LENGTH = 8;
+    private const int MINIMUM_LENGTH         = 6 + 2;
     private const int SIGNATURE_START_OFFSET = 0;
-    private const int SIGNATURE_SIZE_OFFSET = 1;
-    private const int SIGNATURE_DATA_OFFSET = 3;
-    private const int SIGNAL_START_OFFSET = 3; // signatureSize + this
-    private const int SIGNAL_SIZE_OFFSET = 4; // signatureSize + this
-    private const int SIGNAL_DATA_OFFSET = 6; // signatureSize + this
+    private const int SIGNATURE_SIZE_OFFSET = SIGNATURE_START_OFFSET + 1;
+    private const int SIGNATURE_DATA_OFFSET = SIGNATURE_SIZE_OFFSET  + 2;
+    private const int SIGNAL_START_OFFSET   = SIGNATURE_DATA_OFFSET;      // SIGNATURE_SIZE + this
+    private const int SIGNAL_SIZE_OFFSET    = SIGNAL_START_OFFSET    + 1; // SIGNATURE_SIZE + this
+    private const int SIGNAL_DATA_OFFSET    = SIGNAL_SIZE_OFFSET     + 2; // SIGNATURE_SIZE + this
 
     public TcpMessage(Signal signal, byte[] signature, byte[] raw)
     {
@@ -90,7 +90,7 @@ public class TcpMessage
             Buffer.BlockCopy(buffer, signatureSize + SIGNAL_DATA_OFFSET, signalData, 0, signalSize);
 
             // Deserialize signal
-            signal = JsonSerializer.Deserialize<Signal>(signalData)!;
+            signal = MessagePackSerializer.Deserialize<Signal>(signalData)!;
         }
         catch
         {

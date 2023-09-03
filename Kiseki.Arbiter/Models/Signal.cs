@@ -1,13 +1,16 @@
 namespace Kiseki.Arbiter.Models;
 
+using MessagePack;
+
+[MessagePackObject]
 public class Signal
 {
-    [JsonPropertyName("uuid")]
+    [Key(0)]
     public Guid Uuid { get; set; }
 
-    [JsonPropertyName("command")]
+    [Key(1)]
     public Command Command { get; set; }
 
-    [JsonPropertyName("data")]
+    [Key(2)]
     public Dictionary<string, string>? Data { get; set; }
 }
