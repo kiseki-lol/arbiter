@@ -5,6 +5,7 @@ public class TcpServer
     private static readonly ManualResetEvent Finished = new(false);
     private static Socket? Listener;
     private static bool IsListening = false;
+    public static List<Guid> Messages { get; private set; } = new();
 
     public static int Start()
     {
@@ -172,6 +173,16 @@ public class TcpServer
 
                 return;
             }
+
+            if (Messages.Contains(message.Signal.Uuid))
+            {
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' sent a message that was already processed.", LogSeverity.Warning);
+                handler.Close();
+
+                return;
+            }
+
+            Messages.Add(message.Signal.Uuid);
 
             // Process and send response data
             SendData(handler, ProcessSignal(message.Signal, state.TcpClient!));

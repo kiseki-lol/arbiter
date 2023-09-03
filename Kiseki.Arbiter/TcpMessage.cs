@@ -21,7 +21,7 @@ namespace Kiseki.Arbiter;
 using MessagePack;
 
 public class TcpMessage
-{
+{    
     public Signal Signal { get; private set; }
     public byte[] Signature { get; private set; }
     public byte[] Raw { get; private set; }

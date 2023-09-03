@@ -10,7 +10,7 @@ public class Program
     {
         Paths.Initialize(AppContext.BaseDirectory);
 
-        Logger.Write($"Initializing {Constants.PROJECT_NAME}.Arbiter {Version}...", LogSeverity.Boot);
+        Logger.Write($"Initializing {Constants.PROJECT_NAME}.Arbiter v{Version}...", LogSeverity.Boot);
 
         if (!Settings.Initialize())
         {
@@ -56,9 +56,12 @@ public class Program
 
         Logger.Write($"Started TCP server on port {port}.", LogSeverity.Boot);
         
+        ResourceReporter.Start();
+        Logger.Write($"Started resource reporter.", LogSeverity.Boot);
+
         // We're up!
         Web.UpdateGameServerStatus(GameServerStatus.Online);
-        ResourceReporter.Start();
+        Logger.Write($"Successfully started {Constants.PROJECT_NAME}.Arbiter v{Version}!", LogSeverity.Boot);
 
         Console.CancelKeyPress += delegate
         {
