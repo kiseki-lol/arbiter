@@ -1,6 +1,6 @@
 namespace Kiseki.Arbiter.Enums;
 
-public enum HealthCheckResponse
+public enum HealthCheckStatus
 {
     Failure,
     Maintenance,

@@ -44,21 +44,21 @@ public class Program
         Verifier.Initialize();
 
         Logger.Write($"Assigned game server UUID is '{Web.GameServerUuid}'.", LogSeverity.Boot);
-        Logger.Write("Starting service...", LogSeverity.Boot);
+        Logger.Write("Starting TCP server...", LogSeverity.Boot);
         
         int port = TcpServer.Start();
 
         if (port == -1)
         {
-            Logger.Fatal("Failed to start service.");
+            Logger.Fatal($"Failed to start TCP server. Is another instance of {Constants.PROJECT_NAME}.Arbiter running?");
             return;
         }
 
-        Logger.Write($"Started service on port {port}.", LogSeverity.Boot);
+        Logger.Write($"Started TCP server on port {port}.", LogSeverity.Boot);
         
         // We're up!
         Web.UpdateGameServerStatus(GameServerStatus.Online);
-        ResourceMonitor.Start();
+        ResourceReporter.Start();
 
         Console.CancelKeyPress += delegate
         {
@@ -69,10 +69,13 @@ public class Program
             Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
 
-        while (true)
-        {
-            Thread.Sleep(30000);
-            Web.Ping();
-        }
+        Task.Run(async () => {
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+
+            while (await timer.WaitForNextTickAsync())
+            {
+                Web.Ping();
+            }
+        });
     }
 }

@@ -1,15 +1,13 @@
 namespace Kiseki.Arbiter;
 
-public static class ResourceMonitor
+public static class ResourceReporter
 {
-    public const int REPORT_TIMEOUT = 15 * 1000; // Measured in milliseconds
-
     public static void Start()
     {
-        const string LOG_IDENT = "ResourceMonitor::Start";
+        const string LOG_IDENT = "ResourceReporter::Start";
 
         Task.Run(async () => {
-            var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(REPORT_TIMEOUT));
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(15));
 
             while (await timer.WaitForNextTickAsync())
             {
@@ -17,7 +15,7 @@ public static class ResourceMonitor
             }
         });
 
-        Logger.Write(LOG_IDENT, "Started!", LogSeverity.Debug);
+        Logger.Write(LOG_IDENT, "OK!", LogSeverity.Debug);
     }
 
     public static void Report()

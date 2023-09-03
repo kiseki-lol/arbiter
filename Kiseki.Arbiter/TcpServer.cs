@@ -1,15 +1,5 @@
 namespace Kiseki.Arbiter;
 
-using Google.Protobuf;
-
-internal class SocketState
-{
-    public byte[] Buffer = new byte[1024];
-    public ushort Size = 0;
-    public Socket? Socket = null;
-    public TcpClient? TcpClient;
-}
-
 public class TcpServer
 {
     private static readonly ManualResetEvent Finished = new(false);
@@ -33,11 +23,6 @@ public class TcpServer
         {
             Logger.Write(LOG_IDENT, $"Failed to bind to port {Settings.GetServicePort()}: {ex}", LogSeverity.Error);
 
-            if (ex is SocketException)
-            {
-                Logger.Write(LOG_IDENT, $"Is another instance of {Constants.PROJECT_NAME}.Arbiter running?", LogSeverity.Error);
-            }
-
             return -1;
         }
 
@@ -48,7 +33,7 @@ public class TcpServer
         }
         catch (Exception ex)
         {
-            Logger.Write(LOG_IDENT, $"Failed to start TcpServer: {ex}", LogSeverity.Error);
+            Logger.Write(LOG_IDENT, $"Failed: {ex}", LogSeverity.Error);
 
             return -1;
         }
@@ -77,7 +62,7 @@ public class TcpServer
         const string LOG_IDENT = "TcpServer::AcceptCallback";
 
         Socket? handler = null;
-        TcpClient? TcpClient = null;
+        TcpClient? client = null;
 
         try
         {
@@ -86,9 +71,9 @@ public class TcpServer
             Socket listener = (Socket)result.AsyncState!;
             
             handler = listener.EndAccept(result);
-            TcpClient = new(handler);
+            client = new(handler);
 
-            Logger.Write(LOG_IDENT, $"Machine '{TcpClient.IpAddress}' connected on port {TcpClient.Port}.", LogSeverity.Event);
+            Logger.Write(LOG_IDENT, $"Machine '{client.IpAddress}' connected on port {client.Port}.", LogSeverity.Event);
         }
         catch (Exception ex)
         {
@@ -100,10 +85,10 @@ public class TcpServer
             return;
         }
 
-        SocketState state = new()
+        TcpClientState state = new()
         {
             Socket = handler,
-            TcpClient = TcpClient
+            TcpClient = client
         };
 
         handler!.BeginReceive(state.Buffer, 0, 1024, 0, new(ReadCallback), state);
@@ -113,7 +98,7 @@ public class TcpServer
     {
         const string LOG_IDENT = "TcpServer::ReadCallback";
 
-        SocketState state = (SocketState)result.AsyncState!;
+        TcpClientState state = (TcpClientState)result.AsyncState!;
         Socket handler = state.Socket!;
 
         try
@@ -127,14 +112,14 @@ public class TcpServer
 
             if (state.Buffer[0] != 0x02)
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no MSGREAD byte).", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no message read byte found).", LogSeverity.Warning);
                 handler.Close();
             }
 
             if (state.Size == 0)
             {
-                // We're on the MSGREAD byte, so let's read the next 2 bytes which should give us MSGSIZE.
-                // Once we're able to read MSGSIZE, we'll read all the way to MSGSIZE - 3 (since 3 bytes have already been read)
+                // We're on the message read byte, so let's read the next 2 bytes which should give us the message size bytes.
+                // Once we're able to read the message size, we'll read the entire message :-)
 
                 state.Size = 3;
                 handler.BeginReceive(state.Buffer, 0, 2, 0, new AsyncCallback(ReadCallback), state);
@@ -143,27 +128,21 @@ public class TcpServer
             }
             else if (state.Size == 3)
             {
-                // Now we're on the two MSGSIZE bytes.
-                // Let's read the rest of the message according to what MSGSIZE tells us to read to.
+                // Now we're on the two message size bytes.
+                // Let's read the rest of the message according to what it tells us to read to.
 
                 ushort size = 0;
 
                 try
                 {
-                    size = BitConverter.ToUInt16(state.Buffer, 1); // Offset by 1 (MSGREAD[STX])
+                    size = BitConverter.ToUInt16(state.Buffer, 1); // Offset by 1 (message read byte)
                 }
                 catch
                 {
-                    Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no MSGSIZE bytes).", LogSeverity.Warning);
+                    Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no explicit message size given).", LogSeverity.Warning);
                     handler.Close();
 
                     return;
-                }
-
-                if (size < ushort.MinValue || size > ushort.MaxValue)
-                {
-                    Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (MSGSIZE was out of range).", LogSeverity.Warning);
-                    handler.Close();
                 }
 
                 state.Size = size;
@@ -175,29 +154,21 @@ public class TcpServer
             }
 
             // If we've reached this far, we should now be able to parse this into a workable message.
-            if (!Message.TryParse(state.Buffer, out Message? message))
+            if (!TcpMessage.TryParse(state.Buffer, out TcpMessage? message))
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message.", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (failed to parse).", LogSeverity.Warning);
                 handler.Close();
                 
                 return;
             }
 
             // Verify signature
-            if (!Verifier.Verify(message!.Data!, message.Signature!))
+            if (!Verifier.Verify(message!.Raw!, message.Signature!))
             {
                 Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' sent a message with a bad or malformed signature.", LogSeverity.Warning);
                 handler.Close();
 
                 return;
-            }
-
-            // See if signal is older than ten seconds (so that people can't re-send signed destructive commands, such as "CloseAllJobs")
-            int elapsed = DateTime.Now.ToUnixTime() - message.Signal!.Nonce.ToDateTime().ToUnixTime();
-            if (elapsed > 10)
-            {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' sent an expired message (was {elapsed - 10} seconds past expiry).", LogSeverity.Warning);
-                handler.Close();
             }
 
             // Process and send response data
@@ -241,8 +212,12 @@ public class TcpServer
         }
     }
 
-    private static byte[] ProcessSignal(Proto.Signal signal, TcpClient TcpClient)
+    private static byte[] ProcessSignal(Signal signal, TcpClient TcpClient)
     {
-        return new byte[1024];
+        const string LOG_IDENT = "TcpServer::ProcessSignal";
+
+        Logger.Write(LOG_IDENT, $"Received command '{signal.Command.ToString()}' from machine '{TcpClient.IpAddress}'!", LogSeverity.Debug);
+
+        return new byte[] { 0xfa, 0xca, 0xde };
     }
 }

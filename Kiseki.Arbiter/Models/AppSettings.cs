@@ -12,7 +12,7 @@ public class AppSettings
     public string PublicKeyPath { get; set; } = "";
 
     [JsonPropertyName("license_path")]
-    public string? LicensePath { get; set; } = null;
+    public string? LicensePath { get; set; }
 
     [JsonPropertyName("service_port")]
     public int ServicePort { get; set; } = 64989;

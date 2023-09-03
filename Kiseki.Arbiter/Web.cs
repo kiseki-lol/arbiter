@@ -21,10 +21,10 @@ public static class Web
 
         CurrentUrl = IsInMaintenance ? $"{Constants.MAINTENANCE_DOMAIN}.{Constants.BASE_URL}" : Constants.BASE_URL;
         
-        HealthCheckResponse health = GetHealth();
-        if (health != HealthCheckResponse.Success)
+        HealthCheckStatus status = GetHealthStatus();
+        if (status != HealthCheckStatus.Success)
         {
-            if (health == HealthCheckResponse.Maintenance)
+            if (status == HealthCheckStatus.Maintenance)
             {
                 IsInMaintenance = true;
             }
@@ -123,11 +123,11 @@ public static class Web
         return FormatUrl($"/arbiter/job/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
     }
 
-    public static HealthCheckResponse GetHealth()
+    public static HealthCheckStatus GetHealthStatus()
     {
-        var response = Http.GetJson<Health>(FormatUrl("/health"));
+        var response = Http.GetJson<HealthCheck>(FormatUrl("/health-check"));
         
-        return response?.Status ?? HealthCheckResponse.Failure;
+        return response?.Status ?? HealthCheckStatus.Failure;
     }
 
     public static void ReportFatal(DateTime timestamp, string exception)
