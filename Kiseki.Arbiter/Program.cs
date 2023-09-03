@@ -69,13 +69,10 @@ public class Program
             Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
 
-        Task.Run(async () => {
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
-
-            while (await timer.WaitForNextTickAsync())
-            {
-                Web.Ping();
-            }
-        });
+        while (true)
+        {
+            Thread.Sleep(30000);
+            Web.Ping();
+        }
     }
 }

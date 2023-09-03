@@ -110,7 +110,7 @@ public class TcpServer
                 return;
             }
 
-            if (state.Buffer[0] != 0x02)
+            if (state.Buffer[0] != 0x01)
             {
                 Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no message read byte found).", LogSeverity.Warning);
                 handler.Close();
@@ -176,7 +176,10 @@ public class TcpServer
         }
         catch (Exception ex)
         {
-            Logger.Write(LOG_IDENT, $"Failed to read data: {ex}", LogSeverity.Error);
+            if (ex is not ObjectDisposedException)
+            {
+                Logger.Write(LOG_IDENT, $"Failed to read data: {ex}", LogSeverity.Error);
+            }
         }
     }
 
