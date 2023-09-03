@@ -15,7 +15,7 @@ namespace Kiseki.Arbiter;
  * - 6 total control bytes
  * - Minimum of 8 bytes for a message (6 control bytes + 2 buffers with a minimum of 1 byte)
  * - Annotated offsets are included for readability but are meaningless on their own -- see TcpMessage::TryParse
- * - An envelope contains header information (3 bytes, a SOH byte and a uint16 representing total size) message (TcpMessage). Envelopes are what the TcpServer always expects to receive
+ * - An envelope contains header information (3 bytes, a SOH byte and a uint16 representing total size) and a message (TcpMessage). Envelopes are what the TcpServer always expects to receive
  */
 
 using MessagePack;
