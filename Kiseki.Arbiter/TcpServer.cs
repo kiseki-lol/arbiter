@@ -91,7 +91,7 @@ public class TcpServer
             TcpClient = client
         };
 
-        handler!.BeginReceive(state.Buffer, 0, 1024, 0, new(ReadCallback), state);
+        handler!.BeginReceive(state.Buffer, 0, 1, 0, new(ReadCallback), state);
     }
 
     private static void ReadCallback(IAsyncResult result)
@@ -105,21 +105,22 @@ public class TcpServer
         {
             int bytes = handler.EndReceive(result);
 
-            if (bytes <= 0)
-            {
-                return;
-            }
+            Logger.Write(LOG_IDENT, $"Received {bytes} byte(s) from machine '{state.TcpClient!.IpAddress}'.", LogSeverity.Debug);
 
-            if (state.Buffer[0] != 0x01)
+            if (state.Buffer[0] != 0x01 && bytes == 1)
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no message read byte found).", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (expected to read 1 SOH byte, found none).", LogSeverity.Warning);
                 handler.Close();
+
+                return;
             }
 
             if (state.Size == 0)
             {
                 // We're on the message read byte, so let's read the next 2 bytes which should give us the message size bytes.
                 // Once we're able to read the message size, we'll read the entire message :-)
+
+                Logger.Write(LOG_IDENT, $"Reading next 2 byte(s) (currently on message read SOH byte).", LogSeverity.Debug);
 
                 state.Size = 3;
                 handler.BeginReceive(state.Buffer, 0, 2, 0, new AsyncCallback(ReadCallback), state);
@@ -135,7 +136,7 @@ public class TcpServer
 
                 try
                 {
-                    size = BitConverter.ToUInt16(state.Buffer, 1); // Offset by 1 (message read byte)
+                    size = BitConverter.ToUInt16(state.Buffer);
                 }
                 catch
                 {
@@ -145,10 +146,11 @@ public class TcpServer
                     return;
                 }
 
+                Logger.Write(LOG_IDENT, $"Reading next {size} byte(s) (in accordance with the message size).", LogSeverity.Debug);
+                
                 state.Size = size;
 
-                // We'll read up to state.Size - 3 bytes here since 3 bytes have already been read (MSGREAD and MSGSIZE)
-                handler.BeginReceive(state.Buffer, 0, state.Size - 3, 0, new AsyncCallback(ReadCallback), state);
+                handler.BeginReceive(state.Buffer, 0, state.Size, 0, new AsyncCallback(ReadCallback), state);
 
                 return;
             }
@@ -215,11 +217,18 @@ public class TcpServer
         }
     }
 
-    private static byte[] ProcessSignal(Signal signal, TcpClient TcpClient)
+    private static byte[] ProcessSignal(Signal signal, TcpClient client)
     {
         const string LOG_IDENT = "TcpServer::ProcessSignal";
 
-        Logger.Write(LOG_IDENT, $"Received command '{signal.Command.ToString()}' from machine '{TcpClient.IpAddress}'!", LogSeverity.Debug);
+        Logger.Write(LOG_IDENT, $"Received command '{signal.Command}' from machine '{client.IpAddress}'!", LogSeverity.Debug);
+
+        if (signal.Command == Command.Ping)
+        {
+            Logger.Write($"Received ping from {client.IpAddress}!", LogSeverity.Information);
+
+            return Encoding.UTF8.GetBytes("{\"success\":true,\"message\":\"Pong!\"}");
+        }
 
         return new byte[] { 0xfa, 0xca, 0xde };
     }
