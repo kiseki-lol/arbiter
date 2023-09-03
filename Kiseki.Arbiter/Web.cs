@@ -49,7 +49,7 @@ public static class Web
         {
             foreach (var log in LogQueue)
             {
-                Http.PostJson<object>(FormatUrl($"/arbiter/log"), log);
+                Http.PostJson<object>(FormatUrl($"/arbiter/report/log"), log);
             }
 
             Logger.Write(LOG_IDENT, $"Pushed {LogQueue.Count} queued log(s)!", LogSeverity.Debug);
@@ -103,7 +103,7 @@ public static class Web
 
     public static void Ping()
     {
-        Http.GetJson<object>(FormatUrl($"/arbiter/ping"));
+        Http.GetJson<object>(FormatUrl($"/arbiter/report/ping"));
     }
 
     public static string FormatUrl(string path, string? subdomain = null)
@@ -132,7 +132,7 @@ public static class Web
 
     public static void ReportFatal(DateTime timestamp, string exception)
     {
-        string url = FormatUrl($"/arbiter/fatal");
+        string url = FormatUrl($"/arbiter/report/fatal");
 
         Dictionary<string, string> data = new()
         {
@@ -145,7 +145,7 @@ public static class Web
 
     public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)
     {
-        string url = FormatUrl($"/arbiter/log");
+        string url = FormatUrl($"/arbiter/report/log");
 
         Dictionary<string, string> data = new()
         {
@@ -163,16 +163,14 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
-    public static void ReportResources(string ram, string cpu, string networkIn, string networkOut)
+    public static void ReportResources(string ram, string cpu)
     {
-        string url = FormatUrl($"/arbiter/resources");
+        string url = FormatUrl($"/arbiter/report/resources");
 
         Dictionary<string, string> data = new()
         {
             { "ram", ram },
-            { "cpu", cpu },
-            { "network_in", networkIn },
-            { "network_out", networkOut }
+            { "cpu", cpu }
         };
 
         Http.PostJson<object>(url, data);
@@ -180,7 +178,7 @@ public static class Web
 
     public static void UpdateGameServerStatus(GameServerStatus state)
     {
-        string url = FormatUrl($"/arbiter/status");
+        string url = FormatUrl($"/arbiter/report/status");
 
         Dictionary<string, string> data = new()
         {

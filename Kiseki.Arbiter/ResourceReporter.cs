@@ -7,8 +7,7 @@ public static class ResourceReporter
         const string LOG_IDENT = "ResourceReporter::Start";
 
         Task.Run(async () => {
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(15));
-
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
             while (await timer.WaitForNextTickAsync())
             {
                 Report();
@@ -22,9 +21,8 @@ public static class ResourceReporter
     {
         string ram = GetAvailableMemory().ToString();
         string cpu = GetCpuUsage().ToString();
-        Tuple<int, int> traffic = GetNetworkTraffic();
 
-        Web.ReportResources(ram, cpu, traffic.Item1.ToString(), traffic.Item2.ToString());
+        Web.ReportResources(ram, cpu);
     }
 
     private static int GetAvailableMemory()
@@ -36,51 +34,21 @@ public static class ResourceReporter
             return (int)performance.NextValue();
         }
 
-        return (int)(GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1048576.0);
+        return -1;
     }
 
     private static int GetCpuUsage()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            PerformanceCounter performance = new("Processor", "% Processor Time", "_Total");
-            performance.NextValue(); // always zero
+            PerformanceCounter performance = new("Processor Information", "% Processor Utility", "_Total");
+            performance.NextValue();
 
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
 
-            return (int)Math.Round(performance.NextValue());
+            return (int)performance.NextValue();
         }
 
-        var startTime = DateTime.UtcNow;
-        var startCpuUsage = Process.GetCurrentProcess().TotalProcessorTime;
-        
-        Thread.Sleep(500);
-
-        var endTime = DateTime.UtcNow;
-        var endCpuUsage = Process.GetCurrentProcess().TotalProcessorTime; var cpuUsedMs = (endCpuUsage - startCpuUsage).TotalMilliseconds;
-        var totalMsPassed = (endTime - startTime).TotalMilliseconds; var cpuUsageTotal = cpuUsedMs / (Environment.ProcessorCount * totalMsPassed);
-        
-        return (int)(cpuUsageTotal * 100);
-    }
-
-    private static Tuple<int, int> GetNetworkTraffic()
-    {
-        if (!NetworkInterface.GetIsNetworkAvailable())
-        {
-            return new Tuple<int, int>(0, 0);
-        }
-
-        NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-
-        int sent = 0;
-        int received = 0;
-
-        foreach (NetworkInterface ni in interfaces)
-        {
-            sent += (int)ni.GetIPStatistics().BytesSent;
-            received += (int)ni.GetIPStatistics().BytesReceived;
-        }
-
-        return new Tuple<int, int>(sent, received);
+        return -1;
     }
 }

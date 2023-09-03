@@ -62,7 +62,7 @@ public class Program
         // We're up!
         Web.UpdateGameServerStatus(GameServerStatus.Online);
         Logger.Write($"Successfully started {Constants.PROJECT_NAME}.Arbiter v{Version}!", LogSeverity.Boot);
-
+        
         Console.CancelKeyPress += delegate
         {
             Logger.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
