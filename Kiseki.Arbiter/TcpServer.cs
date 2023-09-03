@@ -108,6 +108,14 @@ public class TcpServer
 
             Logger.Write(LOG_IDENT, $"Received {bytes} byte(s) from machine '{state.TcpClient!.IpAddress}'.", LogSeverity.Debug);
 
+            if (bytes == 0)
+            {
+                Logger.Write(LOG_IDENT, $"Disconnected machine '{state.TcpClient!.IpAddress}' due to sending nothing. (client error)", LogSeverity.Event);
+                handler.Close();
+
+                return;
+            }
+
             if (state.Buffer[0] != 0x01 && bytes == 1)
             {
                 Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (expected to read 1 SOH byte, found none).", LogSeverity.Warning);
@@ -137,11 +145,17 @@ public class TcpServer
 
                 try
                 {
+                    if (bytes != 2)
+                    {
+                        // We should always be reading 2 bytes here
+                        throw new("Malformed message size given");
+                    }
+
                     size = BitConverter.ToUInt16(state.Buffer);
                 }
                 catch
                 {
-                    Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (no explicit message size given).", LogSeverity.Warning);
+                    Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (malformed or no message size given).", LogSeverity.Warning);
                     handler.Close();
 
                     return;
