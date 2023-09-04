@@ -27,19 +27,19 @@ public static class ResourceReporter
     public static void Report()
     {
         int timestamp = DateTime.UtcNow.ToUnixTime();
-        int ram = GetAvailableMemory();
+        int ram = GetRamUsage();
         int cpu = GetCpuUsage();
 
         Web.ReportResources(timestamp, ram, cpu);
     }
 
-    private static int GetAvailableMemory()
+    private static int GetRamUsage()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            PerformanceCounter performance = new("Memory", "Available MBytes");
+            Win32.GetRamTotals(out int available, out int total);
 
-            return (int)performance.NextValue();
+            return (int)(100.0 * ((total - available) / (double)total)); 
         }
 
         return -1;
