@@ -1,14 +1,18 @@
 ﻿namespace Kiseki.Arbiter;
 
+using System.Linq;
 using System.Reflection;
 
 public class Program
 {
     public readonly static string Version = Assembly.GetExecutingAssembly().GetName().Version!.ToString()[..^2];
-    private static bool IsOnline = false;
+    public static bool EnableVerboseLogging { get; private set; } = false;
 
-    public static void Main()
+    private static bool IsOnline = false;
+    
+    public static void Main(string[] arguments)
     {
+        EnableVerboseLogging = arguments.Contains("--verbose") || arguments.Contains("-v");
         Paths.Initialize(AppContext.BaseDirectory);
 
         Logger.Write($"Initializing {Constants.PROJECT_NAME}.Arbiter v{Version}...", LogSeverity.Boot);
@@ -73,7 +77,7 @@ public class Program
             
             ResourceReporter.Stop();
             TcpServer.Stop();
-            
+
             Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
 

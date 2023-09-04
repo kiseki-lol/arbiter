@@ -27,8 +27,8 @@ public static class Logger
 
     public static void Write(string message, LogSeverity severity = LogSeverity.Information)
     {
-#if RELEASE
-        if (severity == LogSeverity.Debug)
+#if DEBUG
+        if (severity == LogSeverity.Debug && !Program.EnableVerboseLogging)
         {
             return;
         }
@@ -62,7 +62,7 @@ public static class Logger
 
         // Spit to web (synchronously, since web needs to know first)
         Web.ReportFatal(timestamp.ToUniversalTime(), exception);
-
+        
         // Spit to file
         if (Writer != null)
         {
@@ -87,7 +87,7 @@ public static class Logger
 
         ConsoleColor color = severity.GetColor();
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write($"[{timestamp:G}] ");
+        Console.Write($"[{timestamp.ToLocalTime():G}] ");
 
         Console.ForegroundColor = color;
         Console.Write($"[{name}] ");
