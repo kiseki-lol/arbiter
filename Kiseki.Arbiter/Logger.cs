@@ -34,7 +34,7 @@ public static class Logger
         }
 #endif
 
-        DateTime timestamp = DateTime.Now;
+        DateTime timestamp = DateTime.UtcNow;
 
         // Spit to web
         Task.Run(() => Web.ReportLog(timestamp.ToUniversalTime(), severity, message));
@@ -58,7 +58,7 @@ public static class Logger
 
     public static void Fatal(string exception)
     {
-        DateTime timestamp = DateTime.Now;
+        DateTime timestamp = DateTime.UtcNow;
 
         // Spit to web (synchronously, since web needs to know first)
         Web.ReportFatal(timestamp.ToUniversalTime(), exception);

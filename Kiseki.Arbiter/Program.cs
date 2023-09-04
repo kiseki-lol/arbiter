@@ -5,6 +5,7 @@ using System.Reflection;
 public class Program
 {
     public readonly static string Version = Assembly.GetExecutingAssembly().GetName().Version!.ToString()[..^2];
+    private static bool IsOnline = false;
 
     public static void Main()
     {
@@ -59,21 +60,24 @@ public class Program
         ResourceReporter.Start();
         Logger.Write($"Started resource reporter.", LogSeverity.Boot);
 
-        // We're up!
+        IsOnline = true;
         Web.UpdateGameServerStatus(GameServerStatus.Online);
+
         Logger.Write($"Successfully started {Constants.PROJECT_NAME}.Arbiter v{Version}!", LogSeverity.Boot);
         ResourceReporter.Report();
         
         Console.CancelKeyPress += delegate
         {
             Logger.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
-
+            IsOnline = false;
+            
+            ResourceReporter.Stop();
             TcpServer.Stop();
-
+            
             Web.UpdateGameServerStatus(GameServerStatus.Offline);
         };
 
-        while (true)
+        while (IsOnline)
         {
             Thread.Sleep(30000);
             Web.Ping();

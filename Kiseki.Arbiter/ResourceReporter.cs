@@ -2,27 +2,35 @@ namespace Kiseki.Arbiter;
 
 public static class ResourceReporter
 {
+    private static readonly CancellationTokenSource TokenSource = new();
+
     public static void Start()
     {
         const string LOG_IDENT = "ResourceReporter::Start";
 
         Task.Run(async () => {
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(15));
             while (await timer.WaitForNextTickAsync())
             {
                 Report();
             }
-        });
+        }, TokenSource.Token);
 
         Logger.Write(LOG_IDENT, "OK!", LogSeverity.Debug);
     }
 
+    public static void Stop()
+    {
+        TokenSource.Cancel();
+    }
+
     public static void Report()
     {
-        string ram = GetAvailableMemory().ToString();
-        string cpu = GetCpuUsage().ToString();
+        int timestamp = DateTime.UtcNow.ToUnixTime();
+        int ram = GetAvailableMemory();
+        int cpu = GetCpuUsage();
 
-        Web.ReportResources(ram, cpu);
+        Web.ReportResources(timestamp, ram, cpu);
     }
 
     private static int GetAvailableMemory()

@@ -163,14 +163,15 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
-    public static void ReportResources(string ram, string cpu)
+    public static void ReportResources(int timestamp, int ram, int cpu)
     {
         string url = FormatUrl($"/arbiter/report/resources");
 
         Dictionary<string, string> data = new()
         {
-            { "ram", ram },
-            { "cpu", cpu }
+            { "timestamp", timestamp.ToString() },
+            { "ram", ram.ToString() },
+            { "cpu", cpu.ToString() }
         };
 
         Http.PostJson<object>(url, data);
