@@ -12,5 +12,5 @@ public class Signal
     public Command Command { get; set; }
 
     [Key(2)]
-    public Dictionary<string, string>? Data { get; set; }
+    public Dictionary<string, object>? Data { get; set; }
 }

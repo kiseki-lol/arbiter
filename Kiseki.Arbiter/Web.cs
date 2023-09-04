@@ -141,6 +141,8 @@ public static class Web
         };
 
         Http.PostJson<object>(url, data);
+
+        Web.UpdateGameServerStatus(GameServerStatus.Crashed);
     }
 
     public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)

@@ -245,12 +245,12 @@ public class TcpServer
     private static byte[] ProcessSignal(Signal signal, TcpClient client)
     {
         const string LOG_IDENT = "TcpServer::ProcessSignal";
-
+        
         Logger.Write(LOG_IDENT, $"Received command '{signal.Command}' from machine '{client.IpAddress}'!", LogSeverity.Debug);
 
         if (signal.Command == Command.Ping)
         {
-            Logger.Write($"Received ping from {client.IpAddress}!", LogSeverity.Information);
+            Logger.Write($"Received ping from {client.IpAddress} in {DateTimeOffset.Now.ToUnixTimeMilliseconds() - Convert.ToInt64(signal.Data!["timestamp"])}ms!", LogSeverity.Information);
 
             return Encoding.UTF8.GetBytes("{\"success\":true,\"message\":\"Pong!\"}");
         }
