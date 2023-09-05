@@ -72,13 +72,7 @@ public class Program
         
         Console.CancelKeyPress += delegate
         {
-            Logger.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
-            IsOnline = false;
-            
-            ResourceReporter.Stop();
-            TcpServer.Stop();
-
-            Web.UpdateGameServerStatus(GameServerStatus.Offline);
+            Shutdown();
         };
 
         while (IsOnline)
@@ -86,5 +80,20 @@ public class Program
             Thread.Sleep(30000);
             Web.Ping();
         }
+    }
+
+    public static void Shutdown()
+    {
+        IsOnline = false;
+
+        Logger.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
+        IsOnline = false;
+        
+        ResourceReporter.Stop();
+        TcpServer.Stop();
+
+        Web.UpdateGameServerStatus(GameServerStatus.Offline);
+        
+        Environment.Exit(0);
     }
 }

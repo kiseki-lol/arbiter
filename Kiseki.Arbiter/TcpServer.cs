@@ -74,7 +74,7 @@ public class TcpServer
             handler = listener.EndAccept(result);
             client = new(handler);
 
-            Logger.Write(LOG_IDENT, $"Machine '{client.IpAddress}' connected on port {client.Port}.", LogSeverity.Event);
+            Logger.Write(LOG_IDENT, $"Machine '{client.IpAddress}' connected on port {client.Port}.", LogSeverity.Debug);
         }
         catch (Exception ex)
         {
@@ -110,7 +110,7 @@ public class TcpServer
 
             if (bytes == 0)
             {
-                Logger.Write(LOG_IDENT, $"Disconnected machine '{state.TcpClient!.IpAddress}' due to sending nothing. (client error)", LogSeverity.Event);
+                Logger.Write(LOG_IDENT, $"Disconnected machine '{state.TcpClient.IpAddress}' due to sending nothing. (client error)", LogSeverity.Event);
                 handler.Close();
 
                 return;
@@ -118,7 +118,7 @@ public class TcpServer
 
             if (state.Buffer[0] != 0x01 && bytes == 1)
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (expected to read 1 SOH byte, found none).", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient.IpAddress}' did not send a valid message (expected to read 1 SOH byte, found none).", LogSeverity.Warning);
                 handler.Close();
 
                 return;
@@ -173,16 +173,16 @@ public class TcpServer
             // If we've reached this far, we should now be able to parse this into a workable message.
             if (!TcpMessage.TryParse(state.Buffer, out TcpMessage? message))
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' did not send a valid message (failed to parse).", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient.IpAddress}' did not send a valid message (failed to parse).", LogSeverity.Warning);
                 handler.Close();
                 
                 return;
             }
 
             // Verify signature
-            if (!Verifier.Verify(message!.Raw!, message.Signature!))
+            if (!Verifier.Verify(message!.Raw, message.Signature))
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' sent a message with a bad or malformed signature.", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient.IpAddress}' sent a message with a bad or malformed signature.", LogSeverity.Warning);
                 handler.Close();
 
                 return;
@@ -190,7 +190,7 @@ public class TcpServer
 
             if (Messages.Contains(message.Signal.Uuid))
             {
-                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient!.IpAddress}' sent a message that was already processed.", LogSeverity.Warning);
+                Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient.IpAddress}' sent a message that was already processed.", LogSeverity.Warning);
                 handler.Close();
 
                 return;
@@ -199,7 +199,21 @@ public class TcpServer
             Messages.Add(message.Signal.Uuid);
 
             // Process and send response data
-            SendData(handler, ProcessSignal(message.Signal, state.TcpClient!));
+            byte[] data = Array.Empty<byte>();
+
+            try
+            {
+                data = SignalProcessor.Process(message.Signal, state.TcpClient);
+            }
+            catch
+            {
+                Logger.Write(LOG_IDENT, $"Failed to process message from machine '{state.TcpClient.IpAddress}'.", LogSeverity.Error);
+                handler.Close();
+
+                return;
+            }
+
+            SendData(handler, data);
         }
         catch (Exception ex)
         {
@@ -240,21 +254,5 @@ public class TcpServer
         {
             Logger.Write(LOG_IDENT, $"Failed to send data: {ex}", LogSeverity.Error);
         }
-    }
-
-    private static byte[] ProcessSignal(Signal signal, TcpClient client)
-    {
-        const string LOG_IDENT = "TcpServer::ProcessSignal";
-        
-        Logger.Write(LOG_IDENT, $"Received command '{signal.Command}' from machine '{client.IpAddress}'!", LogSeverity.Debug);
-
-        if (signal.Command == Command.Ping)
-        {
-            Logger.Write($"Received ping from {client.IpAddress} in {DateTimeOffset.Now.ToUnixTimeMilliseconds() - Convert.ToInt64(signal.Data!["timestamp"])}ms!", LogSeverity.Information);
-
-            return Encoding.UTF8.GetBytes("{\"success\":true,\"message\":\"Pong!\"}");
-        }
-
-        return new byte[] { 0xfa, 0xca, 0xde };
     }
 }
