@@ -25,7 +25,8 @@ subgraph message["Message format"]
 direction LR
   signature_start --> signature_size --> signature_data --> signal_start
   signal_start --> signal_size --> signal_data
-end```
+end
+```
 
 ## License
 
