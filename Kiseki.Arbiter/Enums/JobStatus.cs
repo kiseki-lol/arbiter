@@ -6,5 +6,5 @@ public enum JobStatus
     Crashed,
     Waiting,
     Running,
-    ResourceMonitored
+    Monitored
 }

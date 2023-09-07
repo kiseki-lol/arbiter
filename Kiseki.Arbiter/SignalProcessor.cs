@@ -40,6 +40,10 @@ public static class SignalProcessor
 
         if (signal.Command == Command.Pause)
         {
+            // Ideally, we'd call Web::UpdateGameServerStatus but that causes the arbiter to hang indefinitely.
+            // Hence, the website just dispatches a StateChange once we return success and the command is pause.
+            // TODO: Fix this; and figure out why this happens.
+
             IsProcessingJobs = !IsProcessingJobs;
 
             if (!IsProcessingJobs)
