@@ -52,4 +52,14 @@ public class JobManager
     }
 
     public static bool IsJobOpen(Job job) => IsJobOpen(job.Id);
+
+    public static void CloseAllJobs()
+    {
+        foreach (Job job in OpenJobs)
+        {
+            job.Close();
+        }
+
+        OpenJobs.Clear();
+    }
 }
