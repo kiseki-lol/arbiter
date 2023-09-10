@@ -2,7 +2,7 @@
 
 Manages Kiseki game servers
 
-## Graph
+## TCP envelope format
 
 ```mermaid
 graph TD
