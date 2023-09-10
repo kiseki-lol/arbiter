@@ -64,7 +64,7 @@ public static class SignalProcessor
         if (signal.Command == Command.Ping)
         {
             long elapsed = DateTimeOffset.Now.ToUnixTimeMilliseconds() - Convert.ToInt64(signal.Data!["timestamp"]);
-            Logger.Write($"Received ping from {client.IpAddress} in {elapsed}ms!", LogSeverity.Information);
+            Logger.Write($"Received ping from machine '{client.IpAddress}' in {elapsed}ms!", LogSeverity.Information);
 
             response = new()
             {
@@ -73,6 +73,68 @@ public static class SignalProcessor
                 {
                     { "elapsed", elapsed }
                 }
+            };
+        }
+
+        if (signal.Command == Command.GetAllJobs)
+        {
+            Logger.Write($"Received request for all jobs from machine '{client.IpAddress}'!", LogSeverity.Information);
+            
+            response = new()
+            {
+                Success = true,
+                Data = new Dictionary<string, object>()
+                {
+                    { "jobs", JobManager.OpenJobs }
+                }
+            };
+        }
+
+        if (signal.Command == Command.OpenJob)
+        {
+            Logger.Write($"Received request to open job '{signal.Data!["id"]}' from machine '{client.IpAddress}'!", LogSeverity.Information);
+
+            Job? job = JobManager.OpenJobs.Find(Job => Job?.Id == signal.Data!["id"].ToString());
+            if (job != null)
+            {
+                Logger.Write($"Job '{job.Id}' is already open!", LogSeverity.Warning);
+                response = new()
+                {
+                    Success = false
+                };
+
+                return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+            }
+
+            JobManager.OpenJob(new PlaceJob(signal.Data["id"].ToString()!, Convert.ToInt32(signal.Data!["version"]), Convert.ToInt32(signal.Data!["port"]), uint.Parse(signal.Data["place_id"].ToString()!)));
+
+            response = new()
+            {
+                Success = true
+            };
+        }
+
+        if (signal.Command == Command.CloseJob)
+        {
+            Logger.Write($"Received request to close job '{signal.Data!["id"]}' from machine '{client.IpAddress}'!", LogSeverity.Information);
+
+            Job? job = JobManager.OpenJobs.Find(Job => Job?.Id == signal.Data!["id"].ToString());
+            if (job == null)
+            {
+                Logger.Write($"Job '{signal.Data!["id"]}' is not open!", LogSeverity.Warning);
+                response = new()
+                {
+                    Success = false
+                };
+
+                return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+            }
+
+            JobManager.CloseJob(job);
+
+            response = new()
+            {
+                Success = true
             };
         }
 
