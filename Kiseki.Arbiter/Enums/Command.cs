@@ -8,5 +8,6 @@ public enum Command
     CloseJob,
     OpenJob,
     GetAllJobs,
+    Thumbnail,
     Ping
 }
