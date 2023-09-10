@@ -49,8 +49,8 @@ public static class Settings
         return AppSettings!.ServicePort;
     }
 
-    public static int GetBasePort()
+    public static int GetBaseJobPort()
     {
-        return AppSettings!.BasePort;
+        return AppSettings!.BaseJobPort;
     }
 }

@@ -142,7 +142,7 @@ public static class Web
 
         Http.PostJson<object>(url, data);
 
-        Web.UpdateGameServerStatus(GameServerStatus.Crashed);
+        Web.UpdateGameServerStatus(GameServerStatus.Offline);
     }
 
     public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)
@@ -191,21 +191,29 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
-    public static void UpdateJob(string jobId, JobStatus status, int port = -1)
+    public static void UpdateJob(string jobId, JobStatus status, int port)
     {
         string url = FormatUrl($"/arbiter/job/{jobId}/status");
 
         Dictionary<string, string> data = new()
         {
-            { "status", ((int)status).ToString() }
+            { "status", ((int)status).ToString() },
+            { "machine_address", Settings.GetMachineAddress() },
+            { "port", port.ToString() }
         };
 
-        if (port != -1)
+        Http.PostJson<object>(url, data);
+    }
+
+    public static void UpdateJobTimestamp(string jobId, string key, DateTime timestamp)
+    {
+        string url = FormatUrl($"/arbiter/job/{jobId}/timestamp");
+
+        Dictionary<string, string> data = new()
         {
-            // This means the game is actually up.
-            data.Add("machine_address", Settings.GetMachineAddress());
-            data.Add("port", port.ToString());
-        }
+            { "key", key },
+            { "timestamp", timestamp.ToUnixTime().ToString() }
+        };
 
         Http.PostJson<object>(url, data);
     }
