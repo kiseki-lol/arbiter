@@ -54,69 +54,16 @@ public abstract class Job
 
     public abstract void Start();
 
-    public void Close(bool forceClose = false)
+    public void Close()
     {
         Logger.Write(Id, $"Closing...", LogSeverity.Event);
-
-        if (forceClose || Process == null)
-        {
-            Status = JobStatus.Crashed;
-        }
-        else
-        {
-            try
-            {
-                if (!IsRunning || Process.HasExited)
-                {
-                    if (!IsRunning)
-                    {
-                        Logger.Write(Id, $"Process is not running!", LogSeverity.Warning);
-                    }
-                    else if (Process.HasExited)
-                    {
-                        Logger.Write(Id, $"Process has exited!", LogSeverity.Warning);
-                    }
-
-                    if (!IsRunning)
-                    {
-                        Process.CloseMainWindow();
-                    }
-
-                    Process.Close();
-
-                    Status = JobStatus.Closed;
-                }
-                else if (Status == JobStatus.Crashed || !Process.Responding)
-                {
-                    Process.Kill();
-                    Process.Close();
-
-                    Status = JobStatus.Crashed;
-                }
-                else
-                {
-                    Process.CloseMainWindow();
-                    Process.Close();
-
-                    Status = JobStatus.Closed;
-                }
-            }
-            catch (InvalidOperationException)
-            {
-                Status = JobStatus.Crashed;
-            }
-        }
-
+        
+        Process!.Kill();
+        
+        Status = JobStatus.Closed;
         IsRunning = false;
         Closed = DateTime.UtcNow;
 
-        if (Status == JobStatus.Crashed)
-        {
-            Logger.Write(Id, $"Crashed!", LogSeverity.Error);
-        }
-        else
-        {
-            Logger.Write(Id, $"Closed!", LogSeverity.Event);
-        }
+        Logger.Write(Id, $"Closed!", LogSeverity.Event);
     }
 }
