@@ -142,7 +142,7 @@ public static class Web
 
         Http.PostJson<object>(url, data);
 
-        Web.UpdateGameServerStatus(GameServerStatus.Offline);
+        UpdateGameServerStatus(GameServerStatus.Offline);
     }
 
     public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)
