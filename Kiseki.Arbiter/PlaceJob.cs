@@ -2,22 +2,22 @@ namespace Kiseki.Arbiter;
 
 public class PlaceJob : Job
 {
-    public int Version { get; private set; }
     public uint PlaceId { get; private set; }
+    public int Version { get; private set; }
 
-    public PlaceJob(string id, int version, int port, uint placeId) : base(id, port)
+    public PlaceJob(string uuid, uint placeId, int version, int port) : base(uuid, port)
     {
-        Version = version;
         PlaceId = placeId;
+        Version = version;
     }
 
     public override void Start()
     {
-        Logger.Write(Id, $"Starting...", LogSeverity.Event);
+        Logger.Write(Uuid, $"Starting...", LogSeverity.Event);
         Status = JobStatus.Waiting;
 
-        string script = Web.FormatServerScriptUrl(Id, PlaceId, Port);
-        string[] args = new string[] { $"Versions\\{Version}\\Kiseki.Server.exe", $"-a {Web.FormatUrl("/login/negotiate.ashx")} -t 0 -j {script} -no3d" };
+        string script = Web.FormatServerScriptUrl(Uuid, PlaceId, Port);
+        string[] args = new string[] { $"Versions\\{Version}\\Kiseki.Server.exe", $"-a {Web.FormatUrl("/Login/Negotiate.ashx")} -t 0 -j {script} -no3d" };
 
         Process = new Process()
         {
@@ -28,6 +28,10 @@ public class PlaceJob : Job
                 UseShellExecute = true,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
+
+                // TODO: Enable following options once the patcher can hook onto STDOUT and STDERR properly
+                //       Once that's possible, we can start to save output logs :-)
+
                 // RedirectStandardError = true,
                 // RedirectStandardOutput = true
             }
@@ -40,6 +44,6 @@ public class PlaceJob : Job
         IsRunning = true;
         Started = DateTime.UtcNow;
 
-        Logger.Write(Id, $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
+        Logger.Write(Uuid, $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
     }
 }

@@ -7,7 +7,7 @@ public abstract class Job
     private DateTime _closed;
     private JobStatus _status;
 
-    public string Id { get; protected set; }
+    public string Uuid { get; protected set; }
     public int Port { get; protected set; }
     public Process? Process { get; protected set; } = null;
     public bool IsRunning { get; protected set; } = false;
@@ -16,7 +16,7 @@ public abstract class Job
         get => _created;
         protected set {
             _created = value;
-            Web.UpdateJobTimestamp(Id, "created_at", _created);
+            Web.UpdateJobTimestamp(Uuid, "created_at", _created);
         }
     }
 
@@ -24,7 +24,7 @@ public abstract class Job
         get => _started;
         protected set {
             _started = value;
-            Web.UpdateJobTimestamp(Id, "started_at", _started);
+            Web.UpdateJobTimestamp(Uuid, "started_at", _started);
         }
     }
 
@@ -32,7 +32,7 @@ public abstract class Job
         get => _closed;
         protected set {
             _closed = value;
-            Web.UpdateJobTimestamp(Id, "closed_at", _closed);
+            Web.UpdateJobTimestamp(Uuid, "closed_at", _closed);
         }
     }
 
@@ -40,13 +40,13 @@ public abstract class Job
         get => _status;
         protected set {
             _status = value;
-            Web.UpdateJob(Id, _status, Port);
+            Web.UpdateJob(Uuid, _status, Port);
         }
     }
 
-    public Job(string id, int port)
+    public Job(string uuid, int port)
     {
-        Id = id;
+        Uuid = uuid;
         Port = port;
 
         Created = DateTime.UtcNow;
@@ -56,7 +56,7 @@ public abstract class Job
 
     public void Close()
     {
-        Logger.Write(Id, $"Closing...", LogSeverity.Event);
+        Logger.Write(Uuid, $"Closing...", LogSeverity.Event);
         
         Process!.Kill();
         
@@ -64,6 +64,6 @@ public abstract class Job
         IsRunning = false;
         Closed = DateTime.UtcNow;
 
-        Logger.Write(Id, $"Closed!", LogSeverity.Event);
+        Logger.Write(Uuid, $"Closed!", LogSeverity.Event);
     }
 }

@@ -31,9 +31,9 @@ public class JobManager
         job.Start();
     }
 
-    public static void CloseJob(string jobId)
+    public static void CloseJob(string jobUuid)
     {
-        Job? job = OpenJobs.Find(job => job.Id == jobId);
+        Job? job = OpenJobs.Find(job => job.Uuid == jobUuid);
 
         if (job == null)
         {
@@ -44,14 +44,14 @@ public class JobManager
         OpenJobs.Remove(job);
     }
 
-    public static void CloseJob(Job job) => CloseJob(job.Id);
+    public static void CloseJob(Job job) => CloseJob(job.Uuid);
 
-    public static bool IsJobOpen(string jobId)
+    public static bool IsJobOpen(string jobUuid)
     {
-        return OpenJobs.Find(job => job.Id == jobId) != null;
+        return OpenJobs.Find(job => job.Uuid == jobUuid) != null;
     }
 
-    public static bool IsJobOpen(Job job) => IsJobOpen(job.Id);
+    public static bool IsJobOpen(Job job) => IsJobOpen(job.Uuid);
 
     public static void CloseAllJobs()
     {

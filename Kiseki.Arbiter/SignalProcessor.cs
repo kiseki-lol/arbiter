@@ -92,12 +92,12 @@ public static class SignalProcessor
 
         if (signal.Command == Command.OpenJob)
         {
-            Logger.Write($"Received request to open job '{signal.Data!["id"]}' from machine '{client.IpAddress}'!", LogSeverity.Information);
+            Logger.Write($"Received request to open job '{signal.Data!["uuid"]}' from machine '{client.IpAddress}'!", LogSeverity.Information);
 
-            Job? job = JobManager.OpenJobs.Find(Job => Job?.Id == signal.Data!["id"].ToString());
+            Job? job = JobManager.OpenJobs.Find(Job => Job?.Uuid == signal.Data!["uuid"].ToString());
             if (job != null)
             {
-                Logger.Write($"Job '{job.Id}' is already open!", LogSeverity.Warning);
+                Logger.Write($"Job '{job.Uuid}' is already open!", LogSeverity.Warning);
                 response = new()
                 {
                     Success = false
@@ -106,7 +106,7 @@ public static class SignalProcessor
                 return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
             }
 
-            JobManager.OpenJob(new PlaceJob(signal.Data["id"].ToString()!, Convert.ToInt32(signal.Data!["version"]), Convert.ToInt32(signal.Data!["port"]), uint.Parse(signal.Data["place_id"].ToString()!)));
+            JobManager.OpenJob(new PlaceJob(signal.Data["uuid"].ToString()!, uint.Parse(signal.Data["place_id"].ToString()!), Convert.ToInt32(signal.Data!["version"]), JobManager.GetAvailablePort()));
 
             response = new()
             {
@@ -116,12 +116,12 @@ public static class SignalProcessor
 
         if (signal.Command == Command.CloseJob)
         {
-            Logger.Write($"Received request to close job '{signal.Data!["id"]}' from machine '{client.IpAddress}'!", LogSeverity.Information);
+            Logger.Write($"Received request to close job '{signal.Data!["uuid"]}' from machine '{client.IpAddress}'!", LogSeverity.Information);
 
-            Job? job = JobManager.OpenJobs.Find(Job => Job?.Id == signal.Data!["id"].ToString());
+            Job? job = JobManager.OpenJobs.Find(Job => Job?.Uuid == signal.Data!["uuid"].ToString());
             if (job == null)
             {
-                Logger.Write($"Job '{signal.Data!["id"]}' is not open!", LogSeverity.Warning);
+                Logger.Write($"Job '{signal.Data!["uuid"]}' is not open!", LogSeverity.Warning);
                 response = new()
                 {
                     Success = false

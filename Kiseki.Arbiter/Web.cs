@@ -118,9 +118,9 @@ public static class Web
         return $"{scheme}://{url}{path}";
     }
 
-    public static string FormatServerScriptUrl(string jobId, uint placeId, int port)
+    public static string FormatServerScriptUrl(string jobUuid, uint placeId, int port)
     {
-        return FormatUrl($"/arbiter/job/{jobId}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
+        return FormatUrl($"/arbiter/job/{jobUuid}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
     }
 
     public static HealthCheckStatus GetHealthStatus()
@@ -191,9 +191,9 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
-    public static void UpdateJob(string jobId, JobStatus status, int port)
+    public static void UpdateJob(string jobUuid, JobStatus status, int port)
     {
-        string url = FormatUrl($"/arbiter/job/{jobId}/status");
+        string url = FormatUrl($"/arbiter/job/{jobUuid}/status");
 
         Dictionary<string, string> data = new()
         {
@@ -205,9 +205,9 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
-    public static void UpdateJobTimestamp(string jobId, string key, DateTime timestamp)
+    public static void UpdateJobTimestamp(string jobUuid, string key, DateTime timestamp)
     {
-        string url = FormatUrl($"/arbiter/job/{jobId}/timestamp");
+        string url = FormatUrl($"/arbiter/job/{jobUuid}/timestamp");
 
         Dictionary<string, string> data = new()
         {
