@@ -5,7 +5,31 @@ public class PlaceJob : Job
     public uint PlaceId { get; private set; }
     public int Version { get; private set; }
 
-    public PlaceJob(string uuid, uint placeId, int version, int port) : base(uuid, port)
+    public override DateTime Started {
+        get => _started;
+        protected set {
+            _started = value;
+            Web.UpdatePlaceJobTimestamp(Uuid, "started_at", _started);
+        }
+    }
+
+    public override DateTime Closed {
+        get => _closed;
+        protected set {
+            _closed = value;
+            Web.UpdatePlaceJobTimestamp(Uuid, "closed_at", _closed);
+        }
+    }
+
+    public override JobStatus Status { 
+        get => _status;
+        protected set {
+            _status = value;
+            Web.UpdatePlaceJob(Uuid, _status, Port);
+        }
+    }
+
+    public PlaceJob(string uuid, uint placeId, int version) : base(uuid, JobManager.GetAvailablePort())
     {
         PlaceId = placeId;
         Version = version;
@@ -16,7 +40,7 @@ public class PlaceJob : Job
         Logger.Write(Uuid, $"Starting...", LogSeverity.Event);
         Status = JobStatus.Waiting;
 
-        string script = Web.FormatServerScriptUrl(Uuid, PlaceId, Port);
+        string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
         string[] args = new string[] { $"Versions\\{Version}\\Kiseki.Server.exe", $"-a {Web.FormatUrl("/Login/Negotiate.ashx")} -t 0 -j {script} -no3d" };
 
         Process = new Process()

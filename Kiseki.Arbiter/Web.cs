@@ -49,7 +49,7 @@ public static class Web
         {
             foreach (var log in LogQueue)
             {
-                Http.PostJson<object>(FormatUrl($"/arbiter/report/log"), log);
+                Http.PostJson<object>(FormatUrl($"/api/arbiter/report/log"), log);
             }
 
             Logger.Write(LOG_IDENT, $"Pushed {LogQueue.Count} queued log(s)!", LogSeverity.Debug);
@@ -90,7 +90,7 @@ public static class Web
 
         try
         {
-            var response = Http.PostJson<Identification>(FormatUrl("/arbiter/identify"), data);
+            var response = Http.PostJson<Identification>(FormatUrl("/api/arbiter/identify"), data);
             GameServerUuid = response?.GameServerUuid ?? null;
         }
         catch
@@ -103,7 +103,7 @@ public static class Web
 
     public static void Ping()
     {
-        Http.GetJson<object>(FormatUrl($"/arbiter/report/ping"));
+        Http.GetJson<object>(FormatUrl($"/api/arbiter/report/ping"));
     }
 
     public static string FormatUrl(string path, string? subdomain = null)
@@ -118,21 +118,21 @@ public static class Web
         return $"{scheme}://{url}{path}";
     }
 
-    public static string FormatServerScriptUrl(string jobUuid, uint placeId, int port)
+    public static string FormatPlaceJobScriptUrl(string jobUuid, int port)
     {
-        return FormatUrl($"/arbiter/job/{jobUuid}/script?placeId={placeId}&port={port}&key={Settings.GetAccessKey()}");
+        return FormatUrl($"/api/arbiter/place-job/{jobUuid}/script?port={port}&key={Settings.GetAccessKey()}");
     }
 
     public static HealthCheckStatus GetHealthStatus()
     {
-        var response = Http.GetJson<HealthCheck>(FormatUrl("/health-check"));
+        var response = Http.GetJson<HealthCheck>(FormatUrl("/api/health"));
         
         return response?.Status ?? HealthCheckStatus.Failure;
     }
 
     public static void ReportFatal(DateTime timestamp, string exception)
     {
-        string url = FormatUrl($"/arbiter/report/fatal");
+        string url = FormatUrl($"/api/arbiter/report/fatal");
 
         Dictionary<string, string> data = new()
         {
@@ -147,7 +147,7 @@ public static class Web
 
     public static void ReportLog(DateTime timestamp, LogSeverity severity, string message)
     {
-        string url = FormatUrl($"/arbiter/report/log");
+        string url = FormatUrl($"/api/arbiter/report/log");
 
         Dictionary<string, string> data = new()
         {
@@ -167,7 +167,7 @@ public static class Web
 
     public static void ReportResources(int timestamp, int ram, int cpu)
     {
-        string url = FormatUrl($"/arbiter/report/resources");
+        string url = FormatUrl($"/api/arbiter/report/resources");
 
         Dictionary<string, string> data = new()
         {
@@ -181,7 +181,7 @@ public static class Web
 
     public static void UpdateGameServerStatus(GameServerStatus state)
     {
-        string url = FormatUrl($"/arbiter/report/status");
+        string url = FormatUrl($"/api/arbiter/report/status");
 
         Dictionary<string, string> data = new()
         {
@@ -191,23 +191,26 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
-    public static void UpdateJob(string jobUuid, JobStatus status, int port)
+    public static void UpdatePlaceJob(string jobUuid, JobStatus status, int? port = null)
     {
-        string url = FormatUrl($"/arbiter/job/{jobUuid}/status");
+        string url = FormatUrl($"/api/arbiter/place-job/{jobUuid}/status");
 
         Dictionary<string, string> data = new()
         {
-            { "status", ((int)status).ToString() },
-            { "machine_address", Settings.GetMachineAddress() },
-            { "port", port.ToString() }
+            { "status", ((int)status).ToString() }
         };
+
+        if (status == JobStatus.Running)
+        {
+            data.Add("port", port.ToString()!);
+        }
 
         Http.PostJson<object>(url, data);
     }
 
-    public static void UpdateJobTimestamp(string jobUuid, string key, DateTime timestamp)
+    public static void UpdatePlaceJobTimestamp(string jobUuid, string key, DateTime timestamp)
     {
-        string url = FormatUrl($"/arbiter/job/{jobUuid}/timestamp");
+        string url = FormatUrl($"/api/arbiter/place-job/{jobUuid}/timestamp");
 
         Dictionary<string, string> data = new()
         {

@@ -29,11 +29,6 @@ public static class Settings
         return AppSettings!.AccessKey;
     }
 
-    public static string GetMachineAddress()
-    {
-        return AppSettings!.MachineAddress;
-    }
-
     public static string GetPublicKeyPath()
     {
         return AppSettings!.PublicKeyPath;

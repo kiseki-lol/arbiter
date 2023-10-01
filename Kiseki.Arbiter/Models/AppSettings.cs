@@ -5,9 +5,6 @@ public class AppSettings
     [JsonPropertyName("access_key")]
     public string AccessKey { get; set; } = "";
 
-    [JsonPropertyName("machine_address")]
-    public string MachineAddress { get; set; } = "";
-
     [JsonPropertyName("public_key_path")]
     public string PublicKeyPath { get; set; } = "";
 
