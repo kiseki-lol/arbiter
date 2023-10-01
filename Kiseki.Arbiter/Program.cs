@@ -88,6 +88,8 @@ public class Program
 
         Logger.Write("Received shutdown signal. Shutting down...", LogSeverity.Event);
         IsOnline = false;
+
+        JobManager.CloseAllJobs();
         
         ResourceReporter.Stop();
         TcpServer.Stop();

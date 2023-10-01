@@ -106,7 +106,7 @@ public static class SignalProcessor
                 return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
             }
 
-            JobManager.OpenJob(new PlaceJob(signal.Data["uuid"].ToString()!, uint.Parse(signal.Data["place_id"].ToString()!), Convert.ToInt32(signal.Data!["version"]), JobManager.GetAvailablePort()));
+            Task.Run(() => JobManager.OpenJob(new PlaceJob(signal.Data["uuid"].ToString()!, uint.Parse(signal.Data["place_id"].ToString()!), Convert.ToInt32(signal.Data!["version"]))));
 
             response = new()
             {

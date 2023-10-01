@@ -37,7 +37,7 @@ public class PlaceJob : Job
 
     public override void Start()
     {
-        Logger.Write(Uuid, $"Starting...", LogSeverity.Event);
+        Logger.Write($"PlaceJob:{Uuid}", $"Starting...", LogSeverity.Event);
         Status = JobStatus.Waiting;
 
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
