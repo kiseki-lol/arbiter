@@ -61,13 +61,19 @@ public class PlaceJob : Job
             }
         };
 
+        Process.Exited += (sender, e) => {
+            Logger.Write($"PlaceJob:{Uuid}", $"Exited with code {Process.ExitCode}!", LogSeverity.Event);
+            Status = JobStatus.Closed;
+            IsRunning = false;
+            Closed = DateTime.UtcNow;
+        };
+
         Process.Start();
         Process.WaitForInputIdle();
 
-        Status = JobStatus.Running;
         IsRunning = true;
         Started = DateTime.UtcNow;
 
-        Logger.Write(Uuid, $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
+        Logger.Write($"PlaceJob:{Uuid}", $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
     }
 }
