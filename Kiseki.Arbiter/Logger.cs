@@ -32,6 +32,11 @@ public static class Logger
         {
             return;
         }
+#else
+        if (severity == LogSeverity.Debug)
+        {
+            return;
+        }
 #endif
 
         DateTime timestamp = DateTime.UtcNow;
