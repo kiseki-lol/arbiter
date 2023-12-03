@@ -106,7 +106,7 @@ public static class Web
         Http.GetJson<object>(FormatUrl($"/api/arbiter/report/ping"));
     }
 
-    public static string FormatUrl(string path, string? subdomain = null)
+    public static string FormatUrl(string path, string? subdomain = null, bool forceHttp = false)
     {
         string scheme = "https";
         string url = subdomain == null ? CurrentUrl! : $"{subdomain!}.{CurrentUrl!}";
@@ -115,12 +115,17 @@ public static class Web
         scheme = "http";
 #endif
 
+        if (forceHttp)
+        {
+            scheme = "http";
+        }
+
         return $"{scheme}://{url}{path}";
     }
 
     public static string FormatPlaceJobScriptUrl(string jobUuid, int port)
     {
-        return FormatUrl($"/api/arbiter/place-job/{jobUuid}/script?port={port}&key={Settings.GetAccessKey()}");
+        return FormatUrl($"/api/arbiter/place-job/{jobUuid}/script?port={port}&key={Settings.GetAccessKey()}", null, true);
     }
 
     public static HealthCheckStatus GetHealthStatus()

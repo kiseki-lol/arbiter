@@ -41,9 +41,9 @@ public class PlaceJob : Job
         Status = JobStatus.Waiting;
 
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
-        string[] args = new string[] { $"Versions\\{Version}\\Kiseki.Server.exe", $"-a {Web.FormatUrl("/Login/Negotiate.ashx")} -t 0 -j {script} -no3d" };
+        string[] args = new string[] { $"Versions\\{Version}\\Kiseki.Server.exe", $"-a {Web.FormatUrl("/Login/Negotiate.ashx", null, true)} -t 0 -j {script} -no3d" };
 
-        Process = new Process()
+        Process = new Process
         {
             StartInfo = new ProcessStartInfo()
             {
@@ -58,9 +58,11 @@ public class PlaceJob : Job
 
                 // RedirectStandardError = true,
                 // RedirectStandardOutput = true
-            }
-        };
+            },
 
+            EnableRaisingEvents = true
+        };
+        
         Process.Exited += (sender, e) => {
             Logger.Write($"PlaceJob:{Uuid}", $"Exited with code {Process.ExitCode}!", LogSeverity.Event);
             Status = JobStatus.Closed;
