@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Kiseki.Arbiter": {
+      "commandName": "Project",
+      "commandLineArgs": "-v"
+    }
+  }
+}
