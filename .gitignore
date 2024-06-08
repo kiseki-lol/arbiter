@@ -6,6 +6,7 @@
 [Ll]icense.bin
 [Aa]pp[Ss]ettings.json
 .vscode/
+Kiseki.Arbiter/Versions/*
 
 # User-specific files
 *.rsuser

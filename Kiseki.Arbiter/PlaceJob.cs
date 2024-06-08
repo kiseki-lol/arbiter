@@ -40,8 +40,11 @@ public class PlaceJob : Job
         Logger.Write($"PlaceJob:{Uuid}", $"Starting...", LogSeverity.Event);
         Status = JobStatus.Waiting;
 
+        bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
-        string[] args = new string[] { $"Versions\\{Version}\\Kiseki.Server.exe", $"-a {Web.FormatUrl("/Login/Negotiate.ashx", null, true)} -t 0 -j {script} -no3d" };
+        string binary = $"{(isLinux ? "Bloxblox.Aya.Server" : "Bloxblox.Aya.Server.exe")}";
+        string cwd    = $"Versions/{Version}/";
+        string[] args = new string[] { binary, $"" };
 
         Process = new Process
         {
@@ -52,17 +55,12 @@ public class PlaceJob : Job
                 UseShellExecute = true,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
-
-                // TODO: Enable following options once the patcher can hook onto STDOUT and STDERR properly
-                //       Once that's possible, we can start to save output logs :-)
-
-                // RedirectStandardError = true,
-                // RedirectStandardOutput = true
+                WorkingDirectory = cwd,
             },
 
             EnableRaisingEvents = true
         };
-        
+
         Process.Exited += (sender, e) => {
             Logger.Write($"PlaceJob:{Uuid}", $"Exited with code {Process.ExitCode}!", LogSeverity.Event);
             Status = JobStatus.Closed;

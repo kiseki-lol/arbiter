@@ -43,13 +43,21 @@ public abstract class Job
     public void Close()
     {
         Logger.Write(Uuid, $"Closing...", LogSeverity.Event);
-        
-        Process!.Kill();
-        
+
+        // set status closed just in case process doesn't actually exist        
         Status = JobStatus.Closed;
         IsRunning = false;
         Closed = DateTime.UtcNow;
 
-        Logger.Write(Uuid, $"Closed!", LogSeverity.Event);
+        try
+        {
+            Process!.Kill();
+
+            Logger.Write(Uuid, $"Closed!", LogSeverity.Event);
+        }
+        catch (Exception e)
+        {
+            Logger.Write(Uuid, $"Error while closing job process! { e }", LogSeverity.Error);
+        }
     }
 }
