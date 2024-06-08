@@ -48,4 +48,9 @@ public static class Settings
     {
         return AppSettings!.BaseJobPort;
     }
+
+    public static int GetBaseHttpPort()
+    {
+        return AppSettings!.BaseHttpPort;
+    }
 }

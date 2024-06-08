@@ -29,7 +29,7 @@ public class PlaceJob : Job
         }
     }
 
-    public PlaceJob(string uuid, uint placeId, int version) : base(uuid, JobManager.GetAvailablePort())
+    public PlaceJob(string uuid, uint placeId, int version) : base(uuid, JobManager.GetAvailableGameserverPort(), JobManager.GetAvailableHttpPort())
     {
         PlaceId = placeId;
         Version = version;
@@ -40,11 +40,13 @@ public class PlaceJob : Job
         Logger.Write($"PlaceJob:{Uuid}", $"Starting...", LogSeverity.Event);
         Status = JobStatus.Waiting;
 
+        string arbiterLocation   = AppDomain.CurrentDomain.BaseDirectory;
         bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
-        string binary = $"{(isLinux ? "Bloxblox.Aya.Server" : "Bloxblox.Aya.Server.exe")}";
-        string cwd    = $"Versions/{Version}/";
-        string[] args = new string[] { binary, $"" };
+        // https://stackoverflow.com/questions/52599105/c-sharp-under-linux-process-start-exception-of-no-such-file-or-directory WHY??? MICROSOFT
+        string binary = $"Versions/{Version}/{(isLinux ? "Bloxblox.Aya.Server" : "Bloxblox.Aya.Server.exe")}";
+        string cwd    = $"{arbiterLocation}Versions/{Version}/"; // arbiterLocation already contains /
+        string[] args = new string[] { binary, $"--port {HttpPort} --nostdin" };
 
         Process = new Process
         {
@@ -52,10 +54,13 @@ public class PlaceJob : Job
             {
                 FileName = args[0],
                 Arguments = args[1],
-                UseShellExecute = true,
+                UseShellExecute = false,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 WorkingDirectory = cwd,
+
+                RedirectStandardError = false,
+                RedirectStandardOutput = true,
             },
 
             EnableRaisingEvents = true
@@ -68,12 +73,36 @@ public class PlaceJob : Job
             Closed = DateTime.UtcNow;
         };
 
-        Process.Start();
-        Process.WaitForInputIdle();
+        Process.OutputDataReceived += (sender, e) => {
+#if DEBUG
+            Logger.Write($"PlaceJob:stdout:{Uuid}", $"{e.Data}", LogSeverity.Event);
+#endif
 
+            if (e.Data.StartsWith("Starting webserver to listen for POST requests on "))
+            {
+                
+            }
+        };
+
+        try
+        {
+            Process.Start();
+            Process.BeginOutputReadLine();
+        }
+        catch (Exception ex)
+        {
+            Logger.Write($"PlaceJob:{Uuid}", $"Error starting process: {ex}", LogSeverity.Error);
+            Status = JobStatus.Closed;
+            IsRunning = false;
+            Closed = DateTime.UtcNow;
+        }
+
+        /*
         IsRunning = true;
         Started = DateTime.UtcNow;
+        Status = JobStatus.Running;
 
         Logger.Write($"PlaceJob:{Uuid}", $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
+        */
     }
 }

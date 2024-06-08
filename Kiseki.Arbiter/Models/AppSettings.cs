@@ -16,4 +16,7 @@ public class AppSettings
 
     [JsonPropertyName("base_job_port")]
     public int BaseJobPort { get; set; } = 53640;
+
+    [JsonPropertyName("base_http_port")]
+    public int BaseHttpPort { get; set; } = 65000;
 }

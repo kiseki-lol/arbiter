@@ -6,7 +6,7 @@ public class JobManager
 {
     public static List<Job> OpenJobs = new();
 
-    public static int GetAvailablePort()
+    public static int GetAvailableGameserverPort()
     {
         int port = Settings.GetBaseJobPort();
 
@@ -23,6 +23,25 @@ public class JobManager
         }
 
         return port;
+    }
+
+    public static int GetAvailableHttpPort()
+    {
+        int httpPort = Settings.GetBaseHttpPort();
+
+        for (int i = 0; i < ushort.MaxValue - Settings.GetBaseHttpPort(); i++)
+        {
+            if (OpenJobs.Find(job => job.HttpPort == httpPort) == null && !IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(listener => listener.Port == httpPort))
+            {
+                break;
+            }
+            else
+            {
+                httpPort++;
+            }
+        }
+
+        return httpPort;
     }
 
     public static void OpenJob(Job job)

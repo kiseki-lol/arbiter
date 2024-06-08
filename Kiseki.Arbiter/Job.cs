@@ -8,6 +8,7 @@ public abstract class Job
 
     public string Uuid { get; protected set; }
     public int Port { get; protected set; }
+    public int HttpPort { get; protected set; }
     public Process? Process { get; protected set; } = null;
     public bool IsRunning { get; protected set; } = false;
 
@@ -32,10 +33,11 @@ public abstract class Job
         }
     }
 
-    public Job(string uuid, int port)
+    public Job(string uuid, int port, int httpPort)
     {
         Uuid = uuid;
         Port = port;
+        HttpPort = httpPort;
     }
 
     public abstract void Start();

@@ -123,6 +123,14 @@ public static class Web
         return $"{scheme}://{url}{path}";
     }
 
+    public static string FormatUrlServer(string path)
+    {
+        string scheme = "http"; // RCC schema will ALWAYS be http
+        string url = CurrentUrl!;
+
+        return $"{scheme}://{url}{path}";
+    }
+
     public static string FormatPlaceJobScriptUrl(string jobUuid, int port)
     {
         return FormatUrl($"/api/arbiter/place-job/{jobUuid}/script?port={port}&key={Settings.GetAccessKey()}", null, true);
