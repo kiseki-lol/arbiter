@@ -1,3 +1,8 @@
+using System.Security.Cryptography;
+using JWT;
+using JWT.Algorithms;
+using JWT.Serializers;
+
 namespace Kiseki.Arbiter;
 
 public static class Web
@@ -123,12 +128,37 @@ public static class Web
         return $"{scheme}://{url}{path}";
     }
 
-    public static string FormatUrlServer(string path)
+    public static string FormatServerUrl(string path)
     {
         string scheme = "http"; // RCC schema will ALWAYS be http
-        string url = CurrentUrl!;
+        string url = "127.0.0.1"; // localhost, assuming rcc runs alongside & on same network adap. as arbit
 
         return $"{scheme}://{url}{path}";
+    }
+
+    public static object SendStartGameRequestJwt(int port, uint placeId, string token = "asdasd")
+    {
+        string url = FormatServerUrl($"/game/");
+
+        Dictionary<string, object> data = new()
+        {
+            { "iss", "kiseki.server" },
+            { "action", "start" },
+            { "key", "this_is_unused_atm" },
+            { "token", token },
+            { "id", placeId },
+            { "port", port },
+        };
+
+        IJwtAlgorithm algorithm = new HMACSHA512Algorithm();
+        IJsonSerializer serializer = new JsonNetSerializer();
+        IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
+        IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
+        const string key = "kiseki-rcc-test";
+
+        var jwt = encoder.Encode(data, key);
+        Logger.Write(jwt, LogSeverity.Information);
+        return Http.PostJson<object>(url, jwt)!;
     }
 
     public static string FormatPlaceJobScriptUrl(string jobUuid, int port)

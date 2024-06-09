@@ -44,7 +44,7 @@ public class PlaceJob : Job
         bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
         // https://stackoverflow.com/questions/52599105/c-sharp-under-linux-process-start-exception-of-no-such-file-or-directory WHY??? MICROSOFT
-        string binary = $"Versions/{Version}/{(isLinux ? "Bloxblox.Aya.Server" : "Bloxblox.Aya.Server.exe")}";
+        string binary = $"Versions/{Version}/{(isLinux ? "Kiseki.Aya.Server" : "Kiseki.Aya.Server.exe")}";
         string cwd    = $"{arbiterLocation}Versions/{Version}/"; // arbiterLocation already contains /
         string[] args = new string[] { binary, $"--port {HttpPort} --nostdin" };
 
@@ -80,7 +80,7 @@ public class PlaceJob : Job
 
             if (e.Data.StartsWith("Starting webserver to listen for POST requests on "))
             {
-                
+                Web.SendStartGameRequestJwt(Port, PlaceId, "placeholder");
             }
         };
 

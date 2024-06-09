@@ -30,4 +30,29 @@ public static class Http
             return default;
         }
     }
+
+    public static T? PostJson<T>(string url, string data)
+    {
+        try
+        {
+            var httpRequestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(url),
+                Headers = { 
+                    { HttpRequestHeader.Authorization.ToString(), data },
+                    { HttpRequestHeader.Accept.ToString(), "application/json" },
+                },
+            };
+
+            var response = Web.HttpClient.SendAsync(httpRequestMessage).Result;
+
+            // return JsonSerializer.Deserialize<T>(response);
+            return default;
+        }
+        catch
+        {
+            return default;
+        }
+    }
 }
