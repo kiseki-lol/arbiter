@@ -85,8 +85,6 @@ public class PlaceJob : Job
                 
                 try 
                 {
-                    string response = (string)Web.SendJWTRequest(HttpPort, (int)PlaceId, Port);
-
                     IsRunning = true;
                     Started = DateTime.UtcNow;
                     Status = JobStatus.Running;

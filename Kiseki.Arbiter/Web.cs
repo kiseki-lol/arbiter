@@ -1,8 +1,3 @@
-using System.Security.Cryptography;
-using JWT;
-using JWT.Algorithms;
-using JWT.Serializers;
-
 namespace Kiseki.Arbiter;
 
 public static class Web
@@ -134,29 +129,6 @@ public static class Web
         string url = "127.0.0.1"; // localhost, assuming rcc runs alongside & on same network adap. as arbit
 
         return $"{scheme}://{url}:{port.ToString()}{path}&t=" + jwt;
-    }
-
-    public static object SendJWTRequest(int httpPort, int placeId, int port)
-    {
-        Dictionary<string, object> data = new()
-        {
-            { "iss", "kiseki.server" },
-            { "action", "start" },
-            { "key", "this_is_unused_atm" },
-            { "token", "placeholder" },
-            { "id", placeId },
-            { "port", port },
-        };
-
-        IJwtAlgorithm algorithm = new HMACSHA512Algorithm();
-        IJsonSerializer serializer = new JsonNetSerializer();
-        IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
-        IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
-        const string key = "kiseki-rcc-test";
-
-        string jwt = encoder.Encode(data, key);
-        var response = Http.PostJson<RCCResponse>(FormatServerUrl($"/server/", httpPort, jwt), jwt);
-        return jwt;
     }
 
     public static string FormatPlaceJobScriptUrl(string jobUuid, int port)
