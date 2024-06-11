@@ -29,7 +29,7 @@ public class PlaceJob : Job
         }
     }
 
-    public PlaceJob(string uuid, uint placeId, int version) : base(uuid, JobManager.GetAvailableGameserverPort(), JobManager.GetAvailableHttpPort())
+    public PlaceJob(string uuid, uint placeId, int version) : base(uuid, JobManager.GetAvailableGameserverPort(), JobManager.GetAvailableSoapPort())
     {
         PlaceId = placeId;
         Version = version;
@@ -47,7 +47,7 @@ public class PlaceJob : Job
         // https://stackoverflow.com/questions/52599105/c-sharp-under-linux-process-start-exception-of-no-such-file-or-directory WHY??? MICROSOFT
         string binary = $"Versions/{Version}/{(isLinux ? "Kiseki.Aya.Server" : "Kiseki.Aya.Server.exe")}";
         string cwd    = $"{arbiterLocation}Versions/{Version}/"; // arbiterLocation already contains /
-        string[] args = new string[] { binary, $"--port {HttpPort} --nostdin" };
+        string[] args = new string[] { binary, $"--port {SoapPort}" };
 
         Process = new Process
         {

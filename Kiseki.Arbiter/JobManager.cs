@@ -25,23 +25,23 @@ public class JobManager
         return port;
     }
 
-    public static int GetAvailableHttpPort()
+    public static int GetAvailableSoapPort()
     {
-        int httpPort = Settings.GetBaseHttpPort();
+        int soapPort = Settings.GetBaseSoapPort();
 
-        for (int i = 0; i < ushort.MaxValue - Settings.GetBaseHttpPort(); i++)
+        for (int i = 0; i < ushort.MaxValue - Settings.GetBaseSoapPort(); i++)
         {
-            if (OpenJobs.Find(job => job.HttpPort == httpPort) == null && !IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(listener => listener.Port == httpPort))
+            if (OpenJobs.Find(job => job.SoapPort == soapPort) == null && !IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(listener => listener.Port == soapPort))
             {
                 break;
             }
             else
             {
-                httpPort++;
+                soapPort++;
             }
         }
 
-        return httpPort;
+        return soapPort;
     }
 
     public static void OpenJob(Job job)

@@ -49,8 +49,8 @@ public static class Settings
         return AppSettings!.BaseJobPort;
     }
 
-    public static int GetBaseHttpPort()
+    public static int GetBaseSoapPort()
     {
-        return AppSettings!.BaseHttpPort;
+        return AppSettings!.BaseSoapPort;
     }
 }

@@ -17,7 +17,7 @@ public static class Verifier
 
         try
         {
-            using TextReader reader = new StringReader(File.ReadAllText(Settings.GetPublicKeyPath()));
+            using TextReader reader = new StringReader(File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + Settings.GetPublicKeyPath()));
 
             PemReader pem = new(reader);
             AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pem.ReadObject();
