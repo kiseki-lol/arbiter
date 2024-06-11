@@ -190,7 +190,7 @@ public class TcpServer
             }
 #endif
 
-            if (Messages.Contains(message.Signal.Uuid))
+            if (Messages.Contains(message!.Signal.Uuid))
             {
                 Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient.IpAddress}' sent a message that was already processed.", LogSeverity.Warning);
                 handler.Close();

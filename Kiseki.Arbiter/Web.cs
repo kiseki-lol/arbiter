@@ -128,24 +128,22 @@ public static class Web
         return $"{scheme}://{url}{path}";
     }
 
-    public static string FormatServerUrl(string path)
+    public static string FormatServerUrl(string path, int port, string jwt)
     {
         string scheme = "http"; // RCC schema will ALWAYS be http
         string url = "127.0.0.1"; // localhost, assuming rcc runs alongside & on same network adap. as arbit
 
-        return $"{scheme}://{url}{path}";
+        return $"{scheme}://{url}:{port.ToString()}{path}&t=" + jwt;
     }
 
-    public static object SendStartGameRequestJwt(int port, uint placeId, string token = "asdasd")
+    public static object SendJWTRequest(int httpPort, int placeId, int port)
     {
-        string url = FormatServerUrl($"/game/");
-
         Dictionary<string, object> data = new()
         {
             { "iss", "kiseki.server" },
             { "action", "start" },
             { "key", "this_is_unused_atm" },
-            { "token", token },
+            { "token", "placeholder" },
             { "id", placeId },
             { "port", port },
         };
@@ -156,9 +154,9 @@ public static class Web
         IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
         const string key = "kiseki-rcc-test";
 
-        var jwt = encoder.Encode(data, key);
-        Logger.Write(jwt, LogSeverity.Information);
-        return Http.PostJson<object>(url, jwt)!;
+        string jwt = encoder.Encode(data, key);
+        var response = Http.PostJson<RCCResponse>(FormatServerUrl($"/server/", httpPort, jwt), jwt);
+        return jwt;
     }
 
     public static string FormatPlaceJobScriptUrl(string jobUuid, int port)

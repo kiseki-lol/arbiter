@@ -42,6 +42,7 @@ public class PlaceJob : Job
 
         string arbiterLocation   = AppDomain.CurrentDomain.BaseDirectory;
         bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        bool sentGameserverRequest = false;
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
         // https://stackoverflow.com/questions/52599105/c-sharp-under-linux-process-start-exception-of-no-such-file-or-directory WHY??? MICROSOFT
         string binary = $"Versions/{Version}/{(isLinux ? "Kiseki.Aya.Server" : "Kiseki.Aya.Server.exe")}";
@@ -78,9 +79,25 @@ public class PlaceJob : Job
             Logger.Write($"PlaceJob:stdout:{Uuid}", $"{e.Data}", LogSeverity.Event);
 #endif
 
-            if (e.Data.StartsWith("Starting webserver to listen for POST requests on "))
+            if (e.Data != null && !sentGameserverRequest && e.Data.StartsWith("You have ran Server with the -nostdin flag."))
             {
-                Web.SendStartGameRequestJwt(Port, PlaceId, "placeholder");
+                sentGameserverRequest = true;
+                
+                try 
+                {
+                    string response = (string)Web.SendJWTRequest(HttpPort, (int)PlaceId, Port);
+
+                    IsRunning = true;
+                    Started = DateTime.UtcNow;
+                    Status = JobStatus.Running;
+
+                    Logger.Write($"PlaceJob:{Uuid}", $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(ex.ToString(), LogSeverity.Error);
+                    return;
+                }
             }
         };
 
@@ -96,13 +113,5 @@ public class PlaceJob : Job
             IsRunning = false;
             Closed = DateTime.UtcNow;
         }
-
-        /*
-        IsRunning = true;
-        Started = DateTime.UtcNow;
-        Status = JobStatus.Running;
-
-        Logger.Write($"PlaceJob:{Uuid}", $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
-        */
     }
 }

@@ -35,23 +35,30 @@ public static class Http
     {
         try
         {
+            Web.HttpClient.DefaultRequestHeaders.Remove("Authorization");
+
+            byte[] bytes = Compression.Compress(Encoding.ASCII.GetBytes(data));
+            string compress = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+
+            Logger.Write(compress.Length.ToString(), LogSeverity.Warning);
+            Logger.Write(data.Length.ToString(), LogSeverity.Warning);
+
             var httpRequestMessage = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri(url),
-                Headers = { 
-                    { HttpRequestHeader.Authorization.ToString(), data },
-                    { HttpRequestHeader.Accept.ToString(), "application/json" },
-                },
-            };
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(url),
+                    Headers = { 
+                        { "Authorization", "Hi"},
+                    },
+                    Content = new StringContent(data, Encoding.UTF8, "application/json")
+                };
 
             var response = Web.HttpClient.SendAsync(httpRequestMessage).Result;
-
-            // return JsonSerializer.Deserialize<T>(response);
             return default;
         }
-        catch
-        {
+        catch (Exception e)
+        {   
+            Logger.Write($"{e.ToString()}", LogSeverity.Error);
             return default;
         }
     }
