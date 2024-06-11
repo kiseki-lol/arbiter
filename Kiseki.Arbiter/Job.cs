@@ -9,6 +9,7 @@ public abstract class Job
     public string Uuid { get; protected set; }
     public int Port { get; protected set; }
     public int SoapPort { get; protected set; }
+    public bool SoapReady { get; protected set; } = false;
     public Process? Process { get; protected set; } = null;
     public bool IsRunning { get; protected set; } = false;
 

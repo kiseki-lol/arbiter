@@ -18,6 +18,7 @@
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="8.0.0" />
   </ItemGroup>
   
 </Project>

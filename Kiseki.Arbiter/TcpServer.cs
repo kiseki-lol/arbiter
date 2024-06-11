@@ -180,7 +180,6 @@ public class TcpServer
             }
 
             // Verify signature
-#if (!DEBUG)
             if (!Verifier.Verify(message!.Raw, message.Signature))
             {
                 Logger.Write(LOG_IDENT, $"Machine '{state.TcpClient.IpAddress}' sent a message with a bad or malformed signature.", LogSeverity.Warning);
@@ -188,7 +187,6 @@ public class TcpServer
 
                 return;
             }
-#endif
 
             if (Messages.Contains(message!.Signal.Uuid))
             {

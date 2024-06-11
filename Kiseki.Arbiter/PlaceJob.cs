@@ -1,5 +1,8 @@
 namespace Kiseki.Arbiter;
 
+using System.ServiceModel;
+using ServiceReference;
+
 public class PlaceJob : Job
 {
     public uint PlaceId { get; private set; }
@@ -42,13 +45,20 @@ public class PlaceJob : Job
 
         string arbiterLocation   = AppDomain.CurrentDomain.BaseDirectory;
         bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        bool sentGameserverRequest = false;
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
-        // https://stackoverflow.com/questions/52599105/c-sharp-under-linux-process-start-exception-of-no-such-file-or-directory WHY??? MICROSOFT
         string binary = $"Versions/{Version}/{(isLinux ? "Kiseki.Aya.Server" : "Kiseki.Aya.Server.exe")}";
         string cwd    = $"{arbiterLocation}Versions/{Version}/"; // arbiterLocation already contains /
         string[] args = new string[] { binary, $"--port {SoapPort}" };
 
+        // SOAP
+        var binding = new BasicHttpBinding();
+        var endpoint = new EndpointAddress("http://localhost:" + SoapPort.ToString());
+        
+        // should it really be a new RCCSoapServiceClient?
+        // todo: should the SOAP client be static?
+        //// todo: should move all of this stuff to Utilities anyways
+        var client = new RCCServiceSoapClient(binding, endpoint);
+        
         Process = new Process
         {
             StartInfo = new ProcessStartInfo()
@@ -74,28 +84,36 @@ public class PlaceJob : Job
             Closed = DateTime.UtcNow;
         };
 
-        Process.OutputDataReceived += (sender, e) => {
-#if DEBUG
-            Logger.Write($"PlaceJob:stdout:{Uuid}", $"{e.Data}", LogSeverity.Event);
-#endif
+        Process.OutputDataReceived += async (sender, e) => {
+            Logger.Write($"PlaceJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
 
-            if (e.Data != null && !sentGameserverRequest && e.Data.StartsWith("You have ran Server with the -nostdin flag."))
+            // check if SOAP started...
+            // Object reference not set to an instance of an object.
+            try
             {
-                sentGameserverRequest = true;
-                
-                try 
+                // yay!
+                if(!SoapReady && e.Data!.ToString().StartsWith("Now listening for incoming"))
                 {
+
+                    string result = await client.HelloWorldAsync();
+                    Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"HelloWorld Result: {result}", LogSeverity.Debug);                
+                    Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"SOAP communication successfully done, marking job as ready", LogSeverity.Event);                
+
+                    SoapReady = true;
                     IsRunning = true;
                     Started = DateTime.UtcNow;
                     Status = JobStatus.Running;
 
                     Logger.Write($"PlaceJob:{Uuid}", $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
                 }
-                catch (Exception ex)
-                {
-                    Logger.Write(ex.ToString(), LogSeverity.Error);
-                    return;
-                }
+            }
+            catch (Exception ex)
+            {
+                // bail!
+                Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"HelloWorld failed: {ex.Message}", LogSeverity.Error); 
+                Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"SOAP communication unsuccessful, closing job", LogSeverity.Event);                
+            
+                Close();
             }
         };
 
