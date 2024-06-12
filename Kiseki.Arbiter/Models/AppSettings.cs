@@ -18,5 +18,5 @@ public class AppSettings
     public int BaseJobPort { get; set; } = 53640;
 
     [JsonPropertyName("base_soap_port")]
-    public int BaseSoapPort { get; set; } = 65000;
+    public int BaseSoapPort { get; set; } = 65000;   
 }

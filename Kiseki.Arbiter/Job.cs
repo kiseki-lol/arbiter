@@ -14,6 +14,10 @@ public abstract class Job
     public Process? Process { get; protected set; } = null;
     public bool IsRunning { get; protected set; } = false;
 
+    // Job Script (the initial script that will be ran on the Job)
+    public LuaScript JobScript;
+    public string? PlaceToken { get; protected set; } = ""; // placed here because renders also require
+
     // SOAP
     public int SoapPort { get; protected set; }
     public bool SoapReady { get; protected set; } = false;
@@ -52,6 +56,7 @@ public abstract class Job
         SoapBinding = new BasicHttpBinding();
         SoapEndpoint = new EndpointAddress("http://localhost:" + SoapPort);
         SoapClient = new RCCServiceSoapClient(SoapBinding, SoapEndpoint);
+        JobScript = new LuaScript();
     }
 
     public abstract void Start();

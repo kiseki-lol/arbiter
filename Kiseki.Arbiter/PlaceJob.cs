@@ -1,3 +1,5 @@
+using ServiceReference;
+
 namespace Kiseki.Arbiter;
 
 public class PlaceJob : Job
@@ -29,9 +31,10 @@ public class PlaceJob : Job
         }
     }
 
-    public PlaceJob(string uuid, uint placeId, int version) : base(uuid, JobManager.GetAvailableGameserverPort(), JobManager.GetAvailableSoapPort())
+    public PlaceJob(string uuid, uint placeId, int version, string placeToken) : base(uuid, JobManager.GetAvailableGameserverPort(), JobManager.GetAvailableSoapPort())
     {
         PlaceId = placeId;
+        PlaceToken = placeToken;
         Version = version;
     }
 
@@ -40,6 +43,10 @@ public class PlaceJob : Job
         Logger.Write($"PlaceJob:{Uuid}", $"Starting...", LogSeverity.Event);
         Status = JobStatus.Waiting;
 
+        // read Place script
+        JobScript.LoadFromPath("gameserver.lua");
+
+        // all of the process stuff
         string arbiterLocation   = AppDomain.CurrentDomain.BaseDirectory;
         bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
@@ -82,10 +89,64 @@ public class PlaceJob : Job
                 // yay!
                 if(!SoapReady && e.Data!.ToString().StartsWith("Now listening for incoming"))
                 {
+                    // should we just do all of this stuff in Job?
+                    // setup job
 
-                    string result = await SoapClient.HelloWorldAsync();
-                    Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"HelloWorld Result: {result}", LogSeverity.Debug);                
-                    Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"SOAP communication successfully done, marking job as ready", LogSeverity.Event);                
+                    Logger.Write($"PlaceJob:{Uuid}", $"placetoken: {PlaceToken}", LogSeverity.Event);
+                    
+                    ServiceReference.Job job = new ServiceReference.Job
+                    {
+                        cores               = 1,
+                        category            = 0,
+                        expirationInSeconds = 120,
+                        id                  = Uuid
+                    };
+                    
+                    ScriptExecution scriptExecution = new ScriptExecution
+                    {
+                        script    = JobScript.Script,
+                        name      = "Gameserver",
+                        arguments = 
+                        [
+                            new LuaValue
+                            {
+                                type = LuaType.LUA_TSTRING,
+                                value = Uuid
+                            },
+                            new LuaValue
+                            {
+                                type = LuaType.LUA_TSTRING,
+                                value = "Gameserver"
+                            },
+                            new LuaValue
+                            {
+                                type = LuaType.LUA_TSTRING,
+// kiseki.local - no tls
+#if DEBUG
+                                value = "http://" + Constants.BASE_URL
+#else
+                                value = "https://" + Constants.BASE_URL
+#endif
+                            },
+                            new LuaValue
+                            {
+                                type = LuaType.LUA_TNUMBER,
+                                value = PlaceId.ToString() // why?
+                            },
+                            new LuaValue
+                            {
+                                type = LuaType.LUA_TNUMBER,
+                                value = Port.ToString() // why?
+                            },
+                            new LuaValue
+                            {
+                                type = LuaType.LUA_TSTRING,
+                                value = PlaceToken
+                            },
+                        ]
+                    };
+
+                    LuaValue[] result = await SoapClient.OpenJobExAsync(job, scriptExecution);
 
                     SoapReady = true;
                     IsRunning = true;
@@ -98,8 +159,8 @@ public class PlaceJob : Job
             catch (Exception ex)
             {
                 // bail!
-                Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"HelloWorld failed: {ex.Message}", LogSeverity.Error); 
-                Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"SOAP communication unsuccessful, closing job", LogSeverity.Event);                
+                Logger.Write($"PlaceJob:Soap:{Uuid}", $"Place run failed: {ex.Message}", LogSeverity.Error); 
+                Logger.Write($"PlaceJob:Soap:{Uuid}", $"Could not start gameserver, closing job", LogSeverity.Event);                
             
                 Close();
             }
