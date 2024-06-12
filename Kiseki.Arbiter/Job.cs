@@ -1,3 +1,6 @@
+using System.ServiceModel;
+using ServiceReference;
+
 namespace Kiseki.Arbiter;
 
 public abstract class Job
@@ -8,10 +11,15 @@ public abstract class Job
 
     public string Uuid { get; protected set; }
     public int Port { get; protected set; }
-    public int SoapPort { get; protected set; }
-    public bool SoapReady { get; protected set; } = false;
     public Process? Process { get; protected set; } = null;
     public bool IsRunning { get; protected set; } = false;
+
+    // SOAP
+    public int SoapPort { get; protected set; }
+    public bool SoapReady { get; protected set; } = false;
+    public BasicHttpBinding SoapBinding;
+    public EndpointAddress SoapEndpoint;
+    public RCCServiceSoapClient SoapClient;
 
     public virtual DateTime Started {
         get => _started;
@@ -38,7 +46,12 @@ public abstract class Job
     {
         Uuid = uuid;
         Port = port;
+        
+        // SOAP
         SoapPort = soapPort;
+        SoapBinding = new BasicHttpBinding();
+        SoapEndpoint = new EndpointAddress("http://localhost:" + SoapPort);
+        SoapClient = new RCCServiceSoapClient(SoapBinding, SoapEndpoint);
     }
 
     public abstract void Start();

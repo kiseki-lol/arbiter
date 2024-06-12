@@ -21,4 +21,17 @@
     <PackageReference Include="System.ServiceModel.Primitives" Version="8.0.0" />
   </ItemGroup>
   
+  <!--
+  todo: make this work
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <RemoveDir Directories="$(TargetDir)Scripts\" />
+    <Copy
+      SourceFiles="@(Scripts)"
+      DestinationFiles="@(Scripts->'$(TargetDir)Scripts\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true"
+      OverwriteReadOnlyFiles="true"
+      Retries="2"
+      RetryDelayMilliseconds="1000"
+      />
+  </Target>-->
 </Project>

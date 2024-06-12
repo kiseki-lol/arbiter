@@ -1,8 +1,5 @@
 namespace Kiseki.Arbiter;
 
-using System.ServiceModel;
-using ServiceReference;
-
 public class PlaceJob : Job
 {
     public uint PlaceId { get; private set; }
@@ -49,15 +46,6 @@ public class PlaceJob : Job
         string binary = $"Versions/{Version}/{(isLinux ? "Kiseki.Aya.Server" : "Kiseki.Aya.Server.exe")}";
         string cwd    = $"{arbiterLocation}Versions/{Version}/"; // arbiterLocation already contains /
         string[] args = new string[] { binary, $"--port {SoapPort}" };
-
-        // SOAP
-        var binding = new BasicHttpBinding();
-        var endpoint = new EndpointAddress("http://localhost:" + SoapPort.ToString());
-        
-        // should it really be a new RCCSoapServiceClient?
-        // todo: should the SOAP client be static?
-        //// todo: should move all of this stuff to Utilities anyways
-        var client = new RCCServiceSoapClient(binding, endpoint);
         
         Process = new Process
         {
@@ -95,7 +83,7 @@ public class PlaceJob : Job
                 if(!SoapReady && e.Data!.ToString().StartsWith("Now listening for incoming"))
                 {
 
-                    string result = await client.HelloWorldAsync();
+                    string result = await SoapClient.HelloWorldAsync();
                     Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"HelloWorld Result: {result}", LogSeverity.Debug);                
                     Logger.Write($"PlaceJob:SoapTest:{Uuid}", $"SOAP communication successfully done, marking job as ready", LogSeverity.Event);                
 
