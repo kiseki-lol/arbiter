@@ -65,7 +65,7 @@ if baseUrl ~= nil then
     -- this crashes?
     -- pcall(function() loadfile(baseUrl .. "/Game/LoadPlaceInfo.ashx?PlaceId=" .. placeId .. "&Token=" .. token)() end)
     
-    pcall(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(true) end)
+    -- pcall(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(true) end)
 end
 
 settings().Diagnostics.LuaRamLimit = 0
