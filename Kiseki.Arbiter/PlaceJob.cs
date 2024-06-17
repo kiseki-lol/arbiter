@@ -49,7 +49,6 @@ public class PlaceJob : Job
         // all of the process stuff
         string arbiterLocation   = AppDomain.CurrentDomain.BaseDirectory;
         bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        string script = Web.FormatPlaceJobScriptUrl(Uuid, Port);
         string binary = $"Versions/{Version}/{(isLinux ? "Kiseki.Aya.Server" : "Kiseki.Aya.Server.exe")}";
         string cwd    = $"{arbiterLocation}Versions/{Version}/"; // arbiterLocation already contains /
         string[] args = new string[] { binary, $"--port {SoapPort}" };

@@ -106,16 +106,46 @@ public static class SignalProcessor
                 return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
             }
 
-            Task.Run(
-                () => JobManager.OpenJob(
-                    new PlaceJob(
-                        signal.Data["uuid"].ToString()!, 
-                        uint.Parse(signal.Data["place_id"].ToString()!), 
-                        Convert.ToInt32(signal.Data!["version"]),
-                        signal.Data["place_token"].ToString()!
+            if (signal.Data["job_type"].ToString()! == "game")
+            {
+                Task.Run(
+                    () => JobManager.OpenJob(
+                        new PlaceJob(
+                            signal.Data["uuid"].ToString()!, 
+                            uint.Parse(signal.Data["place_id"].ToString()!), 
+                            Convert.ToInt32(signal.Data!["version"]),
+                            signal.Data["place_token"].ToString()!
+                        )
                     )
-                )
-            );
+                );
+            }
+            else if (signal.Data["job_type"].ToString()! == "render")
+                {
+                Task.Run(
+                    () => JobManager.OpenJob(
+                        new RenderJob(
+                            signal.Data["uuid"].ToString()!, 
+                            uint.Parse(signal.Data["place_id"].ToString()!), 
+                            Convert.ToInt32(signal.Data!["version"]),
+                            signal.Data["place_token"].ToString()!,
+                            int.Parse(signal.Data["asset_type"].ToString()!),
+                            int.Parse(signal.Data["render_type"].ToString()!)
+                        )
+
+                        // both the asset_type & render_type will be casted to their respective enums.
+                    )
+                );
+            }
+            else
+            {
+                Logger.Write($"Invalid job_type passed by website! Is the request malformed?", LogSeverity.Error);
+                response = new()
+                {
+                    Success = false
+                };
+
+                return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+            }
 
             response = new()
             {

@@ -49,7 +49,6 @@ public abstract class Job
     public Job(string uuid, int port, int soapPort)
     {
         Uuid = uuid;
-        Port = port;
         
         // SOAP
         SoapPort = soapPort;

@@ -131,11 +131,6 @@ public static class Web
         return $"{scheme}://{url}:{port.ToString()}{path}&t=" + jwt;
     }
 
-    public static string FormatPlaceJobScriptUrl(string jobUuid, int port)
-    {
-        return FormatUrl($"/api/arbiter/place-job/{jobUuid}/script?port={port}&key={Settings.GetAccessKey()}", null, true);
-    }
-
     public static HealthCheckStatus GetHealthStatus()
     {
         var response = Http.GetJson<HealthCheck>(FormatUrl("/api/health"));

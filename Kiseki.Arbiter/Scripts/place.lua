@@ -1,4 +1,4 @@
-local jobId, type, format, x, y, baseUrl, assetId, arbiter_token, token, key = ...
+local jobId, type, format, x, y, baseUrl, assetId, token = ...
 
 print(token)
 
@@ -13,7 +13,7 @@ game:GetService("ContentProvider"):SetBaseUrl(baseUrl)
 game:GetService("ScriptContext").ScriptsDisabled = true
 game:GetService("StarterGui").ShowDevelopmentGui = false
 
-game:Load(("%s/asset/?id=%d&key=%s&token=%s"):format(baseUrl, assetId, key, token))
+game:Load(("%s/asset/?id=%d&token=%s"):format(baseUrl, assetId, token))
 
 game:GetService("ScriptContext").ScriptsDisabled = true
 game:GetService("StarterGui").ShowDevelopmentGui = false
