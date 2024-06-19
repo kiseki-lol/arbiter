@@ -125,7 +125,7 @@ public static class SignalProcessor
                     () => JobManager.OpenJob(
                         new RenderJob(
                             signal.Data["uuid"].ToString()!, 
-                            uint.Parse(signal.Data["place_id"].ToString()!), 
+                            uint.Parse(signal.Data["asset_id"].ToString()!), 
                             Convert.ToInt32(signal.Data!["version"]),
                             signal.Data["place_token"].ToString()!,
                             int.Parse(signal.Data["asset_type"].ToString()!),

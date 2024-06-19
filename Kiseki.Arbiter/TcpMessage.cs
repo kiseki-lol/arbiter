@@ -91,8 +91,9 @@ public class TcpMessage
             signatureData = new byte[signatureSize];
             Buffer.BlockCopy(buffer, signalSize + SIGNATURE_DATA_OFFSET, signatureData, 0, signatureSize);
         }
-        catch
+        catch (Exception e)
         {
+            Logger.Write(LOG_IDENT, e.ToString(), LogSeverity.Debug);
             return false;
         }
 
