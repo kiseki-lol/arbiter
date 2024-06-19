@@ -33,6 +33,9 @@ public class RenderJob : Job
             case RenderJobType.Place:
                 JobScript.LoadFromPath("place.lua");
                 break;
+            case RenderJobType.Asset:
+                JobScript.LoadFromPath("bodyasset.lua");
+                break;
             case RenderJobType.XML:
                 JobScript.LoadFromPath("xml.lua");
                 break;
@@ -214,10 +217,13 @@ public class RenderJob : Job
     public override void Start()
     {
         Logger.Write($"RenderJob:{Uuid}", $"Starting...", LogSeverity.Event);
+        Logger.Write($"RenderJob:{Uuid}", $"Fart", LogSeverity.Event);
         Status = JobStatus.Waiting;
+        Logger.Write($"RenderJob:{Uuid}", $"Fart", LogSeverity.Event);
 
         // read Place script
         GetScriptFromRenderType();
+        Logger.Write($"RenderJob:{Uuid}", $"Fart", LogSeverity.Event);
 
         // all of the process stuff
         string arbiterLocation   = AppDomain.CurrentDomain.BaseDirectory;
