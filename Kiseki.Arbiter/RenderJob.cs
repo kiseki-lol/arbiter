@@ -44,6 +44,9 @@ public class RenderJob : Job
 
     public ScriptExecution GetScriptExecutionFromRenderType()
     {
+        Logger.Write($"{RenderJobType.Asset}", LogSeverity.Information);
+        Logger.Write($"{RenderType}", LogSeverity.Information);
+
         if (RenderType == RenderJobType.Headshot || RenderType == RenderJobType.Bodyshot)
         {
             return new ScriptExecution
@@ -148,6 +151,58 @@ public class RenderJob : Job
                     {
                         type = LuaType.LUA_TSTRING,
                         value = PlaceToken
+                    },
+                ]
+            };
+        }
+
+        if (RenderType == RenderJobType.Asset)
+        {
+            return new ScriptExecution
+            {
+                script    = JobScript.Script,
+                name      = "RenderJob",
+                arguments = 
+                [
+                    new LuaValue
+                    {
+                        type = LuaType.LUA_TSTRING,
+                        value = Uuid
+                    },
+                    new LuaValue
+                    {
+                        type = LuaType.LUA_TSTRING,
+                        value = "Render"
+                    },
+                    new LuaValue
+                    {
+                        type = LuaType.LUA_TSTRING,
+                        value = "PNG" // maybe we should make RCC output webp?
+                    },
+                    new LuaValue
+                    {
+                        type = LuaType.LUA_TNUMBER,
+                        value = "420"
+                    },
+                    new LuaValue
+                    {
+                        type = LuaType.LUA_TNUMBER,
+                        value = "420"
+                    },
+                    new LuaValue
+                    {
+                        type = LuaType.LUA_TSTRING,
+// kiseki.local - no tls
+#if DEBUG
+                        value = "http://" + Constants.BASE_URL
+#else
+                        value = "https://" + Constants.BASE_URL
+#endif
+                    },
+                    new LuaValue
+                    {
+                        type = LuaType.LUA_TNUMBER,
+                        value = AssetId.ToString() // why?
                     },
                 ]
             };
