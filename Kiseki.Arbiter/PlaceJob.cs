@@ -82,7 +82,6 @@ public class PlaceJob : Job
             Logger.Write($"PlaceJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
 
             // check if SOAP started...
-            // Object reference not set to an instance of an object.
             try
             {
                 // yay!

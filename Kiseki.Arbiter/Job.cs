@@ -52,6 +52,7 @@ public abstract class Job
         
         // SOAP
         SoapPort = soapPort;
+        Port     = port;
         SoapBinding = new BasicHttpBinding();
         SoapEndpoint = new EndpointAddress("http://localhost:" + SoapPort);
         SoapClient = new RCCServiceSoapClient(SoapBinding, SoapEndpoint);
