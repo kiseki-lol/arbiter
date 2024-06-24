@@ -90,8 +90,6 @@ public class PlaceJob : Job
                     // should we just do all of this stuff in Job?
                     // setup job
 
-                    Logger.Write($"PlaceJob:{Uuid}", $"placetoken: {PlaceToken}", LogSeverity.Event);
-                    
                     ServiceReference.Job job = new ServiceReference.Job
                     {
                         cores               = 1,

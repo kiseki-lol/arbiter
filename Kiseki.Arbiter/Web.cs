@@ -216,6 +216,39 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
+    public static void UpdateAssetThumbnail(string jobUuid, uint assetId, string base64Result)
+    {
+        // no auth, we're just praying that nobody finds this endpoint and knows how requests are
+        // formed
+        string url = FormatUrl($"/api/arbiter/update-render/asset");
+
+        Dictionary<string, string> data = new()
+        {
+            { "jobUUId", jobUuid },
+            { "assetId", assetId.ToString() },
+            { "base64",  base64Result },
+        };
+
+        Http.PostJson<object>(url, data);
+    }
+
+    public static void UpdateUserThumbnail(string jobUuid, JobStatus status, int? port = null)
+    {
+        string url = FormatUrl($"/api/arbiter/update-render/user/{jobUuid}/status");
+
+        Dictionary<string, string> data = new()
+        {
+            { "status", ((int)status).ToString() }
+        };
+
+        if (status == JobStatus.Running)
+        {
+            data.Add("port", port.ToString()!);
+        }
+
+        Http.PostJson<object>(url, data);
+    }
+
     public static void UpdatePlaceJobTimestamp(string jobUuid, string key, DateTime timestamp)
     {
         string url = FormatUrl($"/api/arbiter/place-job/{jobUuid}/timestamp");

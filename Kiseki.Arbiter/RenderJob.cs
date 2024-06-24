@@ -4,11 +4,10 @@ namespace Kiseki.Arbiter;
 
 public class RenderJob : Job
 {
-    public uint AssetId { get; private set; }
+    public uint AssetId { get; private set; } // interchangeable as userId, RenderJobType changes
     public RenderJobType RenderType { get; private set; }
     public AssetType RenderAssetType { get; private set; }
     public int Version { get; private set; }
-
     public RenderJob(string uuid, uint assetId, int version, string placeToken, int assetType, int renderType) : base(uuid, JobManager.GetAvailableGameserverPort(), JobManager.GetAvailableSoapPort())
     {
         AssetId = assetId;
@@ -47,9 +46,6 @@ public class RenderJob : Job
 
     public ScriptExecution GetScriptExecutionFromRenderType()
     {
-        Logger.Write($"{RenderJobType.Asset}", LogSeverity.Information);
-        Logger.Write($"{RenderType}", LogSeverity.Information);
-
         if (RenderType == RenderJobType.Headshot || RenderType == RenderJobType.Bodyshot)
         {
             return new ScriptExecution
@@ -214,6 +210,25 @@ public class RenderJob : Job
         throw new Exception("not implemented for render type");
     }
 
+    public override string Base64Result { 
+        get => _result;
+        protected set {
+            _result = value;
+            if (
+                RenderType == RenderJobType.Place ||
+                RenderType == RenderJobType.XML ||
+                RenderType == RenderJobType.Asset
+            )
+            {
+                Web.UpdateAssetThumbnail(Uuid, AssetId, _result);
+            }
+            else
+            {
+                Web.UpdateUserThumbnail(Uuid, _status, Port);
+            }
+        }
+    }
+
     public override void Start()
     {
         Logger.Write($"RenderJob:{Uuid}", $"Starting...", LogSeverity.Event);
@@ -250,6 +265,10 @@ public class RenderJob : Job
             EnableRaisingEvents = true
         };
 
+        // can't put this stuff in the new ProcessStartInfo
+        if (isLinux)
+            Process.StartInfo.EnvironmentVariables["DISPLAY"] = ":0";
+
         Process.Exited += (sender, e) => {
             Logger.Write($"RenderJob:{Uuid}", $"Exited with code {Process.ExitCode}!", LogSeverity.Event);
             Status = JobStatus.Closed;
@@ -270,8 +289,6 @@ public class RenderJob : Job
                     // should we just do all of this stuff in Job?
                     // setup job
 
-                    Logger.Write($"RenderJob:{Uuid}", $"placetoken: {PlaceToken}", LogSeverity.Event);
-                    
                     ServiceReference.Job job = new ServiceReference.Job
                     {
                         cores               = 1,
@@ -282,12 +299,13 @@ public class RenderJob : Job
 
                     LuaValue[] result = await SoapClient.OpenJobExAsync(job, GetScriptExecutionFromRenderType());
 
+                    Base64Result = result[0].value;
+                    Logger.Write($"RenderJob:{Uuid}", $"Successfully rendered image!", LogSeverity.Event);
+
                     SoapReady = true;
                     IsRunning = true;
                     Started = DateTime.UtcNow;
                     Status = JobStatus.Running;
-
-                    Logger.Write($"RenderJob:{Uuid}", $"Started Kiseki.Server {Version} on port UDP/{Port}!", LogSeverity.Event);
                 }
             }
             catch (Exception ex)

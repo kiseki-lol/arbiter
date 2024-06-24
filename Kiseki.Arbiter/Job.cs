@@ -8,6 +8,7 @@ public abstract class Job
     protected DateTime _started;
     protected DateTime _closed;
     protected JobStatus _status;
+    protected string _result;
 
     public string Uuid { get; protected set; }
     public int Port { get; protected set; }
@@ -43,6 +44,13 @@ public abstract class Job
         get => _status;
         protected set {
             _status = value;
+        }
+    }
+
+    public virtual string Base64Result { 
+        get => _result;
+        protected set {
+            _result = value;
         }
     }
 
