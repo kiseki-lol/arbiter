@@ -1,4 +1,5 @@
 using System.ServiceModel;
+using System.Xml;
 using ServiceReference;
 
 namespace Kiseki.Arbiter;
@@ -61,7 +62,24 @@ public abstract class Job
         // SOAP
         SoapPort = soapPort;
         Port     = port;
-        SoapBinding = new BasicHttpBinding();
+        SoapBinding = new BasicHttpBinding
+        {
+            // https://stackoverflow.com/questions/5459697/the-maximum-message-size-quota-for-incoming-messages-65536-has-been-exceeded
+            MaxReceivedMessageSize = 20000000,
+            MaxBufferSize = 20000000,
+            MaxBufferPoolSize = 20000000,
+            AllowCookies = true
+        };
+
+        var readerQuotas = new XmlDictionaryReaderQuotas
+        {
+            MaxArrayLength = 20000000,
+            MaxStringContentLength = 20000000,
+            MaxDepth = 32
+        };
+
+        SoapBinding.ReaderQuotas = readerQuotas;
+
         SoapEndpoint = new EndpointAddress("http://localhost:" + SoapPort);
         SoapClient = new RCCServiceSoapClient(SoapBinding, SoapEndpoint);
         JobScript = new LuaScript();

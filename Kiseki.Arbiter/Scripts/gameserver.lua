@@ -11,6 +11,7 @@ function waitForChild(parent, childName)
     end
 end
 
+
 -----------------------------------END UTILITY FUNCTIONS -------------------------
 
 -----------------------------------"CUSTOM" SHARED CODE----------------------------------
@@ -27,7 +28,6 @@ pcall(function() settings().Diagnostics:LegacyScriptMode() end)
 -----------------------------------START GAME SHARED SCRIPT------------------------------
 
 local scriptContext = game:GetService("ScriptContext")
-pcall(function() scriptContext:AddStarterScript(37801172) end)
 scriptContext.ScriptsDisabled = true
 
 game:SetPlaceID(placeId, false)
@@ -65,7 +65,7 @@ if baseUrl ~= nil then
     -- this crashes?
     -- pcall(function() loadfile(baseUrl .. "/Game/LoadPlaceInfo.ashx?PlaceId=" .. placeId .. "&Token=" .. token)() end)
     
-    -- pcall(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(true) end)
+    -- call(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(true) end)
 end
 
 settings().Diagnostics.LuaRamLimit = 0
@@ -80,8 +80,8 @@ end)
 
 if placeId ~= nil and baseUrl ~= nil then
     wait()
-    print(baseUrl .. "/asset/?id=" .. placeId .. "&token=" .. token)
     game:Load(baseUrl .. "/asset/?id=" .. placeId .. "&token=" .. token)
+
 end
 
 ns:Start(port)

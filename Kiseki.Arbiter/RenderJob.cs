@@ -21,6 +21,8 @@ public class RenderJob : Job
 
     public void GetScriptFromRenderType()
     {
+        Logger.Write(RenderType.ToString());
+
         switch (RenderType)
         {
             case RenderJobType.Headshot:
@@ -30,6 +32,7 @@ public class RenderJob : Job
                 JobScript.LoadFromPath("bodyshot.lua");
                 break;
             case RenderJobType.Place:
+                Logger.Write("Hi");
                 JobScript.LoadFromPath("place.lua");
                 break;
             case RenderJobType.Asset:
@@ -100,6 +103,8 @@ public class RenderJob : Job
 
         if (RenderType == RenderJobType.Place)
         {
+            Logger.Write("RenderJobType token shit" + PlaceToken);
+
             return new ScriptExecution
             {
                 script    = JobScript.Script,
@@ -274,6 +279,8 @@ public class RenderJob : Job
             Status = JobStatus.Closed;
             IsRunning = false;
             Closed = DateTime.UtcNow;
+
+            JobManager.CloseJob(Uuid);
         };
 
         Process.OutputDataReceived += async (sender, e) => {
@@ -329,6 +336,8 @@ public class RenderJob : Job
             Status = JobStatus.Closed;
             IsRunning = false;
             Closed = DateTime.UtcNow;
+
+            JobManager.CloseJob(Uuid);
         }
     }
 }

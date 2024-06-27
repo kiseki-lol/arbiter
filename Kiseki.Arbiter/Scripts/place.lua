@@ -1,7 +1,5 @@
 local jobId, type, format, x, y, baseUrl, assetId, token = ...
 
-print(token)
-
 print(("[%s] Started RenderJob for type '%s' with assetId %d ..."):format(jobId, type, assetId))
 
 game:GetService("ScriptInformationProvider"):SetAssetUrl(baseUrl .. "/asset/")
