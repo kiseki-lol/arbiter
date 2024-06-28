@@ -307,12 +307,13 @@ public class RenderJob : Job
                     LuaValue[] result = await SoapClient.OpenJobExAsync(job, GetScriptExecutionFromRenderType());
 
                     Base64Result = result[0].value;
-                    Logger.Write($"RenderJob:{Uuid}", $"Successfully rendered image!", LogSeverity.Event);
+                    Logger.Write($"RenderJob:{Uuid}", $"Successfully rendered image! Shutting down job...", LogSeverity.Event);
 
-                    SoapReady = true;
-                    IsRunning = true;
-                    Started = DateTime.UtcNow;
-                    Status = JobStatus.Running;
+                    Status = JobStatus.Closed;
+                    IsRunning = false;
+                    Closed = DateTime.UtcNow;
+
+                    JobManager.CloseJob(Uuid);
                 }
             }
             catch (Exception ex)

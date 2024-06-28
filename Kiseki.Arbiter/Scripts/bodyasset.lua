@@ -23,8 +23,8 @@ if gear then
 end
 
 print(("[%s] Rendering ..."):format(jobId))
-local result = game:GetService("ThumbnailGenerator"):Click(format, x, y, true)
+local result = game:GetService("ThumbnailGenerator"):Click(format, x, y, false)
 print(("[%s] Done!"):format(jobId))
 
--- print(result)
+print(result)
 return result
