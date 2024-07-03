@@ -232,19 +232,23 @@ public static class Web
         Http.PostJson<object>(url, data);
     }
 
-    public static void UpdateUserThumbnail(string jobUuid, JobStatus status, int? port = null)
+    public static void UpdateUserThumbnail(string jobUuid, uint assetId, string base64Result, bool isHeadshot)
     {
-        string url = FormatUrl($"/api/arbiter/update-render/user/{jobUuid}/status");
+        // no auth, we're just praying that nobody finds this endpoint and knows how requests are
+        // formed
+        string url;
+
+        if (isHeadshot)
+            url = FormatUrl($"/api/arbiter/update-render/user/head");
+        else
+            url = FormatUrl($"/api/arbiter/update-render/user/body");
 
         Dictionary<string, string> data = new()
         {
-            { "status", ((int)status).ToString() }
+            { "jobUUId", jobUuid },
+            { "userId", assetId.ToString() },
+            { "base64",  base64Result },
         };
-
-        if (status == JobStatus.Running)
-        {
-            data.Add("port", port.ToString()!);
-        }
 
         Http.PostJson<object>(url, data);
     }

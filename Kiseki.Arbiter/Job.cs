@@ -23,6 +23,7 @@ public abstract class Job
     // SOAP
     public int SoapPort { get; protected set; }
     public bool SoapReady { get; protected set; } = false;
+    public bool PortReady { get; protected set; } = false;
     public BasicHttpBinding SoapBinding;
     public EndpointAddress SoapEndpoint;
     public RCCServiceSoapClient SoapClient;

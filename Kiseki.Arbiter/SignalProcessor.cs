@@ -120,7 +120,7 @@ public static class SignalProcessor
                 );
             }
             else if (signal.Data["job_type"].ToString()! == "render")
-                {
+            {
                 Task.Run(
                     () => JobManager.OpenJob(
                         new RenderJob(

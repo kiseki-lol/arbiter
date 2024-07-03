@@ -36,7 +36,10 @@ public class RenderJob : Job
                 JobScript.LoadFromPath("place.lua");
                 break;
             case RenderJobType.Asset:
-                JobScript.LoadFromPath("bodyasset.lua");
+                if (RenderAssetType == AssetType.Hat)
+                    JobScript.LoadFromPath("xml.lua");
+                else
+                    JobScript.LoadFromPath("bodyasset.lua");
                 break;
             case RenderJobType.XML:
                 JobScript.LoadFromPath("xml.lua");
@@ -226,10 +229,20 @@ public class RenderJob : Job
             )
             {
                 Web.UpdateAssetThumbnail(Uuid, AssetId, _result);
+                return;
             }
             else
             {
-                Web.UpdateUserThumbnail(Uuid, _status, Port);
+                // there's probably a better way to do this w/ a ternary
+                if (RenderType == RenderJobType.Headshot)
+                {
+                    Web.UpdateUserThumbnail(Uuid, AssetId, _result, true);
+                    return;
+                }
+                else
+                {
+                    Web.UpdateUserThumbnail(Uuid, AssetId, _result, false);
+                }
             }
         }
     }
@@ -286,14 +299,38 @@ public class RenderJob : Job
         Process.OutputDataReceived += async (sender, e) => {
             // DO NOT UNCOMMENT ON PROD!
             // THIS DDOSES THE SITE W/ LOGS
-            // Logger.Write($"RenderJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
+            Logger.Write($"RenderJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
 
             // check if SOAP started...
             // Object reference not set to an instance of an object.
             try
             {
+                // noooo!
+                if (!PortReady && e.Data!.ToString().StartsWith("Address already in use"))
+                {
+                    // hack to keep retrying until port open
+                    Status = JobStatus.Closed;
+                    IsRunning = false;
+                    Closed = DateTime.UtcNow;
+
+                    JobManager.CloseJob(Uuid);
+
+                    _ = Task.Run(
+                    () => JobManager.OpenJob(
+                        new RenderJob(
+                            Uuid,
+                            AssetId,
+                            Version,
+                            PlaceToken!,
+                            (int)RenderAssetType,
+                            (int)RenderType
+                        )
+                    )
+                );
+                }
+
                 // yay!
-                if(!SoapReady && e.Data!.ToString().StartsWith("Now listening for incoming"))
+                if (!SoapReady && e.Data!.ToString().StartsWith("Now listening for incoming"))
                 {
                     // should we just do all of this stuff in Job?
                     // setup job
@@ -322,7 +359,7 @@ public class RenderJob : Job
             {
                 // bail!
                 Logger.Write($"RenderJob:Soap:{Uuid}", $"Render run failed: {ex.Message}", LogSeverity.Error); 
-                Logger.Write($"RenderJob:Soap:{Uuid}", $"Could not start gameserver, closing job", LogSeverity.Event);                
+                Logger.Write($"RenderJob:Soap:{Uuid}", $"Could not start render job, closing job", LogSeverity.Event);                
             
                 Close();
             }

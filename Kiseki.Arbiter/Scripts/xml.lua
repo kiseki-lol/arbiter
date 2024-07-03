@@ -17,7 +17,7 @@ if thumbnailCamera ~= nil and thumbnailCamera.ClassName == "Camera" then
 end
 
 print(("[%s] Rendering ..."):format(jobId))
-local result = game:GetService("ThumbnailGenerator"):Click(format, x, y, true)
+local result = game:GetService("ThumbnailGenerator"):Click(format, x, y, true, true)
 print(("[%s] Done!"):format(jobId))
 
 return result
