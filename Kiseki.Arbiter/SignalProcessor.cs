@@ -6,6 +6,12 @@ public static class SignalProcessor
 
     public static byte[] Process(Signal signal, TcpClient client)
     {
+        foreach (var pair in signal.Data)
+        {
+            Console.WriteLine("{0} => {1}", pair.Key, String.Join(", ", pair.Value));
+        }
+        Logger.Write(signal.Command.ToString());
+
         Response response = new()
         {
             Success = false

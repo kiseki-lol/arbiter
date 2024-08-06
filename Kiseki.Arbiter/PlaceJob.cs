@@ -51,7 +51,7 @@ public class PlaceJob : Job
         bool isLinux  = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         string binary = $"Versions/{Version}/{(isLinux ? "Kiseki.Aya.Server" : "Kiseki.Aya.Server.exe")}";
         string cwd    = $"{arbiterLocation}Versions/{Version}/"; // arbiterLocation already contains /
-        string[] args = new string[] { binary, $"--port {SoapPort}" };
+        string[] args = new string[] { binary, $"--port {SoapPort} --contentPath content" };
         
         Process = new Process
         {
@@ -83,7 +83,7 @@ public class PlaceJob : Job
         Process.OutputDataReceived += async (sender, e) => {
             // DO NOT UNCOMMENT ON PROD!
             // THIS DDOSES THE SITE W/ LOGS
-            // Logger.Write($"PlaceJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
+            Logger.Write($"PlaceJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
 
             // check if SOAP started...
             try
