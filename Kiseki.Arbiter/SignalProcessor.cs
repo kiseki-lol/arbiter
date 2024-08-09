@@ -106,8 +106,9 @@ public static class SignalProcessor
                 Logger.Write($"Job '{job.Uuid}' is already open!", LogSeverity.Warning);
                 response = new()
                 {
-                    Success = false
+                    Success = true
                 };
+                // act as success so site just sends the user on their way
 
                 return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
             }

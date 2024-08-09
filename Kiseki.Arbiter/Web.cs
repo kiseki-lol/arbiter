@@ -208,7 +208,7 @@ public static class Web
             { "status", ((int)status).ToString() }
         };
 
-        if (status == JobStatus.Running)
+        if (status == JobStatus.Running || status == JobStatus.Closed)
         {
             data.Add("port", port.ToString()!);
         }

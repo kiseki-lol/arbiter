@@ -93,6 +93,7 @@ public abstract class Job
         Logger.Write(Uuid, $"Closing...", LogSeverity.Event);
 
         // set status closed just in case process doesn't actually exist        
+        Port = 0;
         Status = JobStatus.Closed;
         IsRunning = false;
         Closed = DateTime.UtcNow;

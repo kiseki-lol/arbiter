@@ -73,6 +73,7 @@ public class PlaceJob : Job
 
         Process.Exited += (sender, e) => {
             Logger.Write($"PlaceJob:{Uuid}", $"Exited with code {Process.ExitCode}!", LogSeverity.Event);
+            Port = 0;
             Status = JobStatus.Closed;
             IsRunning = false;
             Closed = DateTime.UtcNow;
@@ -174,6 +175,7 @@ public class PlaceJob : Job
         catch (Exception ex)
         {
             Logger.Write($"PlaceJob:{Uuid}", $"Error starting process: {ex}", LogSeverity.Error);
+            Port = 0;
             Status = JobStatus.Closed;
             IsRunning = false;
             Closed = DateTime.UtcNow;
