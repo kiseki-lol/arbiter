@@ -65,7 +65,7 @@ if baseUrl ~= nil then
     -- this crashes?
     -- pcall(function() loadfile(baseUrl .. "/Game/LoadPlaceInfo.ashx?PlaceId=" .. placeId .. "&Token=" .. token)() end)
     
-    -- call(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(true) end)
+    -- pcall(function() game:GetService("NetworkServer"):SetIsPlayerAuthenticationRequired(true) end)
 end
 
 settings().Diagnostics.LuaRamLimit = 0
@@ -96,6 +96,9 @@ game:GetService("RunService"):Run()
 local Players = game:GetService("Players")
 local httpService = game:GetService("HttpService")
 local userIdList = "" -- the data
+local timeIntervalBetweenChecks = 20
+local attemptsBeforeShutdown = 6 -- every 20 seconds gets checked, so if 6 attempts w/o players, then bye job (2 minutes)
+local attempts = 0
 
 local function updateUserListString(LeavingUserId)
     local userIds = {} -- make table for turning into string
@@ -110,7 +113,7 @@ end
 local function postKeepAlive()
     httpService.HttpEnabled = true
 
-    local serverToken = placeId -- or however you get your server token
+    local serverToken = token
     local data = {
         ["ServerIP"] = serverToken,
         ["PlaceId"] = game.PlaceId,
@@ -132,23 +135,60 @@ local function postKeepAlive()
     end
 end
 
+local function sendShutdownRequest()
+    httpService.HttpEnabled = true
+
+    local serverToken = token
+    local data = {
+        ["ServerIP"] = serverToken,
+        ["PlaceId"] = game.PlaceId,
+        ["PlayerCount"] = #Players:GetChildren(),
+        ["PlayerList"] = userIdList
+    }
+
+    local jsonData = httpService:JSONEncode(data)
+    local url = baseUrl .. "/api/arbiter/shutdown"
+
+    print('[Kiseki] shutting down job due to lack of players')
+    
+    local success, errorMessage = pcall(function()
+        httpService:PostAsync(url, jsonData)
+    end)
+    
+    if not success then
+        warn("[Kiseki] Failed to send close job request: " .. errorMessage)
+    end
+end
+
+
 local function scheduleKeepAlive()
-    while wait(60) do -- Waits for 60 seconds before running again
+    while wait(timeIntervalBetweenChecks) do
+        if #Players:GetChildren() == 0 then
+            warn("[Kiseki] attempt #" .. attempts .. ", after #" .. attemptsBeforeShutdown .. ", job will shut down because of no players!")
+
+            attempts = attempts + 1
+
+            if attempts >= attemptsBeforeShutdown then
+                sendShutdownRequest()
+            end
+        else
+            attempts = 0
+        end
+
         postKeepAlive()
     end
 end
 
--- Spawn a new thread that will run the keepalive function every minute
 spawn(scheduleKeepAlive)
 
 Players.PlayerAdded:connect(function(player)
-    updateUserListString() -- Update list without removing any player
+    updateUserListString()
     print("Player " .. player.UserId .. " added")
-    postKeepAlive() -- Send updated player list immediately when a player is added
+    postKeepAlive()
 end)
 
 Players.PlayerRemoving:connect(function(player)
-    updateUserListString(player.UserId) -- Update list removing the player that is leaving
+    updateUserListString(player.UserId)
     print("Player " .. player.UserId .. " leaving")
-    postKeepAlive() -- Send updated player list immediately when a player is removed
+    postKeepAlive()
 end)
