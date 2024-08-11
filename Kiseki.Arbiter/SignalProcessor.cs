@@ -82,6 +82,29 @@ public static class SignalProcessor
             };
         }
 
+        if (signal.Command == Command.CheckJobStatus)
+        {
+            Job? job = JobManager.OpenJobs.Find(Job => Job?.Uuid == signal.Data!["uuid"].ToString());
+            Logger.Write($"Received request to check if a job is open from machine '{client.IpAddress}'!", LogSeverity.Information);
+
+            if (job != null)
+            {
+                response = new()
+                {
+                    Success = true
+                };
+            }
+            else
+            {
+                response = new()
+                {
+                    Success = false
+                };
+            }
+
+            return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+        }
+
         if (signal.Command == Command.GetAllJobs)
         {
             Logger.Write($"Received request for all jobs from machine '{client.IpAddress}'!", LogSeverity.Information);

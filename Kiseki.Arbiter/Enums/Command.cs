@@ -9,5 +9,6 @@ public enum Command
     OpenJob,
     GetAllJobs,
     Thumbnail,
-    Ping
+    Ping,
+    CheckJobStatus
 }

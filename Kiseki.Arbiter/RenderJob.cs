@@ -299,7 +299,7 @@ public class RenderJob : Job
         Process.OutputDataReceived += async (sender, e) => {
             // DO NOT UNCOMMENT ON PROD!
             // THIS DDOSES THE SITE W/ LOGS
-            Logger.Write($"RenderJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
+            // Logger.Write($"RenderJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
 
             // check if SOAP started...
             // Object reference not set to an instance of an object.

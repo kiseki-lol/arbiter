@@ -84,7 +84,7 @@ public class PlaceJob : Job
         Process.OutputDataReceived += async (sender, e) => {
             // DO NOT UNCOMMENT ON PROD!
             // THIS DDOSES THE SITE W/ LOGS
-            Logger.Write($"PlaceJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
+            // Logger.Write($"PlaceJob:Output:{Uuid}", $"{e.Data}", LogSeverity.Debug);
 
             // check if SOAP started...
             try
