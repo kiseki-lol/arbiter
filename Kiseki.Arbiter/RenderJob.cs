@@ -19,205 +19,6 @@ public class RenderJob : Job
         RenderAssetType = (AssetType)assetType;
     }
 
-    public void GetScriptFromRenderType()
-    {
-        Logger.Write(RenderType.ToString());
-
-        switch (RenderType)
-        {
-            case RenderJobType.Headshot:
-                JobScript.LoadFromPath("headshot.lua");
-                break;
-            case RenderJobType.Bodyshot:
-                JobScript.LoadFromPath("bodyshot.lua");
-                break;
-            case RenderJobType.Place:
-                Logger.Write("Hi");
-                JobScript.LoadFromPath("place.lua");
-                break;
-            case RenderJobType.Asset:
-                if (RenderAssetType == AssetType.Hat)
-                    JobScript.LoadFromPath("xml.lua");
-                else
-                    JobScript.LoadFromPath("bodyasset.lua");
-                break;
-            case RenderJobType.XML:
-                JobScript.LoadFromPath("xml.lua");
-                break;
-            default:
-                // ??? don't think this will EVER happen
-                throw new Exception("RenderType was not set!");
-        }
-    }
-
-    public ScriptExecution GetScriptExecutionFromRenderType()
-    {
-        if (RenderType == RenderJobType.Headshot || RenderType == RenderJobType.Bodyshot)
-        {
-            return new ScriptExecution
-            {
-                script    = JobScript.Script,
-                name      = "RenderJob",
-                arguments = 
-                [
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = Uuid
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = "Render"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = "PNG" // maybe we should make RCC output webp?
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = "420"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = "420"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-// kiseki.local - no tls
-#if DEBUG
-                        value = "http://" + Constants.BASE_URL
-#else
-                        value = "https://" + Constants.BASE_URL
-#endif
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = AssetId.ToString() // why?
-                    },
-                ]
-            };
-        }
-
-        if (RenderType == RenderJobType.Place)
-        {
-            Logger.Write("RenderJobType token shit" + PlaceToken);
-
-            return new ScriptExecution
-            {
-                script    = JobScript.Script,
-                name      = "RenderJob",
-                arguments = 
-                [
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = Uuid
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = "Render"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = "PNG" // maybe we should make RCC output webp?
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = "420"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = "420"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-// kiseki.local - no tls
-#if DEBUG
-                        value = "http://" + Constants.BASE_URL
-#else
-                        value = "https://" + Constants.BASE_URL
-#endif
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = AssetId.ToString() // why?
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = PlaceToken
-                    },
-                ]
-            };
-        }
-
-        if (RenderType == RenderJobType.Asset)
-        {
-            return new ScriptExecution
-            {
-                script    = JobScript.Script,
-                name      = "RenderJob",
-                arguments = 
-                [
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = Uuid
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = "Render"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-                        value = "PNG" // maybe we should make RCC output webp?
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = "420"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = "420"
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TSTRING,
-// kiseki.local - no tls
-#if DEBUG
-                        value = "http://" + Constants.BASE_URL
-#else
-                        value = "https://" + Constants.BASE_URL
-#endif
-                    },
-                    new LuaValue
-                    {
-                        type = LuaType.LUA_TNUMBER,
-                        value = AssetId.ToString() // why?
-                    },
-                ]
-            };
-        }
-
-        throw new Exception("not implemented for render type");
-    }
-
     public override string Base64Result { 
         get => _result;
         protected set {
@@ -255,7 +56,7 @@ public class RenderJob : Job
         Logger.Write($"RenderJob:{Uuid}", $"Fart", LogSeverity.Event);
 
         // read Place script
-        GetScriptFromRenderType();
+        RenderSoap.GetScriptFromRenderType(this);
         Logger.Write($"RenderJob:{Uuid}", $"Fart", LogSeverity.Event);
 
         // all of the process stuff
@@ -289,8 +90,9 @@ public class RenderJob : Job
 
         Process.Exited += (sender, e) => {
             Logger.Write($"RenderJob:{Uuid}", $"Exited with code {Process.ExitCode}!", LogSeverity.Event);
+            
+            // todo: ugly! fix. check CloseJob method for more info
             Status = JobStatus.Closed;
-            IsRunning = false;
             Closed = DateTime.UtcNow;
 
             JobManager.CloseJob(Uuid);
@@ -305,30 +107,6 @@ public class RenderJob : Job
             // Object reference not set to an instance of an object.
             try
             {
-                // noooo!
-                if (!PortReady && e.Data!.ToString().StartsWith("Address already in use"))
-                {
-                    // hack to keep retrying until port open
-                    Status = JobStatus.Closed;
-                    IsRunning = false;
-                    Closed = DateTime.UtcNow;
-
-                    JobManager.CloseJob(Uuid);
-
-                    _ = Task.Run(
-                    () => JobManager.OpenJob(
-                        new RenderJob(
-                            Uuid,
-                            AssetId,
-                            Version,
-                            PlaceToken!,
-                            (int)RenderAssetType,
-                            (int)RenderType
-                        )
-                    )
-                );
-                }
-
                 // yay!
                 if (!SoapReady && e.Data!.ToString().StartsWith("Now listening for incoming"))
                 {
@@ -343,7 +121,7 @@ public class RenderJob : Job
                         id                  = Uuid
                     };
 
-                    LuaValue[] result = await SoapClient.OpenJobExAsync(job, GetScriptExecutionFromRenderType());
+                    LuaValue[] result = await SoapClient.OpenJobExAsync(job, RenderSoap.GetScriptExecutionFromRenderType(this));
 
                     Base64Result = result[0].value;
                     Logger.Write($"RenderJob:{Uuid}", $"Successfully rendered image! Shutting down job...", LogSeverity.Event);
