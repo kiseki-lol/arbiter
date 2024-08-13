@@ -203,17 +203,23 @@ public static class Web
     {
         string url = FormatUrl($"/api/arbiter/place-job/{jobUuid}/status");
 
+        Logger.Write("UpdatePlaceJob 1");
+
         Dictionary<string, string> data = new()
         {
             { "status", ((int)status).ToString() }
         };
+        Logger.Write("UpdatePlaceJob 2");
 
-        if (status == JobStatus.Running || status == JobStatus.Closed)
+        if (status == JobStatus.Running)
         {
             data.Add("port", port.ToString()!);
         }
+        Logger.Write("UpdatePlaceJob 3");
 
         Http.PostJson<object>(url, data);
+
+        Logger.Write("UpdatePlaceJob 4");
     }
 
     public static void UpdateAssetThumbnail(string jobUuid, uint assetId, string base64Result)

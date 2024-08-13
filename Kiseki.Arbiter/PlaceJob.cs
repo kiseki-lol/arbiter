@@ -73,11 +73,6 @@ public class PlaceJob : Job
 
         Process.Exited += (sender, e) => {
             Logger.Write($"PlaceJob:{Uuid}", $"Exited with code {Process.ExitCode}!", LogSeverity.Event);
-            Port = 0;
-            Status = JobStatus.Closed;
-            IsRunning = false;
-            Closed = DateTime.UtcNow;
-
             JobManager.CloseJob(Uuid);
         };
 
@@ -163,7 +158,7 @@ public class PlaceJob : Job
                 Logger.Write($"PlaceJob:Soap:{Uuid}", $"Place run failed: {ex.Message}", LogSeverity.Error); 
                 Logger.Write($"PlaceJob:Soap:{Uuid}", $"Could not start gameserver, closing job (most likely port conflicts! Check config json)", LogSeverity.Event);                
             
-                Close();
+                JobManager.CloseJob(Uuid);
             }
         };
 
@@ -175,11 +170,6 @@ public class PlaceJob : Job
         catch (Exception ex)
         {
             Logger.Write($"PlaceJob:{Uuid}", $"Error starting process: {ex}", LogSeverity.Error);
-            Port = 0;
-            Status = JobStatus.Closed;
-            IsRunning = false;
-            Closed = DateTime.UtcNow;
-
             JobManager.CloseJob(Uuid);
         }
     }

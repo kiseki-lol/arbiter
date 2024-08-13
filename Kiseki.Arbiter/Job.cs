@@ -93,16 +93,25 @@ public abstract class Job
         Logger.Write(Uuid, $"Closing...", LogSeverity.Event);
 
         // set status closed just in case process doesn't actually exist        
+        Logger.Write("Hanging here 1");
         Port = 0;
+        Logger.Write("Hanging here 2");
+
         Status = JobStatus.Closed;
-        IsRunning = false;
+        //IsRunning = false;
+        Logger.Write("Hanging here 4");
+
         Closed = DateTime.UtcNow;
+        Logger.Write("Hanging here 5");
 
         try
         {
-            Process!.Kill();
+            Logger.Write("Hanging here 6");
 
+            Process!.Kill();
             Logger.Write(Uuid, $"Closed!", LogSeverity.Event);
+       
+            Logger.Write("Hanging here 7");
         }
         catch (Exception e)
         {

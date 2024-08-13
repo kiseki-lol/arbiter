@@ -21,6 +21,7 @@ public static class Http
         try
         {
             var result = Web.HttpClient.PostAsync(url, new FormUrlEncodedContent(data)).GetAwaiter().GetResult();
+            
             string json = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
             return JsonSerializer.Deserialize<T>(json);
