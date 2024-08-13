@@ -122,7 +122,7 @@ local function postKeepAlive()
     }
 
     local jsonData = httpService:JSONEncode(data)
-    local url = baseUrl .. "/v1.1/keep_alive"
+    local url = baseUrl .. "/api/arbiter/place-job/" .. jobId .. "/keep-alive"
 
     print('[Kiseki] keepalive users: ' .. userIdList)
     
@@ -147,7 +147,7 @@ local function sendShutdownRequest()
     }
 
     local jsonData = httpService:JSONEncode(data)
-    local url = baseUrl .. "/api/arbiter/shutdown"
+    local url = baseUrl .. "/api/arbiter/place-job/" .. jobId .. "/stop"
 
     print('[Kiseki] shutting down job due to lack of players')
     
@@ -157,6 +157,7 @@ local function sendShutdownRequest()
     
     if not success then
         warn("[Kiseki] Failed to send close job request: " .. errorMessage)
+        warn("[Kiseki] url: " .. url)
     end
 end
 
