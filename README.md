@@ -30,6 +30,4 @@ end
 
 ## License
 
-Copyright (c) Kiseki 2022-2024. All rights reserved. Not for public use.
-
-Kiseki.Arbiter is adapted from [@ProjectPolygon/PolygonGSArbiter-foss](https://github.com/ProjectPolygon/PolygonGSArbiter-foss), a project licensed under the [MIT license](https://github.com/ProjectPolygon/PolygonGSArbiter-foss/blob/main/LICENSE).
+AGPLv3
