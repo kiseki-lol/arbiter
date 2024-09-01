@@ -1,6 +1,6 @@
 # Kiseki.Arbiter
 
-Manages Kiseki game servers
+Provisions Aya servers for a Kiseki instance
 
 ## TCP envelope format
 
