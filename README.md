@@ -30,4 +30,4 @@ end
 
 ## License
 
-AGPLv3
+Kiseki.Arbiter is licensed under the [AGPLv3 license](https://github.com/kiseki-lol/arbiter/blob/trunk/LICENSE.md). A copy of it has been included with Kiseki.Arbiter.
