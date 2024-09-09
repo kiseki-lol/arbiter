@@ -29,7 +29,19 @@ public class RenderJob : Job
                 RenderType == RenderJobType.Asset
             )
             {
-                Web.UpdateAssetThumbnail(Uuid, AssetId, _result);
+                // hack
+                if (
+                    RenderAssetType == AssetType.TShirt || 
+                    RenderAssetType == AssetType.Shirt || 
+                    RenderAssetType == AssetType.Pants
+                )
+                {
+                    Web.UpdateAssetThumbnail(Uuid, AssetId + 1, _result);
+                }
+                else
+                {
+                    Web.UpdateAssetThumbnail(Uuid, AssetId, _result);
+                }
                 return;
             }
             else
@@ -43,6 +55,7 @@ public class RenderJob : Job
                 else
                 {
                     Web.UpdateUserThumbnail(Uuid, AssetId, _result, false);
+                    return;
                 }
             }
         }
